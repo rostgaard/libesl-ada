@@ -180,6 +180,19 @@ package body ESL.Client is
       return False;
    end Is_Connected;
 
+   ---------------
+   --  Receive  --
+   ---------------
+
+   function Receive (Client : in Instance;
+                     Count  : in Natural) return String is
+      Buffer : String (1 .. Count);
+   begin
+      String'Read (Client.Channel, Buffer);
+
+      return Buffer;
+   end Receive;
+
    -------------------
    --  Read_Packet  --
    -------------------
@@ -270,6 +283,17 @@ package body ESL.Client is
          Obj.Send ("nolog" & Packet_Termination_String);
       end if;
    end Set_Log_Level;
+
+   -----------------------------
+   --  Skip_Until_Empty_Line  --
+   -----------------------------
+
+   procedure Skip_Until_Empty_Line (Obj : in Instance) is
+   begin
+      while Obj.Get_Line'Length > 0 loop
+         null;
+      end loop;
+   end Skip_Until_Empty_Line;
 
    ---------------------------
    --  Wait_For_Connection  --

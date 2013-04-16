@@ -12,10 +12,14 @@ package body ESL.Parsing_Utilities is
       Seperator_Index : Natural := Index
         (Source  => Item,
          Pattern => Seperator);
-      Key_Length     : constant Natural :=
+      Key_Length     : constant Integer :=
         Seperator_Index - Seperator'Length - 1;
 
    begin
+      if Item'Length = 0 then
+         return Empty_Line;
+      end if;
+
       --  Sometimes we get string slice instead of a "real" string.
       if Item'First /= 1 then
          Seperator_Index := Seperator_Index - Item'First + 1;

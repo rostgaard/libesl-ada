@@ -36,7 +36,15 @@ package ESL.Client is
    procedure Set_Log_Level (Obj   : in out Instance;
                             Level : in     Natural);
 
+   function Receive (Client : in Instance;
+                     Count  : in Natural) return String;
+   --  Receives _exactly_ Count characters (bytes) from the client channel.
+   --  Blocks until the data is available.
+
    function Get_Line (Client : in Instance) return String;
+
+   procedure Skip_Until_Empty_Line (Obj : in Instance);
+   --  Fast-forwards until after the first occurence of an empty line.
 
    procedure Send_Event (Client : in Instance;
                          Event  : in Outbund_Event.Instance) is null;
