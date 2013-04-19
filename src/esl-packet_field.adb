@@ -1,7 +1,4 @@
-with ESL.Packet_Keys;
-
 package body ESL.Packet_Field is
-   use ESL.Packet_Keys;
 
    function Create (Key   : in String;
                     Value : in String) return Instance is
@@ -19,7 +16,11 @@ package body ESL.Packet_Field is
 
    function Image (Item : in Instance) return String is
    begin
-      return Item.Key'Img & Seperator & To_String (Item.Value);
+      if Item /= Empty_Line then
+         return Item.Key'Img & Seperator & To_String (Item.Value);
+      else
+         return "";
+      end if;
    end Image;
 
    function Key (Obj : in Instance) return ESL.Packet_Keys.Event_Keys is

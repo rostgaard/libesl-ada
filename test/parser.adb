@@ -6,10 +6,15 @@ with ESL.Packet_Field;
 with ESL.Parsing_Utilities;
 with ESL.Client;
 with ESL.Packet_Keys;
+with ESL.Packet;
 
 procedure Parser is
    use ESL.Parsing_Utilities;
    use Ada.Strings.Unbounded;
+   use ESL.Packet_Field;
+   use ESL.Packet_Keys;
+   Field  : ESL.Packet_Field.Instance;
+   Packet : ESL.Packet.Instance;
 
    Client : ESL.Client.Instance;
 
@@ -61,51 +66,40 @@ procedure Parser is
       --      while not End_Of_File (Test_File) loop
    end Test_Session;
 
+   End_Packet_String : constant String :=
+     ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF;
+
 begin
 
    Client.Connect ("localhost", 8021);
 
-   Client.Send ("auth ClueCon" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
+   Client.Send ("auth ClueCon" & End_Packet_String);
    Client.Send ("event plain ALL" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
    Client.Send ("api status" &
                   ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
-   declare
-      use ESL.Packet_Field;
-      use ESL.Packet_Keys;
-      Field : ESL.Packet_Field.Instance;
-      Seen_Content_Length : Boolean := False;
-      Bytecount : Natural := 0;
-      Length    : Natural := 0;
-   begin
+   loop
+
+      --  Harvest headers.
       loop
          Field := Parse_Line (Client.Get_Line);
+         Packet.Add_Header (Field);
 
-         if Field.Key = Content_Length then
-            Seen_Content_Length := True;
+         exit when Field = Empty_Line;
+      end loop;
 
-            Put_Line ("Content_length: " & Field.Value);
+      if Packet.Has_Header (Content_Length) then
+         declare
+            Buffer   : String (1 .. Packet.Content_Length);
+         begin
+            --  Receive the entire buffer.
+            Buffer := Client.Receive (Count => Packet.Content_Length);
 
-            --  Skip until new_line:
-            Client.Skip_Until_Empty_Line;
+            Packet.Process_And_Add_Body (Buffer);
+         end;
+      end if;
+      Put_Line (Packet.Image);
+   end loop;
 
-            declare
-               Buffer : String (1 .. Natural'Value (Field.Value));
-            begin
-
-               Buffer := Client.Receive (Count => Natural'Value (Field.Value));
-               New_Line;
-               Put ("Buffer start [");
-               Put (Buffer);
-               Put_Line ("] Buffer end");
-               --  Reset values.
-               Seen_Content_Length := False;
-               Bytecount := 0;
-               Length := 0;
-            end;
-            end if;
-         end loop;
-      end;
-
-   end Parser;
+end Parser;

@@ -4,10 +4,17 @@ with Ada.Strings.Maps;
 with ESL.Trace;
 
 package body ESL.Parsing_Utilities is
-   function Parse_Line (Item : in String) return ESL.Packet_Field.Instance is
-      use ESL.Packet_Field;
+
+   function Dash_To_Underscore (Source : in String) return String is
       Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
         := Ada.Strings.Maps.To_Mapping ("-", "_");
+   begin
+      return  Translate (Source  => Source,
+                         Mapping => Underscore_Map);
+   end Dash_To_Underscore;
+
+   function Parse_Line (Item : in String) return ESL.Packet_Field.Instance is
+      use ESL.Packet_Field;
 
       Seperator_Index : Natural := Index
         (Source  => Item,
@@ -26,10 +33,9 @@ package body ESL.Parsing_Utilities is
       end if;
 
       --  Return the anonymous object
-      return Create (Key => Translate
-                    (Source  => Item
-                     (Item'First .. Item'First + Key_Length),
-                     Mapping => Underscore_Map),
+      return Create (Key => Dash_To_Underscore (
+                     Source  => Item
+                       (Item'First .. Item'First + Key_Length)),
                      Value =>
                        Item (Item'First + Seperator_Index + 1 .. Item'Last));
    exception
@@ -37,5 +43,13 @@ package body ESL.Parsing_Utilities is
          ESL.Trace.Information ("Unknown line """ & Item & """");
          raise;
    end Parse_Line;
+
+   function Underscore_To_Dash (Source : in String) return String is
+      Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
+        := Ada.Strings.Maps.To_Mapping ("_", "-");
+   begin
+      return  Translate (Source  => Source,
+                         Mapping => Underscore_Map);
+   end Underscore_To_Dash;
 
 end ESL.Parsing_Utilities;

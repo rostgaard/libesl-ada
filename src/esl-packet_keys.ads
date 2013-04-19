@@ -3,8 +3,8 @@ package ESL.Packet_Keys is
 
    type Event_Keys is
      (Unknown,
-      Content_Type,
-      Content_Length,
+      Content_Type, --  Move these to header_keys.
+      Content_Length, -- <|
       Reply_Text,
       API_Command,
       Event_Name,
