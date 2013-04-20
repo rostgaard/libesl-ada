@@ -1,6 +1,4 @@
 with Ada.Text_IO; use Ada.Text_IO;
---  with Ada.Exceptions;
-with Ada.Strings.Unbounded;
 
 with ESL.Packet_Field;
 with ESL.Parsing_Utilities;
@@ -10,7 +8,6 @@ with ESL.Packet;
 
 procedure Parser is
    use ESL.Parsing_Utilities;
-   use Ada.Strings.Unbounded;
    use ESL.Packet_Field;
    use ESL.Packet_Keys;
    Field  : ESL.Packet_Field.Instance;
@@ -30,6 +27,7 @@ procedure Parser is
    Test_File : File_Type;
 
    procedure File_Tests;
+   pragma Unreferenced (File_Tests);
 
    procedure File_Tests is
    begin
@@ -39,8 +37,8 @@ procedure Parser is
 
          while not End_Of_File (Test_File) loop
             declare
-               use ESL.Packet_Field;
                Field : ESL.Packet_Field.Instance;
+               pragma Unreferenced (Field);
             begin
                Field := Parse_Line (Get_Line (Test_File));
             exception
@@ -55,6 +53,7 @@ procedure Parser is
    end File_Tests;
 
    procedure Test_Session;
+   pragma Unreferenced (Test_Session);
 
    procedure Test_Session is
       Session_File : File_Type;

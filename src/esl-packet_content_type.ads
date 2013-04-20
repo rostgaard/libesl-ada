@@ -36,7 +36,7 @@ package ESL.Packet_Content_Type is
 
    --  Objects for use in comparisons.
    Auth_Request : constant Instance;
-
+   Api_Response : constant Instance;
 private
 
    type Instance is tagged record
@@ -49,4 +49,7 @@ private
 
    Auth_Request : constant Instance := (Base => Auth,
                                         Sub  => Request);
+
+   API_Response : constant Instance := (Base => API,
+                                        Sub  => Response);
 end ESL.Packet_Content_Type;

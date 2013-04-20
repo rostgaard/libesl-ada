@@ -21,7 +21,7 @@ package ESL.Packet is
    function Content_Length (Obj : in Instance) return Natural;
 
    procedure Process_And_Add_Body (Obj      : in Instance;
-                                   Raw_Data : in String) is null;
+                                   Raw_Data : in String);
 
    function Image (Obj : in Instance) return String;
 
