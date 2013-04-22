@@ -42,6 +42,8 @@ package ESL.Packet is
 
    function Image (Obj : in Instance) return String;
 
+   function Create return Instance;
+
 private
 
    function Hash_Header (Item : in Packet_Keys.Event_Keys) return
@@ -62,6 +64,7 @@ private
       Content_Length : Natural := 0;
 
       Payload        : Header_Storage.Map;
+--TODO      Variables      :
    end record;
 
 end ESL.Packet;

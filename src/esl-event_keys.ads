@@ -70,6 +70,7 @@ package ESL.Event_Keys is
       Caller_Screen_Bit,
       Caller_Privacy_Hide_Name,
       Caller_Privacy_Hide_Number,
+      Caller_RDNIS,
       FreeSWITCH_Switchname,
       Event_Sequence,
       Caller_Callee_ID_Name,

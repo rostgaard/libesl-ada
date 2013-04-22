@@ -23,6 +23,10 @@ with ESL.Parsing_Utilities;
 package body ESL.Packet is
    use ESL.Packet_Keys;
 
+   ------------------
+   --  Add_Header  --
+   ------------------
+
    procedure Add_Header (Obj   :     out Instance;
                          Field : in      Packet_Field.Instance) is
       Context : constant String := Package_Name & ".Add_Header";
@@ -35,10 +39,27 @@ package body ESL.Packet is
       end if;
    end Add_Header;
 
+   ----------------------
+   --  Content_Length  --
+   ----------------------
+
    function Content_Length (Obj : in Instance) return Natural is
    begin
       return Obj.Content_Length;
    end Content_Length;
+
+   --------------
+   --  Create  --
+   --------------
+
+   function Create return Instance is
+   begin
+      return (Packet_Content_Type.Null_Instance, 0, Header_Storage.Empty_Map);
+   end Create;
+
+   -----------------------
+   --  Equivalent_Keys  --
+   -----------------------
 
    function Equivalent_Keys (Left  : in Packet_Keys.Event_Keys;
                              Right : in Packet_Keys.Event_Keys) return Boolean
@@ -46,6 +67,10 @@ package body ESL.Packet is
    begin
       return Left = Right;
    end Equivalent_Keys;
+
+   ------------------
+   --  Has_Header  --
+   ------------------
 
    function Has_Header (Obj : in Instance;
                         Key : in Packet_Keys.Event_Keys) return Boolean is
@@ -62,6 +87,10 @@ package body ESL.Packet is
 
       return False;
    end Has_Header;
+
+   -------------------
+   --  Hash_Header  --
+   -------------------
 
    function Hash_Header (Item : in Packet_Keys.Event_Keys) return
      Ada.Containers.Hash_Type is
@@ -100,17 +129,28 @@ package body ESL.Packet is
          case Raw_Data (I) is
             when ASCII.CR =>
                null;
-            when ASCII.LF =>
+            when ASCII.LF => --  Seen a full line.
                declare
                   Field : ESL.Packet_Field.Instance;
+                  Line  : String renames
+                    Linebuffer (Linebuffer'First .. Position - 1);
+                  Variable_String : constant String := "variable_";
                begin
-                  Field := Parse_Line (
-                    Item => Linebuffer (Linebuffer'First .. Position - 1));
+                  if
+                    Line'Length > Variable_String'Length and then
+                    Line (Variable_String'Range) = Variable_String then
+                     null;
+                     --  TODO; Add variables.
 
-                  ESL.Trace.Debug
-                    (Message => "Processing line: " &
-                       URL_Utilities.Decode (Field.Value),
-                     Context => "Process_And_Add_Body");
+                  else
+
+                     Field := Parse_Line (Item => Line);
+
+                     ESL.Trace.Debug
+                       (Message => "Processing line: " &
+                          URL_Utilities.Decode (Field.Value),
+                        Context => "Process_And_Add_Body");
+                  end if;
                end;
                Position := Raw_Data'First;
             when others =>
