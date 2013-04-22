@@ -15,7 +15,7 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Assertions;
+--  with Ada.Assertions;
 with Ada.Text_IO;
 with Ada.Streams.Stream_IO;
 
@@ -42,36 +42,14 @@ procedure ESL.Packet.Test is
       new String'("test_cases/event_channel_callstate"));
 
    Test_File         : Ada.Streams.Stream_IO.File_Type;
-   File_Tests_Errors : Natural    := 0;
+   --  File_Tests_Errors : Natural    := 0;
 
    procedure File_Tests;
 
    function Get_Line (Stream : in Ada.Streams.Stream_IO.Stream_Access)
                       return String;
 
-   function Get_Line (Stream : in Ada.Streams.Stream_IO.Stream_Access)
-                      return String is
-      Char   : Character := ASCII.NUL;
-      Buffer : String (1 .. 2048);
-      Offset : Natural := 0;
-   begin
-      loop
-         exit when Offset >= Buffer'Last or Char = ASCII.LF;
-         Char := Character'Input (Stream);
-         case Char is
-            when ASCII.CR | ASCII.LF =>
-               null;
-            when others =>
-               Offset := Offset + 1;
-               Buffer (Offset) := Char;
-         end case;
-      end loop;
-
-      return Buffer (Buffer'First .. Buffer'First + Offset - 1);
-   end Get_Line;
-
    procedure File_Tests is
-      Buffer : String (1 .. 10);
       Stream : Ada.Streams.Stream_IO.Stream_Access;
       Field  : ESL.Packet_Field.Instance;
       Packet : ESL.Packet.Instance;
@@ -110,7 +88,6 @@ procedure ESL.Packet.Test is
             Packet := ESL.Packet.Create;
          end loop;
 
-
          --           File_Tests_Errors := 0;
          --
          --           while not End_Of_File (Test_File) loop
@@ -125,12 +102,34 @@ procedure ESL.Packet.Test is
          --              end;
          --           end loop;
 
-         Ada.Assertions.Assert (Check   => File_Tests_Errors = 0,
-                                Message => "File " & Tests (I).all & " failed with" &
-                                  File_Tests_Errors'Img & " errors.");
+--           Ada.Assertions.Assert (Check   => File_Tests_Errors = 0,
+--                                  Message => "File " & Tests (I).all &
+--                                    " failed with" &
+--                                    File_Tests_Errors'Img & " errors.");
          Ada.Streams.Stream_IO.Close (Test_File);
       end loop;
    end File_Tests;
+
+   function Get_Line (Stream : in Ada.Streams.Stream_IO.Stream_Access)
+                      return String is
+      Char   : Character := ASCII.NUL;
+      Buffer : String (1 .. 2048);
+      Offset : Natural := 0;
+   begin
+      loop
+         exit when Offset >= Buffer'Last or Char = ASCII.LF;
+         Char := Character'Input (Stream);
+         case Char is
+            when ASCII.CR | ASCII.LF =>
+               null;
+            when others =>
+               Offset := Offset + 1;
+               Buffer (Offset) := Char;
+         end case;
+      end loop;
+
+      return Buffer (Buffer'First .. Buffer'First + Offset - 1);
+   end Get_Line;
 
    procedure Test_Session;
    pragma Unreferenced (Test_Session);

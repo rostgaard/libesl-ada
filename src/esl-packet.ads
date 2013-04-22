@@ -64,7 +64,7 @@ private
       Content_Length : Natural := 0;
 
       Payload        : Header_Storage.Map;
---TODO      Variables      :
+      --  TODO      Variables      :
    end record;
 
 end ESL.Packet;
