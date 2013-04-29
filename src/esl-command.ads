@@ -20,6 +20,6 @@ package ESL.Command is
    type Instance is abstract tagged null record;
 
    function Serialize (Obj : in Instance)
-                       return Serialized_Command is abstract;
+                       return Serialized_Command;
 
 end ESL.Command;
