@@ -5,6 +5,7 @@ with ESL.Parsing_Utilities;
 with ESL.Client;
 with ESL.Packet_Keys;
 with ESL.Packet;
+with ESL;
 
 procedure Parser is
    use ESL.Parsing_Utilities;
@@ -19,7 +20,7 @@ begin
 
    Client.Connect ("localhost", 8021);
 
-   Client.Send ("auth ClueCon" & End_Packet_String);
+   Client.Send ("auth ClueCon" & ESL.End_Packet_String);
    Client.Send ("event plain ALL" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
    Client.Send ("api status" &
