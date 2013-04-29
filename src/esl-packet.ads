@@ -58,12 +58,18 @@ private
       Hash            => Hash_Header,
       Equivalent_Keys => Equivalent_Keys);
 
+   package Payload_Storage is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Packet_Keys.Event_Keys,
+      Element_Type    => Packet_Field.Instance,
+      Hash            => Hash_Header,
+      Equivalent_Keys => Equivalent_Keys);
+
    type Instance is tagged record
       Content_Type   : Packet_Content_Type.Instance :=
         Packet_Content_Type.Null_Instance;
-      Content_Length : Natural := 0;
+      Headers        : Header_Storage.Map;
 
-      Payload        : Header_Storage.Map;
+      Payload        : Payload_Storage.Map;
       --  TODO      Variables      :
    end record;
 

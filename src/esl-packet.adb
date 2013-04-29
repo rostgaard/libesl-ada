@@ -34,8 +34,9 @@ package body ESL.Packet is
    begin
       if Field.Key = Content_Type then
          Obj.Content_Type := Packet_Content_Type.Create (Field.Value);
-      elsif Field.Key = Content_Length then
-         Obj.Content_Length :=  Natural'Value (Field.Value);
+      else
+         Obj.Headers.Insert (Key      => Field.Key,
+                             New_Item => Field);
       end if;
    end Add_Header;
 
@@ -45,7 +46,12 @@ package body ESL.Packet is
 
    function Content_Length (Obj : in Instance) return Natural is
    begin
-      return Obj.Content_Length;
+      if Obj.Headers.Contains (Key => Content_Length) then
+         return Natural'Value
+           (Obj.Headers.Element (Key => Content_Length).Value);
+      else
+         return 0;
+      end if;
    end Content_Length;
 
    --------------
@@ -54,7 +60,9 @@ package body ESL.Packet is
 
    function Create return Instance is
    begin
-      return (Packet_Content_Type.Null_Instance, 0, Header_Storage.Empty_Map);
+      return (Content_Type => Packet_Content_Type.Null_Instance,
+              Headers      => Header_Storage.Empty_Map,
+              Payload      => Payload_Storage.Empty_Map);
    end Create;
 
    -----------------------
@@ -76,16 +84,7 @@ package body ESL.Packet is
                         Key : in Packet_Keys.Event_Keys) return Boolean is
       use Packet_Content_Type;
    begin
-      if
-        Key = Content_Type and
-        Obj.Content_Type /= Packet_Content_Type.Null_Instance
-      then
-         return True;
-      elsif Key = Content_Length then
-         return Obj.Content_Length > 0;
-      end if;
-
-      return False;
+      return Obj.Headers.Contains (Key => Key);
    end Has_Header;
 
    -------------------

@@ -15,9 +15,6 @@ procedure Parser is
 
    Client : ESL.Client.Instance;
 
-   End_Packet_String : constant String :=
-     ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF;
-
 begin
 
    Client.Connect ("localhost", 8021);
@@ -38,7 +35,7 @@ begin
          exit when Field = Empty_Line;
       end loop;
 
-      if Packet.Has_Header (Content_Length) then
+      if Packet.Has_Header (Event_Keys'(Content_Length)) then
          declare
             Buffer   : String (1 .. Packet.Content_Length);
          begin

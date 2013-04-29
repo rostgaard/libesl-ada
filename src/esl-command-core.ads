@@ -15,11 +15,32 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package ESL is
-   pragma Pure;
+package ESL.Command.Core is
+   use ESL;
 
-   type Serialized_Command is new String;
+   type Instance is tagged private;
 
-   End_Line_String   : constant String := ASCII.CR & ASCII.LF;
-   End_Packet_String : constant String := End_Line_String & End_Line_String;
-end ESL;
+   function Serialize (Obj : in Instance)
+                       return Serialized_Command;
+
+   procedure ACL (IP_Address : String;
+                  List       : String) is null;
+   --  Compare an IP to an ACL list.
+   --  Usage: acl <ip> <list_name>
+
+   procedure Add_Alias (Alias   : String;
+                        Command : String) is null;
+   --  A means to save some keystrokes/bytes on commonly used commands.
+
+   procedure Remove_Alias (Alias   : String;
+                           Command : String) is null;
+   --  Usage: alias add <alias> <command> | del [<alias>|*]
+
+   procedure Purge_Alias is null;
+   --  Usage: alias add <alias> <command> | del [<alias>|*]
+
+   procedure Background_API (Commmand : Command.Instance) is null;
+
+private
+   type Instance is new Command.Instance with null record;
+end ESL.Command.Core;

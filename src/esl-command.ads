@@ -15,11 +15,11 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package ESL is
-   pragma Pure;
+package ESL.Command is
 
-   type Serialized_Command is new String;
+   type Instance is abstract tagged null record;
 
-   End_Line_String   : constant String := ASCII.CR & ASCII.LF;
-   End_Packet_String : constant String := End_Line_String & End_Line_String;
-end ESL;
+   function Serialize (Obj : in Instance)
+                       return Serialized_Command is abstract;
+
+end ESL.Command;
