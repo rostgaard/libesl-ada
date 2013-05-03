@@ -51,7 +51,7 @@ package body ESL.Parsing_Utilities is
 
       --  Return the anonymous object
       return Create (Name          =>
-                       Item (Item'First .. Seperator_Position),
+                       Item (Item'First .. Seperator_Position-1),
                      Initial_Value =>
                        Item (Seperator_Position +
                            Seperator'Length .. Item'Last));

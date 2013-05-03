@@ -144,10 +144,56 @@ package body ESL.Packet is
       return Packet_Keys.Event_Keys'Pos (Item);
    end Hash_Header;
 
+   -------------
+   --  Image  --
+   -------------
+
    function Image (Obj : in Instance) return String is
    begin
-      return "Content_Type:" & Obj.Content_Type.Image &
-        ", Content_Length:" & Obj.Content_Length'Img;
+      return "Content_Type:" & Obj.Content_Type.Image & ASCII.LF & ASCII.LF &
+        "Headers:" & ASCII.LF & Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+        "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
+        "Variables:" & ASCII.LF & Image (Obj.Variables);
+   end Image;
+
+   function Image (List : Header_Storage.Map) return String is
+      use Header_Storage;
+
+      Buffer : Unbounded_String;
+   begin
+      for C in List.Iterate loop
+         Append (Buffer, (Key (C)'Img));
+         Append (Buffer, ": ");
+         Append (Buffer, Element (C).Value);
+         Append (Buffer, ASCII.LF);
+      end loop;
+      return To_String (Buffer);
+   end Image;
+
+   function Image (List : Payload_Storage.Map) return String is
+      use Payload_Storage;
+      Buffer : Unbounded_String;
+   begin
+      for C in List.Iterate loop
+         Append (Buffer, Element (C).Key'Img);
+         Append (Buffer, ": ");
+         Append (Buffer, Element (C).Value);
+         Append (Buffer, ASCII.LF);
+      end loop;
+      return To_String (Buffer);
+   end Image;
+
+   function Image (List : Variable_Storage.Map) return String is
+      use Variable_Storage;
+      Buffer : Unbounded_String;
+   begin
+      for C in List.Iterate loop
+         Append (Buffer, Key (C));
+         Append (Buffer, ": ");
+         Append (Buffer, Element (C).Value);
+         Append (Buffer, ASCII.LF);
+      end loop;
+      return To_String (Buffer);
    end Image;
 
    ------------------------

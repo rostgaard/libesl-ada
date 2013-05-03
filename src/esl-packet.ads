@@ -88,6 +88,10 @@ private
       Equivalent_Keys => Equivalent_Keys,
       "="             => Packet_Variable."=");
 
+   function Image (List : Header_Storage.Map) return String;
+   function Image (List : Payload_Storage.Map) return String;
+   function Image (List : Variable_Storage.Map) return String;
+
    type Instance is tagged record
       Content_Type   : Packet_Content_Type.Instance :=
         Packet_Content_Type.Null_Instance;

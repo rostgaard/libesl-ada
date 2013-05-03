@@ -73,8 +73,6 @@ procedure ESL.Packet.Test is
 
                exit when Field = Empty_Line;
             end loop;
-            Put_Line (Packet.Image);
-
             if Packet.Has_Header (Content_Length) then
                declare
                   Buffer   : String (1 .. Packet.Content_Length);
@@ -85,6 +83,11 @@ procedure ESL.Packet.Test is
                   Packet.Process_And_Add_Body (Buffer);
                end;
             end if;
+
+            New_Line;
+            Put_Line ("Packet contents:");
+            Put_Line (Packet.Image);
+            New_Line;
             Packet := ESL.Packet.Create;
          end loop;
 
