@@ -25,7 +25,8 @@ package ESL.Packet_Field is
 
    type Instance is tagged private;
 
-   Empty_Line : constant Instance;
+   Empty_Line   : constant Instance;
+   Unknown_Line : constant Instance;
 
    function Create (Key   : in String;
                     Value : in String) return Instance;
@@ -46,7 +47,10 @@ private
          Value : Unbounded_String;
       end record;
 
-   Empty_Line : constant Instance := (Key   => Event_Keys '(Unknown),
-                                      Value => Null_Unbounded_String);
+   Empty_Line   : constant Instance := (Key   => Event_Keys '(Unknown),
+                                        Value => Null_Unbounded_String);
 
+   Unknown_Line : constant Instance :=
+     (Key   => Event_Keys '(Unknown),
+      Value => To_Unbounded_String ("Uknown"));
 end ESL.Packet_Field;

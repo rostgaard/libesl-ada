@@ -27,9 +27,6 @@ package body ESL.Client is
    use ESL;
    use GNAT.Sockets;
 
-   Packet_Termination_String : constant String :=
-     ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF;
-
    --------------------
    --  Authenticate  --
    --------------------
@@ -43,7 +40,7 @@ package body ESL.Client is
          return;
       end if;
 
-      Obj.Send ("auth " & Password & Packet_Termination_String);
+      Obj.Send ("auth " & Password & ESL.End_Packet_String);
 
    end Authenticate;
 
@@ -278,9 +275,9 @@ package body ESL.Client is
    begin
       --  TODO
       if Level > 0 then
-         Obj.Send ("log" & Level'Img & Packet_Termination_String);
+         Obj.Send ("log" & Level'Img & ESL.End_Packet_String);
       else
-         Obj.Send ("nolog" & Packet_Termination_String);
+         Obj.Send ("nolog" & ESL.End_Packet_String);
       end if;
    end Set_Log_Level;
 

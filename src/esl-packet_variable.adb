@@ -17,6 +17,13 @@
 
 package body ESL.Packet_Variable is
 
+   function "=" (Left, Right : in Instance) return Boolean is
+   begin
+      return
+        Left.Name  = Right.Name and
+        Left.Value = Right.Value;
+   end "=";
+
    function Create (Name          : in String;
                     Initial_Value : in String := "") return Instance is
    begin
@@ -24,9 +31,19 @@ package body ESL.Packet_Variable is
               Value => To_Unbounded_String (Initial_Value));
    end Create;
 
+   function Image (Obj : in Instance) return String is
+   begin
+      return To_String (Obj.Name) & " => " & To_String (Obj.Value);
+   end Image;
+
    function Name (Obj : in Instance) return String is
    begin
       return To_String (Obj.Name);
+   end Name;
+
+   function Name (Obj : in Instance) return Unbounded_String is
+   begin
+      return Obj.Name;
    end Name;
 
    function Value (Obj : in Instance) return String is

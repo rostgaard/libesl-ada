@@ -18,7 +18,12 @@
 package ESL.Command.Core is
    use ESL;
 
-   type Instance is tagged private;
+   type Instance is new Command.Instance with
+      record
+         Blocking : Boolean := True;
+      end record;
+   --  The blocking member determines if command should be sent with
+   --  "api" (blocking) or "bgapi" (non-blockin).
 
    function Serialize (Obj : in Instance)
                        return Serialized_Command;
@@ -41,6 +46,4 @@ package ESL.Command.Core is
 
    procedure Background_API (Commmand : Command.Instance) is null;
 
-private
-   type Instance is new Command.Instance with null record;
 end ESL.Command.Core;

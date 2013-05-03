@@ -30,8 +30,46 @@ package body ESL.Parsing_Utilities is
                          Mapping => Underscore_Map);
    end Dash_To_Underscore;
 
+   function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance
+   is
+      use ESL.Packet_Variable;
+      use ESL.Packet_Field;
+
+      Context : constant String := Package_Name & ".Parse_Line (Variable)";
+
+      Seperator_Position : constant Natural := Index
+        (Source  => Item,
+         Pattern => ESL.Packet_Field.Seperator);
+
+   begin
+      ESL.Trace.Debug (Message => Item,
+                       Context => Context);
+
+      if Item'Length = 0 then
+         return Packet_Variable.Empty_Line;
+      end if;
+
+      --  Return the anonymous object
+      return Create (Name          =>
+                       Item (Item'First .. Seperator_Position),
+                     Initial_Value =>
+                       Item (Seperator_Position +
+                           Seperator'Length .. Item'Last));
+   exception
+      when Constraint_Error =>
+         ESL.Trace.Information (Message => "Unknown line """ & Item & """",
+                                Context => Context);
+         raise;
+   end Parse_Line;
+
+   ------------------
+   --  Parse_Line  --
+   ------------------
+
    function Parse_Line (Item : in String) return ESL.Packet_Field.Instance is
       use ESL.Packet_Field;
+
+      Context : constant String := Package_Name & ".Parse_Line (Field)";
 
       Seperator_Index : Natural := Index
         (Source  => Item,
@@ -57,8 +95,9 @@ package body ESL.Parsing_Utilities is
                        Item (Item'First + Seperator_Index + 1 .. Item'Last));
    exception
       when Constraint_Error =>
-         ESL.Trace.Information ("Unknown line """ & Item & """");
-         raise;
+         ESL.Trace.Information (Message => "Unknown line """ & Item & """",
+                                Context => Context);
+         return Unknown_Line;
    end Parse_Line;
 
    function Underscore_To_Dash (Source : in String) return String is

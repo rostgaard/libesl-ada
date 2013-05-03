@@ -21,17 +21,34 @@ package ESL.Packet_Variable is
 
    type Instance is tagged private;
 
+   function "=" (Left, Right : in Instance) return Boolean;
+
    function Create (Name          : in String;
                     Initial_Value : in String := "") return Instance;
 
    function Name (Obj : in Instance) return String;
 
+   function Name (Obj : in Instance) return Unbounded_String;
+
    function Value (Obj : in Instance) return String;
 
+   function Image (Obj : in Instance) return String;
+
+   Empty_Line   : constant Instance;
+   Unknown_Line : constant Instance;
 private
+
    type Instance is tagged
       record
          Name  : Unbounded_String;
          Value : Unbounded_String;
       end record;
+
+   Empty_Line  : constant Instance :=
+     (Name  => Null_Unbounded_String,
+      Value => Null_Unbounded_String);
+
+   Unknown_Line  : constant Instance :=
+     (Name  => Null_Unbounded_String,
+      Value => To_Unbounded_String ("Unknown"));
 end ESL.Packet_Variable;

@@ -16,10 +16,15 @@
 -------------------------------------------------------------------------------
 
 with ESL.Packet_Field;
+with ESL.Packet_Variable;
 
 package ESL.Parsing_Utilities is
 
+   Package_Name : constant String := "ESL.Parsing_Utilities";
+
    function Parse_Line (Item : in String) return ESL.Packet_Field.Instance;
+
+   function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance;
 
    function Dash_To_Underscore (Source : in String) return String;
 

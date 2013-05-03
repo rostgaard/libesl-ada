@@ -23,6 +23,11 @@ package ESL.Trace is
 
    All_Debug_Information : constant Debug_Threshold_Levels;
 
+   type Kind is (Debug, Information, Error, Warning, Critical);
+
+   Mute : array (Kind) of Boolean := (Debug  => True,
+                                      others => False);
+
    procedure Debug (Message : in String;
                     Context : in String := "";
                     Level   : in Debug_Threshold_Levels :=
@@ -36,8 +41,6 @@ package ESL.Trace is
    procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels);
 
 private
-
-   type Kind is (Debug, Information, Error, Warning, Critical);
 
    No_Debug_Information : constant Debug_Threshold_Levels :=
                             Debug_Threshold_Levels'First;

@@ -28,7 +28,7 @@ package body ESL.Trace is
                     Level   : in Debug_Threshold_Levels :=
                       Debug_Threshold_Levels'Last) is
    begin
-      if Level <= Current_Debug_Threshold then
+      if Level <= Current_Debug_Threshold and not Mute (Debug) then
          if Context /= "" then
             Put_Line (Kind'Image (Debug) & ": " & Context & ": " & Message);
          else
@@ -44,10 +44,12 @@ package body ESL.Trace is
    procedure Error (Message : in String;
                     Context : in String := "") is
    begin
-      if Context /= "" then
-         Put_Line (Kind'Image (Error) & ": " & Context & ": " & Message);
-      else
-         Put_Line (Kind'Image (Error) & ": " & Message);
+      if not Mute (Error) then
+         if Context /= "" then
+            Put_Line (Kind'Image (Error) & ": " & Context & ": " & Message);
+         else
+            Put_Line (Kind'Image (Error) & ": " & Message);
+         end if;
       end if;
    end Error;
 
@@ -58,10 +60,12 @@ package body ESL.Trace is
    procedure Information (Message : in String;
                           Context : in String := "") is
    begin
-      if Context /= "" then
-         Put_Line (Kind'Image (Information) & ": " & Context & ": " & Message);
-      else
-         Put_Line (Kind'Image (Information) & ": " & Message);
+      if not Mute (Information) then
+         if Context /= "" then
+            Put_Line (Kind'Image (Information) & ": " & Context & ": " & Message);
+         else
+            Put_Line (Kind'Image (Information) & ": " & Message);
+         end if;
       end if;
    end Information;
 
