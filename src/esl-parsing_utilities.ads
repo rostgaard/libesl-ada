@@ -15,6 +15,9 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Streams;
+
+with ESL.Packet;
 with ESL.Packet_Field;
 with ESL.Packet_Variable;
 
@@ -25,6 +28,9 @@ package ESL.Parsing_Utilities is
    function Parse_Line (Item : in String) return ESL.Packet_Field.Instance;
 
    function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance;
+
+   function Read_Packet (Stream : access Ada.Streams.Root_Stream_Type'Class)
+     return ESL.Packet.Instance;
 
    function Dash_To_Underscore (Source : in String) return String;
 

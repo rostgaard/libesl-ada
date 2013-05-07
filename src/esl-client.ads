@@ -97,6 +97,8 @@ package ESL.Client is
 
    type Reference is access Instance;
 
+   function Stream (Obj : in Instance) return GNAT.Sockets.Stream_Access;
+
 private
 
    --  function Read_Packet (Client : access AMI.Client.Instance)

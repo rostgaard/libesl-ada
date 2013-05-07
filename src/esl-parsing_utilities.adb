@@ -51,7 +51,7 @@ package body ESL.Parsing_Utilities is
 
       --  Return the anonymous object
       return Create (Name          =>
-                       Item (Item'First .. Seperator_Position-1),
+                       Item (Item'First .. Seperator_Position - 1),
                      Initial_Value =>
                        Item (Seperator_Position +
                            Seperator'Length .. Item'Last));
@@ -99,6 +99,12 @@ package body ESL.Parsing_Utilities is
                                 Context => Context);
          return Unknown_Line;
    end Parse_Line;
+
+   function Read_Packet (Stream : access Ada.Streams.Root_Stream_Type'Class)
+                         return ESL.Packet.Instance is
+   begin
+      return ESL.Packet.Create;
+   end Read_Packet;
 
    function Underscore_To_Dash (Source : in String) return String is
       Underscore_Map : constant Ada.Strings.Maps.Character_Mapping

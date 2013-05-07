@@ -33,6 +33,8 @@ begin
          --  Harvest headers.
          loop
             Field := Parse_Line (Client.Get_Line);
+
+            Packet := ESL.Parsing_Utilities.Read_Packet (Client.Stream);
             Packet.Add_Header (Field);
 
             exit when Field = Empty_Line;
