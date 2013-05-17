@@ -18,6 +18,8 @@
 package ESL.Packet_Keys is
    type Events is (Unknown, Channel_Create);
 
+   type Inbound_Events is (API, HEARTBEAT, RE_SCHEDULE);
+
    type Event_Keys is
      (Unknown,
       Content_Type, --  Move these to header_keys.

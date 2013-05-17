@@ -18,11 +18,13 @@
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
+with Ada.Streams.Stream_IO;
 
-with GNAT.Sockets;
+private with GNAT.Sockets;
 
 with ESL.Outbund_Event;
 with ESL.Send_Message;
+with ESL.Command;
 
 package ESL.Client is
    use ESL;
@@ -74,9 +76,9 @@ package ESL.Client is
    --  Send an abitrary string. Use this as a last resort, as most should be
    --  available through AMI.Packet.Action.
 
-   --  procedure Send (Client : in Instance;
-   --                  Item   : in AMI.Packet.Action.Request);
-   --  --  Primary send function.
+   procedure Send (Client : in Instance;
+                   Item   : in ESL.Command.Instance);
+   --  Primary send function.
 
    --  function Send (Client : in Instance;
    --                 Item   : in AMI.Packet.Action.Request)
@@ -97,7 +99,10 @@ package ESL.Client is
 
    type Reference is access Instance;
 
-   function Stream (Obj : in Instance) return GNAT.Sockets.Stream_Access;
+   function Stream (Obj : in Instance)
+                    return Ada.Streams.Stream_IO.Stream_Access;
+
+   function "=" (Left, Right : in Reference) return Boolean;
 
 private
 

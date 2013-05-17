@@ -53,6 +53,10 @@ package ESL.Packet is
    function Payload_Field (Obj : in Instance;
                            Key : in Packet_Keys.Event_Keys)
                            return Packet_Field.Instance;
+
+   function Is_Event (Obj : in Instance) return Boolean;
+
+   function Event (Obj : in Instance) return Packet_Keys.Inbound_Events;
 private
    use Ada.Strings.Unbounded;
    use Ada.Strings;

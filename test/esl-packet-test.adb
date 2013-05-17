@@ -46,9 +46,6 @@ procedure ESL.Packet.Test is
 
    procedure File_Tests;
 
-   function Get_Line (Stream : in Ada.Streams.Stream_IO.Stream_Access)
-                      return String;
-
    procedure File_Tests is
       Stream : Ada.Streams.Stream_IO.Stream_Access;
       Field  : ESL.Packet_Field.Instance;
@@ -66,23 +63,7 @@ procedure ESL.Packet.Test is
 
          while not Ada.Streams.Stream_IO.End_Of_File (Test_File) loop
 
-            --  Harvest headers.
-            loop
-               Field := Parse_Line (Get_Line (Stream));
-               Packet.Add_Header (Field);
-
-               exit when Field = Empty_Line;
-            end loop;
-            if Packet.Has_Header (Content_Length) then
-               declare
-                  Buffer   : String (1 .. Packet.Content_Length);
-               begin
-                  --  Receive the entire buffer.
-                  String'Read (Stream, Buffer);
-
-                  Packet.Process_And_Add_Body (Buffer);
-               end;
-            end if;
+            Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
 
             New_Line;
             Put_Line ("Packet contents:");
@@ -112,27 +93,6 @@ procedure ESL.Packet.Test is
          Ada.Streams.Stream_IO.Close (Test_File);
       end loop;
    end File_Tests;
-
-   function Get_Line (Stream : in Ada.Streams.Stream_IO.Stream_Access)
-                      return String is
-      Char   : Character := ASCII.NUL;
-      Buffer : String (1 .. 2048);
-      Offset : Natural := 0;
-   begin
-      loop
-         exit when Offset >= Buffer'Last or Char = ASCII.LF;
-         Char := Character'Input (Stream);
-         case Char is
-            when ASCII.CR | ASCII.LF =>
-               null;
-            when others =>
-               Offset := Offset + 1;
-               Buffer (Offset) := Char;
-         end case;
-      end loop;
-
-      return Buffer (Buffer'First .. Buffer'First + Offset - 1);
-   end Get_Line;
 
    procedure Test_Session;
    pragma Unreferenced (Test_Session);

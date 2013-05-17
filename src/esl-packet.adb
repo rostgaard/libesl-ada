@@ -196,6 +196,35 @@ package body ESL.Packet is
       return To_String (Buffer);
    end Image;
 
+   function Is_Event (Obj : in Instance) return Boolean is
+   begin
+      return Obj.Payload.Contains (Key => Event_Name);
+   end Is_Event;
+
+   function Event (Obj : in Instance) return Packet_Keys.Inbound_Events is
+      Context   : constant String := Package_Name & ".Event";
+      Not_Event : exception;
+   begin
+      if not Is_Event (Obj => Obj) then
+         raise Not_Event;
+      end if;
+
+      return Packet_Keys.Inbound_Events'Value
+        (Obj.Payload.Element (Key => Event_Name).Value);
+   exception
+      when Not_Event =>
+         ESL.Trace.Error (Message => "Packet accessed erroneusly as event",
+                          Context => Context);
+         raise Constraint_Error with "Packet is not an event";
+      when Constraint_Error =>
+         ESL.Trace.Error (Message => "Unknown Event name : " &
+                            Obj.Payload.Element (Key => Event_Name).Value,
+                          Context => Context);
+         raise Constraint_Error with  "Unknown Event name : " &
+                            Obj.Payload.Element (Key => Event_Name).Value;
+
+   end Event;
+
    ------------------------
    --  Payload_Contains  --
    ------------------------

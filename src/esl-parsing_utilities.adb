@@ -19,6 +19,7 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed; -- For Index
 with Ada.Strings.Maps;
 
 with ESL.Trace;
+with ESL.Packet_Keys;
 
 package body ESL.Parsing_Utilities is
 
@@ -29,6 +30,27 @@ package body ESL.Parsing_Utilities is
       return  Translate (Source  => Source,
                          Mapping => Underscore_Map);
    end Dash_To_Underscore;
+
+   function Get_Line (Stream : access Ada.Streams.Root_Stream_Type'Class)
+                      return String is
+      Char   : Character := ASCII.NUL;
+      Buffer : String (1 .. 2048);
+      Offset : Natural := 0;
+   begin
+      loop
+         exit when Offset >= Buffer'Last or Char = ASCII.LF;
+         Char := Character'Input (Stream);
+         case Char is
+            when ASCII.CR | ASCII.LF =>
+               null;
+            when others =>
+               Offset := Offset + 1;
+               Buffer (Offset) := Char;
+         end case;
+      end loop;
+
+      return Buffer (Buffer'First .. Buffer'First + Offset - 1);
+   end Get_Line;
 
    function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance
    is
@@ -102,8 +124,48 @@ package body ESL.Parsing_Utilities is
 
    function Read_Packet (Stream : access Ada.Streams.Root_Stream_Type'Class)
                          return ESL.Packet.Instance is
+
+      use ESL.Packet_Field;
+      use ESL.Packet_Keys;
+
+      function Receive (Count  : in Natural) return String;
+
+      function Receive (Count  : in Natural) return String is
+         Buffer : String (1 .. Count);
+      begin
+         String'Read (Stream, Buffer);
+
+         return Buffer;
+      end Receive;
+
+      Packet : ESL.Packet.Instance;
+      Field  : ESL.Packet_Field.Instance;
+
    begin
-      return ESL.Packet.Create;
+      --  Harvest headers.
+      loop
+         Field := Parse_Line (Get_Line (Stream => Stream));
+
+         ESL.Trace.Debug (Message => Field.Image,
+                          Context => "Get_Packet");
+
+         Packet.Add_Header (Field);
+
+         exit when Field = Empty_Line;
+      end loop;
+
+      if Packet.Has_Header (Event_Keys'(Content_Length)) then
+         declare
+            Buffer   : String (1 .. Packet.Content_Length);
+         begin
+            --  Receive the entire buffer.
+            Buffer := Receive (Count => Packet.Content_Length);
+            Packet.Process_And_Add_Body (Buffer);
+         end;
+      end if;
+
+      return Packet;
+
    end Read_Packet;
 
    function Underscore_To_Dash (Source : in String) return String is

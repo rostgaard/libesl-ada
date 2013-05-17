@@ -16,8 +16,8 @@
 -------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Characters.Latin_1;
 
+with ESL.Parsing_Utilities;
 with ESL.Trace;
 with Ada.Exceptions;
 
@@ -26,6 +26,15 @@ package body ESL.Client is
    use ESL.Trace;
    use ESL;
    use GNAT.Sockets;
+
+   -----------
+   --  "="  --
+   -----------
+
+   function "=" (Left, Right : in Reference) return Boolean is
+   begin
+      return Left.Socket = Right.Socket;
+   end "=";
 
    --------------------
    --  Authenticate  --
@@ -138,24 +147,8 @@ package body ESL.Client is
    ----------------
 
    function Get_Line (Client : in Instance) return String is
-      Char   : Character := Ada.Characters.Latin_1.NUL;
-      Buffer : String (1 .. 2048);
-      Offset : Natural := 0;
    begin
-      loop
-         exit when Offset >= Buffer'Last or Char = ASCII.LF;
-
-         Char := Character'Input (Client.Channel);
-         case Char is
-            when ASCII.CR | ASCII.LF =>
-               null;
-            when others =>
-               Offset := Offset + 1;
-               Buffer (Offset) := Char;
-         end case;
-      end loop;
-
-      return Buffer (Buffer'First .. Buffer'First + Offset - 1);
+      return Parsing_Utilities.Get_Line (Stream => Client.Channel);
    end Get_Line;
 
    ------------------
@@ -237,13 +230,13 @@ package body ESL.Client is
    --  Send  --
    ------------
 
-   --  procedure Send (Client : in Instance;
-   --                  Item   : in AMI.Packet.Action.Request) is
-   --  begin
-   --     AMI.Response.Subscribe (Item);
+   procedure Send (Client : in Instance;
+                   Item   : in ESL.Command.Instance) is
+   begin
+      --  AMI.Response.Subscribe (Item);
 
-   --     Client.Send (String (Item.To_AMI_Packet));
-   --  end Send;
+      Client.Send (String (Item.Serialize));
+   end Send;
 
    ------------
    --  Send  --
@@ -291,6 +284,12 @@ package body ESL.Client is
          null;
       end loop;
    end Skip_Until_Empty_Line;
+
+   function Stream (Obj : in Instance)
+                       return Ada.Streams.Stream_IO.Stream_Access is
+   begin
+      return Ada.Streams.Stream_IO.Stream_Access (Obj.Channel);
+   end Stream;
 
    ---------------------------
    --  Wait_For_Connection  --

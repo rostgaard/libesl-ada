@@ -25,6 +25,9 @@ package ESL.Parsing_Utilities is
 
    Package_Name : constant String := "ESL.Parsing_Utilities";
 
+   function Get_Line (Stream : access Ada.Streams.Root_Stream_Type'Class)
+                      return String;
+
    function Parse_Line (Item : in String) return ESL.Packet_Field.Instance;
 
    function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance;
