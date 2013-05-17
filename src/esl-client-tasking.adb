@@ -89,8 +89,8 @@ package body ESL.Client.Tasking is
       Attr.Client_Ref.Disconnect;
    end Disconnect;
 
-   function Event_Stream (Obj      : in Instance;
-                          Stream   : in ESL.Packet_Keys.Inbound_Events)
+   function Event_Stream (Client : in Instance;
+                          Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access is
       Attr : Client_Data renames
         Client_Attribute.Value (T => Obj'Identity);
@@ -204,9 +204,9 @@ package body ESL.Client.Tasking is
          begin
             if Packet.Is_Event then
                Notify_Observers
-                 (Subject => Attr.Event_Observers (Packet.Event),
-                  Packet  => Packet,
-                  Client  => Client);
+                 (Observing => Attr.Event_Observers (Packet.Event),
+                  Packet    => Packet,
+                  Client    => Client);
             end if;
 
             Trace.Debug (Context => Context,

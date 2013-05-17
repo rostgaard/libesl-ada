@@ -7,11 +7,11 @@ package ESL.Observer is
    type Observables is
      abstract tagged limited private;
 
-   procedure Notify_Observers (Subject  : in out Observables;
-                               Packet   : in     ESL.Packet.Instance;
-                               Client   : in     ESL.Client.Reference);
+   procedure Notify_Observers (Observing : in out Observables;
+                               Packet    : in     ESL.Packet.Instance;
+                               Client    : in     ESL.Client.Reference);
 
-   type Observers (Subject : access Observables'Class) is
+   type Observers (Observing : access Observables'Class) is
      abstract tagged limited private;
 
    procedure Notify (Observer : access Observers;

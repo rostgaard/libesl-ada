@@ -14,10 +14,10 @@ package body ESL.Observer is
       Register (Observer.Subject, Observer'Access);
    end Initialize;
 
-   procedure Notify_Observers (Subject  : in out Observables;
-                               Packet   : in     ESL.Packet.Instance;
-                               Client   : in     ESL.Client.Reference) is
-      Observer : Observer_Access := Subject.Observer_List;
+   procedure Notify_Observers (Observing : in out Observables;
+                               Packet    : in     ESL.Packet.Instance;
+                               Client    : in     ESL.Client.Reference) is
+      Observer : Observer_Access := Observing.Observer_List;
    begin
       while Observer /= null loop
          Notify (Observer => Observer,

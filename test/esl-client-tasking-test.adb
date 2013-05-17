@@ -14,12 +14,12 @@ procedure ESL.Client.Tasking.Test is
    Client : ESL.Client.Tasking.Instance := Create;
 
    Testobs1 : Re_Schedule_Observer
-     (Subject => Event_Stream (Obj    => Client,
-                               Stream => ESL.Packet_Keys.RE_SCHEDULE));
+     (Observing => Event_Stream (Client => Client,
+                                 Stream => ESL.Packet_Keys.RE_SCHEDULE));
 
    Testobs2 : Heartbeat_Observer
-     (Subject => Event_Stream (Obj    => Client,
-                               Stream => ESL.Packet_Keys.HEARTBEAT));
+     (Observing => Event_Stream (Client => Client,
+                                 Stream => ESL.Packet_Keys.HEARTBEAT));
 begin
    --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
 

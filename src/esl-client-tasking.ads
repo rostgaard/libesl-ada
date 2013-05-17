@@ -30,8 +30,8 @@ package ESL.Client.Tasking is
 
    procedure Shutdown (Obj : in Instance);
 
-   function Event_Stream (Obj      : in Instance;
-                          Stream   : in ESL.Packet_Keys.Inbound_Events)
+   function Event_Stream (Client : in Instance;
+                          Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access;
 
 private
