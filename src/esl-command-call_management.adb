@@ -15,29 +15,30 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-private with Ada.Containers.Doubly_Linked_Lists;
-private with Ada.Strings.Unbounded;
+package body ESL.Command.Call_Management is
 
-package ESL.Command is
+   function Originate (Call_URL         : in String;
+                        --  URL you are calling.
+                        Extension        : in String;
+                        --  Destination number to enter dialplan with
+                        Dialplan         : in String := "";
+                        --  Which dialplan to perform the lookup in.
+                        --  Defaults to 'xml'.
+                        Context          : in String := "";
+                        --  Defaults to 'default'.
+                        Caller_ID_Name   : in String := "";
+                        --  CallerID name.
+                        Caller_ID_Number : in String := "";
+                        --  CallerID number.
+                        Timeout          : in Duration;
+                        --  Timeout in seconds.
+                        Options : Originate_Parameters)
+                       return Instance is
+      Obj : Instance;
+   begin
+      Obj.Add_Component (Call_URL);
 
-   type Instance is abstract tagged private;
+      return Obj;
+   end Originate;
 
-   function Serialize (Obj : in Instance)
-                       return Serialized_Command;
-private
-   use Ada.Strings.Unbounded;
-
-   Command_Seperator : constant String := " ";
-
-   package Command_Component_Storage is new Ada.Containers.Doubly_Linked_Lists
-     (Element_Type => Unbounded_String);
-
-   type Instance is abstract tagged
-      record
-         Command_Components : Command_Component_Storage.List;
-      end record;
-
-   procedure Add_Component (Obj       :    out Instance;
-                            Component : in     String);
-
-end ESL.Command;
+end ESL.Command.Call_Management;

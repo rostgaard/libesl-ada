@@ -6,12 +6,12 @@ package body ESL.Observer is
 
    procedure Finalize (Observer : in out Observers) is
    begin
-      Unregister (Observer.Subject, Observer'Access);
+      Unregister (Observer.Observing, Observer'Access);
    end Finalize;
 
    procedure Initialize (Observer : in out Observers) is
    begin
-      Register (Observer.Subject, Observer'Access);
+      Register (Observer.Observing, Observer'Access);
    end Initialize;
 
    procedure Notify_Observers (Observing : in out Observables;

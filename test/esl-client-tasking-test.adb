@@ -1,8 +1,6 @@
 
 with ESL.Client.Tasking;
 with ESL.Packet_Keys;
-with ESL.Observer;
-with ESL.Trace;
 with ESL.Client.Tasking.Test_Utilities;
 
 with ESL;

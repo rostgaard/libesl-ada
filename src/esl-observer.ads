@@ -38,7 +38,7 @@ private
      (Subject  : access Observables;
       Observer : access Observers'Class);
 
-   type Observers (Subject : access Observables'Class) is
+   type Observers (Observing : access Observables'Class) is
      abstract new Limited_Controlled with record
         Next : Observer_Access := null;
      end record;

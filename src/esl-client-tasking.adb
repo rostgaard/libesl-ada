@@ -93,7 +93,7 @@ package body ESL.Client.Tasking is
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access is
       Attr : Client_Data renames
-        Client_Attribute.Value (T => Obj'Identity);
+        Client_Attribute.Value (T => Client'Identity);
    begin
       return Attr.Event_Observers (Stream)'Access;
    end Event_Stream;

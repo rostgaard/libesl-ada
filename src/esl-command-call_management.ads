@@ -48,7 +48,7 @@ package ESL.Command.Call_Management is
    type Originate_Parameters is array (Natural range <>) of Originate_Options;
    --  TODO: add values.
 
-   procedure Originate (Call_URL         : in String;
+   function Originate (Call_URL         : in String;
                         --  URL you are calling.
                         Extension        : in String;
                         --  Destination number to enter dialplan with
@@ -64,7 +64,7 @@ package ESL.Command.Call_Management is
                         Timeout          : in Duration;
                         --  Timeout in seconds.
                         Options : Originate_Parameters)
-   is null;
+   return Instance;
    --  Originate a new Call using an extension.
 
    package Dialplan_Application_Arguments is

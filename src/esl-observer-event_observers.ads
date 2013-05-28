@@ -1,6 +1,4 @@
 with ESL.Observer;
-with ESL.Client;
-with ESL.Packet;
 with ESL.Packet_Keys;
 
 package ESL.Observer.Event_Observers is

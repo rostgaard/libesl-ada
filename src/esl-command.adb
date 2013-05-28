@@ -17,6 +17,21 @@
 
 package body ESL.Command is
 
+   ---------------------
+   --  Add_Component  --
+   ---------------------
+
+   procedure Add_Component (Obj       :    out Instance;
+                            Component : in     String) is
+   begin
+      Obj.Command_Components.Append
+        (New_Item => To_Unbounded_String (Component));
+   end Add_Component;
+
+   -----------------
+   --  Serialize  --
+   -----------------
+
    function Serialize (Obj : in Instance)
                        return Serialized_Command is
    begin
