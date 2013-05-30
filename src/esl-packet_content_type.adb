@@ -29,19 +29,19 @@ package body ESL.Packet_Content_Type is
    function Value (Item : in String) return Subtypes;
    --  Conversion wrappers.
 
-   function "=" (Left  : in Instance;
-                 Right : in Instance) return Boolean is
+   function "=" (Left  : in Composite;
+                 Right : in Composite) return Boolean is
    begin
       return
         (Left.Base = Right.Base) and
         (Left.Sub  = Right.Sub);
    end "=";
 
-   --------------
-   --  Create  --
-   --------------
+   -------------
+   --  Value  --
+   -------------
 
-   function Create (Item : in String) return Instance is
+   function Value (Item : in String) return Composite is
       use Ada.Strings.Fixed;
       use ESL.Parsing_Utilities;
 
@@ -65,13 +65,31 @@ package body ESL.Packet_Content_Type is
          ESL.Trace.Debug (Message => "Could not convert " & Item,
                           Context => Context);
          raise;
-   end Create;
+   end Value;
+
+   function Value (Item : in String) return Content_Types is
+      use ESL.Parsing_Utilities;
+   begin
+      return Content_Types'Value (Dash_To_Underscore (Item));
+   end Value;
+
+   function Value (Item : in Composite) return Content_Types is
+   begin
+      raise Program_Error with "Not implemented";
+      return Null_Value;
+   end Value;
+
+   function Value (Item : in Content_Types) return Composite is
+   begin
+      raise Program_Error with "Not implemented";
+      return Null_Instance;
+   end Value;
 
    -------------
    --  Image  --
    -------------
 
-   function Image (Item : in Instance) return String is
+   function Image (Item : in Composite) return String is
       use Ada.Strings.Fixed;
       use Ada.Strings.Maps.Constants;
       use ESL.Parsing_Utilities;
@@ -83,6 +101,15 @@ package body ESL.Packet_Content_Type is
         Underscore_To_Dash (Translate (Source  => Item.Sub'Img,
                                        Mapping => Lower_Case_Map));
 
+   end Image;
+
+   function Image (Item : in Content_Types) return String is
+      use Ada.Strings.Fixed;
+      use Ada.Strings.Maps.Constants;
+      use ESL.Parsing_Utilities;
+   begin
+      return Underscore_To_Dash (Translate (Source  => Item'Img,
+                                            Mapping => Lower_Case_Map));
    end Image;
 
    -------------

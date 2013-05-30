@@ -16,16 +16,18 @@
 -------------------------------------------------------------------------------
 
 --  with Ada.Assertions;
+with Ada.Calendar;
 with Ada.Text_IO;
 with Ada.Streams.Stream_IO;
 
-with ESL.Packet_Field;
+with ESL.Trace;
 with ESL.Parsing_Utilities;
-with ESL.Packet_Keys;
 with ESL.Packet;
 
 procedure ESL.Packet.Test is
+   use Ada.Calendar;
    use ESL;
+   use ESL.Trace;
    use ESL.Parsing_Utilities;
    use ESL.Packet_Field;
    use ESL.Packet_Keys;
@@ -34,46 +36,56 @@ procedure ESL.Packet.Test is
    Tests     : constant array (Natural range <>) of access String :=
      (new String'("test_cases/basic_session"),
       new String'("test_cases/event_channel_hangup_complete"),
-      new String'("test_cases/event_channel_answer"),
+      new String'("test_cases/call_session2"),
       new String'("test_cases/event_channel_destroy"),
       new String'("test_cases/event_channel_hangup"),
       new String'("test_cases/event_channel_state"),
-      new String'("test_cases/event_channel_create"),
+--      new String'("test_cases/event_channel_create"),
       new String'("test_cases/event_channel_callstate"));
 
    Test_File         : Ada.Streams.Stream_IO.File_Type;
-   --  File_Tests_Errors : Natural    := 0;
+   File_Tests_Errors : Natural    := 0;
 
    procedure File_Tests;
 
    procedure File_Tests is
-      Stream : Ada.Streams.Stream_IO.Stream_Access;
-      Field  : ESL.Packet_Field.Instance;
-      Packet : ESL.Packet.Instance;
+      Stream  : Ada.Streams.Stream_IO.Stream_Access;
+      Packet  : ESL.Packet.Instance;
+      Count   : Natural := 0;
+      Time    : Ada.Calendar.Time;
+      Runtime : Duration := 0.0;
+      Tmp     : Duration := 0.0;
    begin
+      Time := Ada.Calendar.Clock;
+      for I in 1 .. 1 loop
+         for I in Tests'Range loop
+            --Put_Line ("Testing file " & Tests (I).all);
+            Ada.Streams.Stream_IO.Open
+              (File => Test_File,
+               Name => Tests (I).all,
+               Mode => Ada.Streams.Stream_IO.In_File);
 
-      for I in Tests'Range loop
-         Put_Line ("Testing file " & Tests (I).all);
-         Ada.Streams.Stream_IO.Open
-           (File => Test_File,
-            Name => Tests (I).all,
-            Mode => Ada.Streams.Stream_IO.In_File);
+            Stream := Ada.Streams.Stream_IO.Stream (File => Test_File);
 
-         Stream := Ada.Streams.Stream_IO.Stream (File => Test_File);
+            while not Ada.Streams.Stream_IO.End_Of_File (Test_File) loop
+               begin
+                  Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
+               exception
+                  when others =>
+                     Put_Line ("Error in file " & Tests (I).all);
+                     File_Tests_Errors := File_Tests_Errors + 1;
+                     raise;
+               end;
+               Count := Count+1;
+               --            New_Line;
+               --            Put_Line ("Packet contents:");
+               --            Put_Line (Packet.Image);
+               --            New_Line;
+               Packet := ESL.Packet.Create;
+            end loop;
 
-         while not Ada.Streams.Stream_IO.End_Of_File (Test_File) loop
-
-            Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
-
-            New_Line;
-            Put_Line ("Packet contents:");
-            Put_Line (Packet.Image);
-            New_Line;
-            Packet := ESL.Packet.Create;
-         end loop;
-
-         --           File_Tests_Errors := 0;
-         --
+            --           File_Tests_Errors := 0;
+            --
          --           while not End_Of_File (Test_File) loop
          --              declare
          --                 Packet : ESL.Packet.Instance;
@@ -90,8 +102,13 @@ procedure ESL.Packet.Test is
 --                                  Message => "File " & Tests (I).all &
 --                                    " failed with" &
 --                                    File_Tests_Errors'Img & " errors.");
-         Ada.Streams.Stream_IO.Close (Test_File);
+            Ada.Streams.Stream_IO.Close (Test_File);
+         end loop;
       end loop;
+
+      Runtime := Ada.Calendar.Clock - Time;
+      Tmp := Duration (Float (Count))/Runtime;
+      Put_Line ("Processed" & Count'Img & " packages, with" & File_Tests_Errors'Img & " errors in" & Runtime'Img & " seconds (" & Tmp'Img & " pkts/s).");
    end File_Tests;
 
    procedure Test_Session;
@@ -109,6 +126,8 @@ procedure ESL.Packet.Test is
 
 begin
 
+   --ESL.Trace.Mute (Information) := True;
+   --ESL.Trace.Mute (Error) := True;
    File_Tests;
 
 end ESL.Packet.Test;

@@ -19,9 +19,13 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed; -- For Index
 with Ada.Strings.Maps;
 
 with ESL.Trace;
-with ESL.Packet_Keys;
+with ESL.Packet_Header;
 
 package body ESL.Parsing_Utilities is
+
+   --------------------------
+   --  Dash_To_Underscore  --
+   --------------------------
 
    function Dash_To_Underscore (Source : in String) return String is
       Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
@@ -30,6 +34,10 @@ package body ESL.Parsing_Utilities is
       return  Translate (Source  => Source,
                          Mapping => Underscore_Map);
    end Dash_To_Underscore;
+
+   ----------------
+   --  Get_Line  --
+   ----------------
 
    function Get_Line (Stream : access Ada.Streams.Root_Stream_Type'Class)
                       return String is
@@ -52,6 +60,10 @@ package body ESL.Parsing_Utilities is
       return Buffer (Buffer'First .. Buffer'First + Offset - 1);
    end Get_Line;
 
+   ------------------
+   --  Parse_Line  --
+   ------------------
+
    function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance
    is
       use ESL.Packet_Variable;
@@ -71,12 +83,18 @@ package body ESL.Parsing_Utilities is
          return Packet_Variable.Empty_Line;
       end if;
 
-      --  Return the anonymous object
-      return Create (Name          =>
-                       Item (Item'First .. Seperator_Position - 1),
-                     Initial_Value =>
-                       Item (Seperator_Position +
-                           Seperator'Length .. Item'Last));
+      declare
+         Key_As_String   : String renames
+           Item (Item'First .. Seperator_Position - 1);
+         Value_As_String : String renames
+           Item (Seperator_Position +
+                   Seperator'Length .. Item'Last);
+      begin
+         --  Return the anonymous object
+            return Create
+              (Name          => Key_As_String,
+               Initial_Value => Value_As_String);
+      end;
    exception
       when Constraint_Error =>
          ESL.Trace.Information (Message => "Unknown line """ & Item & """",
@@ -122,11 +140,52 @@ package body ESL.Parsing_Utilities is
          return Unknown_Line;
    end Parse_Line;
 
+   ------------------
+   --  Parse_Line  --
+   ------------------
+
+   function Parse_Line (Item : in String) return ESL.Header_Field.Instance is
+      use ESL.Header_Field;
+
+      Context : constant String := Package_Name & ".Parse_Line (Header)";
+
+      Seperator_Index : Natural := Index
+        (Source  => Item,
+         Pattern => Seperator);
+      Key_Length     : constant Integer :=
+        Seperator_Index - Seperator'Length - 1;
+
+   begin
+      if Item'Length = 0 then
+         return Empty_Line;
+      end if;
+
+      --  Sometimes we get string slice instead of a "real" string.
+      if Item'First /= 1 then
+         Seperator_Index := Seperator_Index - Item'First + 1;
+      end if;
+
+      --  Return the anonymous object
+      return Create (Key => Dash_To_Underscore (
+                     Source  => Item
+                       (Item'First .. Item'First + Key_Length)),
+                     Value =>
+                       Item (Item'First + Seperator_Index + 1 .. Item'Last));
+   exception
+      when Constraint_Error =>
+         ESL.Trace.Information (Message => "Unknown line """ & Item & """",
+                                Context => Context);
+         return Unknown_Line;
+   end Parse_Line;
+
+   -------------------
+   --  Read_Packet  --
+   -------------------
+
    function Read_Packet (Stream : access Ada.Streams.Root_Stream_Type'Class)
                          return ESL.Packet.Instance is
 
-      use ESL.Packet_Field;
-      use ESL.Packet_Keys;
+      use ESL.Header_Field;
 
       function Receive (Count  : in Natural) return String;
 
@@ -138,8 +197,8 @@ package body ESL.Parsing_Utilities is
          return Buffer;
       end Receive;
 
-      Packet : ESL.Packet.Instance;
-      Field  : ESL.Packet_Field.Instance;
+      Headers : ESL.Packet_Header.Instance;
+      Field   : ESL.Header_Field.Instance;
 
    begin
       --  Harvest headers.
@@ -149,23 +208,29 @@ package body ESL.Parsing_Utilities is
          ESL.Trace.Debug (Message => Field.Image,
                           Context => "Get_Packet");
 
-         Packet.Add_Header (Field);
+         Headers.Add_Header (Field);
 
          exit when Field = Empty_Line;
       end loop;
 
-      if Packet.Has_Header (Event_Keys'(Content_Length)) then
-         declare
-            Buffer   : String (1 .. Packet.Content_Length);
-         begin
-            --  Receive the entire buffer.
-            Buffer := Receive (Count => Packet.Content_Length);
-            Packet.Process_And_Add_Body (Buffer);
-         end;
-      end if;
+      declare
+         Packet : ESL.Packet.Instance (Headers.Content_Type) :=
+           ESL.Packet.Create (Headers => Headers);
+      begin
 
-      return Packet;
+         --  Check if there is a body as well.
+         if Packet.Content_Length > 0 then
+            declare
+               Buffer   : String (1 .. Packet.Content_Length);
+            begin
+               --  Receive the entire buffer.
+               Buffer := Receive (Count => Packet.Content_Length);
+               Packet.Process_And_Add_Body (Buffer);
+            end;
+         end if;
 
+         return Packet;
+      end;
    end Read_Packet;
 
    function Underscore_To_Dash (Source : in String) return String is

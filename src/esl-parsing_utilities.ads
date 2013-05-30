@@ -20,6 +20,7 @@ with Ada.Streams;
 with ESL.Packet;
 with ESL.Packet_Field;
 with ESL.Packet_Variable;
+with ESL.Header_Field;
 
 package ESL.Parsing_Utilities is
 
@@ -31,6 +32,8 @@ package ESL.Parsing_Utilities is
    function Parse_Line (Item : in String) return ESL.Packet_Field.Instance;
 
    function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance;
+
+   function Parse_Line (Item : in String) return ESL.Header_Field.Instance;
 
    function Read_Packet (Stream : access Ada.Streams.Root_Stream_Type'Class)
      return ESL.Packet.Instance;

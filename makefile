@@ -14,7 +14,7 @@
 ###############################################################################
 
 GPR_TARGET=lib/gnat/ 
-
+GNATMAKE_TEST=gnatmake -P common
 include makefile.setup
 
 all: esl
@@ -27,7 +27,7 @@ esl:
 debug:
 	BUILDTYPE=Debug gnatmake -P esl_build
 
-clean:
+clean: tests_clean
 	gnatclean -P esl_build
 	BUILDTYPE=Debug gnatclean -P esl_build
 
@@ -43,3 +43,21 @@ install: all
 	cp -pr lib/* $(PREFIX)/esl
 	cp -pr src/*.ad[sb] $(PREFIX)/include/esl
 	cp -pr esl.gpr.dist $(PREFIX)/lib/gnat/esl.gpr
+
+tests: esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
+tests_clean:
+	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
+	
+esl-client-tasking-test:
+	${GNATMAKE_TEST} $@
+
+esl-packet_content_type-test:
+	${GNATMAKE_TEST} $@
+
+esl-packet-test:
+	${GNATMAKE_TEST} $@
+
+parser:
+	${GNATMAKE_TEST} $@
+
+.PHONY: tests

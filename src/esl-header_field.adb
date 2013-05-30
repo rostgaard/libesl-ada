@@ -15,30 +15,16 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package body ESL.Packet_Field is
+package body ESL.Header_Field is
 
    function Create (Key   : in String;
                     Value : in String) return Instance is
-      New_Key : Event_Keys := Unknown;
    begin
-      --  Special cases.
-      if Key = "name" then
-         New_Key := X_Name;
-      elsif Key = "description" then
-         New_Key := X_Description;
-      elsif Key = "type" then
-         New_Key := X_Type;
-      elsif Key = "syntax" then
-         New_Key := X_Syntax;
-      else
-         New_Key := Event_Keys'Value (Key);
-      end if;
-
-      return Create (Key   => New_Key,
+      return Create (Key   => Header_Keys'Value (Key),
                      Value => Value);
    end Create;
 
-   function Create (Key   : in Event_Keys;
+   function Create (Key   : in Header_Keys;
                     Value : in String) return Instance is
    begin
       return  (Key   => Key,
@@ -54,7 +40,7 @@ package body ESL.Packet_Field is
       end if;
    end Image;
 
-   function Key (Obj : in Instance) return ESL.Packet_Keys.Event_Keys is
+   function Key (Obj : in Instance) return Header_Keys is
    begin
       return Obj.Key;
    end Key;
@@ -64,4 +50,4 @@ package body ESL.Packet_Field is
       return To_String (Obj.Value);
    end Value;
 
-end ESL.Packet_Field;
+end ESL.Header_Field;

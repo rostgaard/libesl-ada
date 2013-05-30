@@ -21,35 +21,39 @@ package ESL.Packet_Content_Type is
 
    type Types is (Unknown, Auth, Text, Command, API);
 
-   type Subtypes is (Unknown, Request, Event_Plain, Reply, Response);
+   type Subtypes is (Unknown, Request, Event_Plain, Event_JSON, Event_XML,
+                     Reply, Response, Disconnect_Notice);
 
-   type Instance is tagged private;
+   type Content_Types is (Null_Value,
+                          Auth_Request, API_Response, Command_Reply,
+                          Text_Event_JSON, Text_Event_Plain);
 
-   function Create (Item : in String) return Instance;
+   type Composite is tagged private;
 
-   function Image (Item : in Instance) return String;
+   function Value (Item : in String) return Composite;
 
-   function "=" (Left  : in Instance;
-                 Right : in Instance) return Boolean;
+   function Value (Item : in String) return Content_Types;
 
-   Null_Instance : constant Instance;
+   function Value (Item : in Composite) return Content_Types;
 
-   --  Objects for use in comparisons.
-   Auth_Request : constant Instance;
-   Api_Response : constant Instance;
+   function Value (Item : in Content_Types) return Composite;
+
+   function Image (Item : in Composite) return String;
+
+   function Image (Item : in Content_Types) return String;
+
+   function "=" (Left  : in Composite;
+                 Right : in Composite) return Boolean;
+
+   Null_Instance : constant Composite;
+
 private
 
-   type Instance is tagged record
+   type Composite is tagged record
       Base : Types;
       Sub  : Subtypes;
    end record;
 
-   Null_Instance : constant Instance := (Base => Unknown,
-                                         Sub  => Unknown);
-
-   Auth_Request : constant Instance := (Base => Auth,
-                                        Sub  => Request);
-
-   API_Response : constant Instance := (Base => API,
-                                        Sub  => Response);
+   Null_Instance : constant Composite := (Base => Unknown,
+                                          Sub  => Unknown);
 end ESL.Packet_Content_Type;

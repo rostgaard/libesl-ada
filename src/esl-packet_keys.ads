@@ -20,13 +20,25 @@ package ESL.Packet_Keys is
 
    type Inbound_Events is (API, HEARTBEAT, RE_SCHEDULE);
 
+   type Header_Keys is
+     (Unknown,
+      Content_Type,
+      Content_Length);
+
    type Event_Keys is
      (Unknown,
-      Content_Type, --  Move these to header_keys.
-      Content_Length, -- <|
+      Content_Length,
       Reply_Text,
       API_Command,
+      API_Command_Argument,
+      Bridge_A_Unique_ID,
+      Bridge_B_Unique_ID,
       Event_Name,
+      X_Type,
+      X_Name,
+      X_Description,
+      X_Syntax,
+
       Event_Info,
       Core_UUID,
       FreeSWITCH_Hostname,
@@ -56,6 +68,8 @@ package ESL.Packet_Keys is
       Channel_State,
       Channel_State_Number,
       Channel_Name,
+      Channel_Call_State_Number,
+
       Unique_ID,
       Call_Direction,
       Hangup_Cause,
@@ -70,6 +84,7 @@ package ESL.Packet_Keys is
       Channel_Write_Codec_Name,
       Channel_Write_Codec_Rate,
       Channel_Write_Codec_Bit_Rate,
+
       Caller_Direction,
       Caller_Username,
       Caller_Dialplan,
@@ -90,6 +105,11 @@ package ESL.Packet_Keys is
       Caller_Channel_Progress_Media_Time,
       Caller_Channel_Hangup_Time,
       Caller_Channel_Transfer_Time,
+      Caller_Transfer_Source,
+      Application,
+      Application_Data,
+      Application_UUID,
+      Application_Response,
       Caller_Screen_Bit,
       Caller_Privacy_Hide_Name,
       Caller_Privacy_Hide_Number,
@@ -145,11 +165,21 @@ package ESL.Packet_Keys is
       Originator_Privacy_Hide_Number,
       Originatee_Username,
       Originatee_Dialplan,
+      Originatee_Caller_ID_Name,
+      Originatee_Caller_ID_Number,
+      Originatee_Network_Addr,
+      Originatee_Destination_Number,
+      Originatee_Unique_ID,
+      Originatee_Source,
+      Originatee_Context,
+      Originatee_Channel_Name,
+      Originatee_Screen_Bit,
+      Originatee_Privacy_Hide_Name,
+      Originatee_Privacy_Hide_Number,
       Caller_RDNIS,
       Other_Leg_Callee_ID_Name,
       Other_Leg_Callee_ID_Number,
       Other_Leg_RDNIS
-
      );
 
 end ESL.Packet_Keys;

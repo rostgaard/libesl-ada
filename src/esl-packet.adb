@@ -23,37 +23,6 @@ with ESL.Parsing_Utilities;
 package body ESL.Packet is
    use ESL.Packet_Keys;
 
-   ------------------
-   --  Add_Header  --
-   ------------------
-
-   procedure Add_Header (Obj   :     out Instance;
-                         Field : in      Packet_Field.Instance) is
-      Context : constant String := Package_Name & ".Add_Header";
-   begin
-
-      if Field = Empty_Line then
-         ESL.Trace.Debug (Context => Context,
-                          Message => "Skipping empty line");
-         return;
-      end if;
-
-      ESL.Trace.Debug (Context => Context,
-                       Message => "Adding " & Field.Image);
-
-      if Field.Key = Content_Type then
-         Obj.Content_Type := Packet_Content_Type.Create (Field.Value);
-      else
-         Obj.Headers.Insert (Key      => Field.Key,
-                             New_Item => Field);
-      end if;
-   exception
-      when others =>
-         ESL.Trace.Error (Context => Context,
-                          Message => "Error Adding " & Field.Image);
-         raise;
-   end Add_Header;
-
    --------------------
    --  Add_Variable  --
    --------------------
@@ -82,36 +51,18 @@ package body ESL.Packet is
 
    function Content_Length (Obj : in Instance) return Natural is
    begin
-      if Obj.Headers.Contains (Key => Content_Length) then
-         return Natural'Value
-           (Obj.Headers.Element (Key => Content_Length).Value);
-      else
-         return 0;
-      end if;
+      return Obj.Headers.Content_Length;
    end Content_Length;
 
-   --------------
-   --  Create  --
-   --------------
+   -------------------
+   --  Set_Headers  --
+   -------------------
 
-   function Create return Instance is
+   procedure Set_Headers (Obj     :    out Instance;
+                          Headers : in     Packet_Header.Instance) is
    begin
-      return (Content_Type => Packet_Content_Type.Null_Instance,
-              Headers      => Header_Storage.Empty_Map,
-              Payload      => Payload_Storage.Empty_Map,
-              Variables    => Variable_Storage.Empty_Map);
-   end Create;
-
-   -----------------------
-   --  Equivalent_Keys  --
-   -----------------------
-
-   function Equivalent_Keys (Left  : in Packet_Keys.Event_Keys;
-                             Right : in Packet_Keys.Event_Keys) return Boolean
-   is
-   begin
-      return Left = Right;
-   end Equivalent_Keys;
+      Obj.Headers := Headers;
+   end Set_Headers;
 
    -----------------------
    --  Equivalent_Keys  --
@@ -123,26 +74,28 @@ package body ESL.Packet is
       return Left = Right;
    end Equivalent_Keys;
 
+   function Equivalent_Keys (Left  : in Packet_Keys.Event_Keys;
+                             Right : in Packet_Keys.Event_Keys) return Boolean
+   is
+   begin
+      return Left = Right;
+   end Equivalent_Keys;
+
    ------------------
    --  Has_Header  --
    ------------------
 
    function Has_Header (Obj : in Instance;
                         Key : in Packet_Keys.Event_Keys) return Boolean is
-      use Packet_Content_Type;
    begin
-      return Obj.Headers.Contains (Key => Key);
+      return not Obj.Headers.Empty;
    end Has_Header;
 
-   -------------------
-   --  Hash_Header  --
-   -------------------
-
-   function Hash_Header (Item : in Packet_Keys.Event_Keys) return
+   function Hash_Field (Item : in Packet_Keys.Event_Keys) return
      Ada.Containers.Hash_Type is
    begin
       return Packet_Keys.Event_Keys'Pos (Item);
-   end Hash_Header;
+   end Hash_Field;
 
    -------------
    --  Image  --
@@ -150,7 +103,14 @@ package body ESL.Packet is
 
    function Image (Obj : in Instance) return String is
    begin
-      return "Content_Type:" & Obj.Content_Type.Image & ASCII.LF & ASCII.LF &
+      if Obj.Content_Type = Text_Event_JSON then
+         return "Content_Type:" & Image (Obj.Content_Type) &
+           ASCII.LF & ASCII.LF &
+           "Headers:" & ASCII.LF & Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+           Obj.JSON.Write;
+      end if;
+
+      return "Content_Type:" & Image (Obj.Content_Type) & ASCII.LF & ASCII.LF &
         "Headers:" & ASCII.LF & Image (Obj.Headers) & ASCII.LF & ASCII.LF &
         "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
         "Variables:" & ASCII.LF & Image (Obj.Variables);
@@ -253,7 +213,6 @@ package body ESL.Packet is
 
    procedure Process_And_Add_Body (Obj      : in out Instance;
                                    Raw_Data : in     String) is
-      use Packet_Content_Type;
       use Parsing_Utilities;
 
       Context    : constant String := Package_Name & ".Process_And_Add_Body";
@@ -261,10 +220,16 @@ package body ESL.Packet is
       Linebuffer : String (Raw_Data'Range) := (others => ASCII.NUL);
       Position   : Natural := Raw_Data'First;
    begin
-      if Obj.Content_Type = Api_Response then
+
+      Obj.Raw_Body := To_Unbounded_String (Raw_Data);
+
+      if Obj.Content_Type = API_Response then
          ESL.Trace.Information (Message => "Skipping package of type " &
-                                  Obj.Content_Type.Image,
+                                  Image (Obj.Content_Type),
                                 Context => Context);
+         return;
+      elsif Obj.Content_Type = Text_Event_JSON then
+         Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
          return;
       end if;
 
@@ -310,6 +275,11 @@ package body ESL.Packet is
                      end if;
 
                   end if;
+               exception
+                  when Constraint_Error =>
+                     ESL.Trace.Error (Message => Line,
+                                      Context => Context);
+                     raise;
                end;
                Position := Raw_Data'First;
             when others =>

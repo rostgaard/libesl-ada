@@ -15,53 +15,44 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package body ESL.Packet_Field is
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with ESL.Packet_Keys;
+
+package ESL.Header_Field is
+   use ESL.Packet_Keys;
+
+   Package_Name : constant String := "ESL.Header_Field";
+
+   Seperator : constant String := ":";
+
+   type Instance is tagged private;
+
+   Empty_Line   : constant Instance;
+   Unknown_Line : constant Instance;
 
    function Create (Key   : in String;
-                    Value : in String) return Instance is
-      New_Key : Event_Keys := Unknown;
-   begin
-      --  Special cases.
-      if Key = "name" then
-         New_Key := X_Name;
-      elsif Key = "description" then
-         New_Key := X_Description;
-      elsif Key = "type" then
-         New_Key := X_Type;
-      elsif Key = "syntax" then
-         New_Key := X_Syntax;
-      else
-         New_Key := Event_Keys'Value (Key);
-      end if;
+                    Value : in String) return Instance;
 
-      return Create (Key   => New_Key,
-                     Value => Value);
-   end Create;
+   function Create (Key   : in Header_Keys;
+                    Value : in String) return Instance;
 
-   function Create (Key   : in Event_Keys;
-                    Value : in String) return Instance is
-   begin
-      return  (Key   => Key,
-               Value => To_Unbounded_String (Value));
-   end Create;
+   function Image (Item : in Instance) return String;
 
-   function Image (Item : in Instance) return String is
-   begin
-      if Item /= Empty_Line then
-         return Item.Key'Img & Seperator & To_String (Item.Value);
-      else
-         return "";
-      end if;
-   end Image;
+   function Key (Obj : in Instance) return Header_Keys;
 
-   function Key (Obj : in Instance) return ESL.Packet_Keys.Event_Keys is
-   begin
-      return Obj.Key;
-   end Key;
+   function Value (Obj : in Instance) return String;
 
-   function Value (Obj : in Instance) return String is
-   begin
-      return To_String (Obj.Value);
-   end Value;
+private
+   type Instance is tagged
+      record
+         Key   : Header_Keys;
+         Value : Unbounded_String;
+      end record;
 
-end ESL.Packet_Field;
+   Empty_Line   : constant Instance := (Key   => Header_Keys '(Unknown),
+                                        Value => Null_Unbounded_String);
+
+   Unknown_Line : constant Instance :=
+     (Key   => Header_Keys '(Unknown),
+      Value => To_Unbounded_String ("Uknown"));
+end ESL.Header_Field;

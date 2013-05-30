@@ -13,10 +13,10 @@ procedure Parser is
 
 begin
 
-   Client.Connect ("localhost", 8021);
+   Client.Connect ("rpi", 8021);
    Client.Authenticate (Password => "ClueCon");
 
-   Client.Send ("event plain ALL" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
+   Client.Send ("event json all" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
    Client.Send ("api status" &
                   ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
