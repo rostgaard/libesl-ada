@@ -51,7 +51,7 @@ package body ESL.Packet is
 
    function Content_Length (Obj : in Instance) return Natural is
    begin
-      return Obj.Headers.Content_Length;
+      return Obj.Header.Content_Length;
    end Content_Length;
 
    function Create return Instance is
@@ -67,7 +67,7 @@ package body ESL.Packet is
    procedure Set_Headers (Obj     :    out Instance;
                           Headers : in     Packet_Header.Instance) is
    begin
-      Obj.Headers := Headers;
+      Obj.Header := Headers;
    end Set_Headers;
 
    -----------------------
@@ -93,7 +93,7 @@ package body ESL.Packet is
 
    function Has_Header (Obj : in Instance) return Boolean is
    begin
-      return not Obj.Headers.Empty;
+      return not Obj.Header.Empty;
    end Has_Header;
 
    function Hash_Field (Item : in Packet_Keys.Event_Keys) return
@@ -108,17 +108,17 @@ package body ESL.Packet is
 
    function Image (Obj : in Instance) return String is
    begin
-      if Obj.Content_Type = Text_Event_JSON then
-         return "Content_Type:" & Image (Obj.Content_Type) &
+      if Obj.Header.Content_Type = Text_Event_JSON then
+         return "Content_Type:" & Image (Obj.Header.Content_Type) &
            ASCII.LF & ASCII.LF &
            "Headers:" & ASCII.LF &
-           Packet_Header.Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+           Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
            Obj.JSON.Write;
       end if;
 
-      return "Content_Type:" & Image (Obj.Content_Type) & ASCII.LF & ASCII.LF &
+      return "Content_Type:" & Image (Obj.Header.Content_Type) & ASCII.LF & ASCII.LF &
         "Headers:" & ASCII.LF &
-        Packet_Header.Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+        Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
         "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
         "Variables:" & ASCII.LF & Image (Obj.Variables);
    end Image;
@@ -216,12 +216,15 @@ package body ESL.Packet is
 
       Obj.Raw_Body := To_Unbounded_String (Raw_Data);
 
-      if Obj.Content_Type = API_Response then
+      if
+        Obj.Header.Content_Type = API_Response or
+        Obj.Header.Content_Type = Text_Disconnect_Notice
+      then
          ESL.Trace.Information (Message => "Skipping package of type " &
-                                  Image (Obj.Content_Type),
+                                  Image (Obj.Header.Content_Type),
                                 Context => Context);
          return;
-      elsif Obj.Content_Type = Text_Event_JSON then
+      elsif Obj.Header.Content_Type = Text_Event_JSON then
          Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
          return;
       end if;
@@ -263,16 +266,17 @@ package body ESL.Packet is
 
                      elsif Field.Key /= Unknown then
 
-                        Obj.Payload.Insert (Key      => Field.Key,
-                                            New_Item => Field);
+
+                        begin
+                           Obj.Payload.Insert (Key      => Field.Key,
+                                               New_Item => Field);
+                        exception
+                           when Constraint_Error =>
+                              null; -- Ignore duplicates.
+                        end;
                      end if;
 
                   end if;
-               exception
-                  when Constraint_Error =>
-                     ESL.Trace.Error (Message => Line,
-                                      Context => Context);
-                     raise;
                end;
                Position := Raw_Data'First;
             when others =>
@@ -282,10 +286,14 @@ package body ESL.Packet is
       end loop;
    end Process_And_Add_Body;
 
+   -------------------
+   --  Push_Header  --
+   -------------------
+
    procedure Push_Header (Obj   :    out Instance;
                           Field : in    Header_Field.Instance) is
    begin
-      Obj.Headers.Add_Header (Field => Field);
+      Obj.Header.Add_Header (Field => Field);
    end Push_Header;
 
 end ESL.Packet;

@@ -26,7 +26,9 @@ package ESL.Packet_Content_Type is
 
    type Content_Types is (Null_Value,
                           Auth_Request, API_Response, Command_Reply,
-                          Text_Event_JSON, Text_Event_Plain);
+                          Text_Event_JSON, Text_Event_Plain,
+                          Text_Event_XML,
+                          Text_Disconnect_Notice);
 
    type Composite is tagged private;
 

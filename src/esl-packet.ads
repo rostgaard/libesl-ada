@@ -97,8 +97,7 @@ private
    function Image (List : Variable_Storage.Map) return String;
 
    type Instance is tagged record
-      Content_Type   : Content_Types            := Null_Value;
-      Headers        : Packet_Header.Instance   := Packet_Header.Empty_Header;
+      Header         : Packet_Header.Instance   := Packet_Header.Empty_Header;
       Raw_Body       : Unbounded_String         := Null_Unbounded_String;
       JSON           : GNATCOLL.JSON.JSON_Value := GNATCOLL.JSON.Create;
       Payload        : Payload_Storage.Map      := Payload_Storage.Empty_Map;

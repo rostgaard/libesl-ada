@@ -32,7 +32,7 @@ package body ESL.Packet_Header is
       Context : constant String := Package_Name & ".Add_Header";
    begin
 
-      if Field = Empty_Line then
+      if Field = Empty_Line or Field.Key = Unknown then
          ESL.Trace.Debug (Context => Context,
                           Message => "Skipping empty line");
          return;

@@ -34,14 +34,17 @@ procedure ESL.Packet.Test is
    use Ada.Text_IO;
 
    Tests     : constant array (Natural range <>) of access String :=
-     (new String'("test_cases/basic_session"),
-      new String'("test_cases/event_channel_hangup_complete"),
+     (
+       new String'("test_cases/basic_session"),
+     -- new String'("test_cases/event_channel_hangup_complete"),
       new String'("test_cases/call_session2"),
-      new String'("test_cases/event_channel_destroy"),
-      new String'("test_cases/event_channel_hangup"),
-      new String'("test_cases/event_channel_state"),
+      new String'("test_cases/session1.json")
+      --new String'("test_cases/event_channel_destroy"),
+      --new String'("test_cases/event_channel_hangup"),
+      --new String'("test_cases/event_channel_state"),
 --      new String'("test_cases/event_channel_create"),
-      new String'("test_cases/event_channel_callstate"));
+     -- new String'("test_cases/event_channel_callstate")
+     );
 
    Test_File         : Ada.Streams.Stream_IO.File_Type;
    File_Tests_Errors : Natural    := 0;
@@ -57,7 +60,7 @@ procedure ESL.Packet.Test is
       Tmp     : Duration := 0.0;
    begin
       Time := Ada.Calendar.Clock;
-      for I in 1 .. 1 loop
+      for I in 1 .. 10 loop
          for I in Tests'Range loop
             --Put_Line ("Testing file " & Tests (I).all);
             Ada.Streams.Stream_IO.Open
@@ -77,10 +80,10 @@ procedure ESL.Packet.Test is
                      raise;
                end;
                Count := Count+1;
-               --            New_Line;
-               --            Put_Line ("Packet contents:");
-               --            Put_Line (Packet.Image);
-               --            New_Line;
+               --New_Line;
+               --Put_Line ("Packet contents: " & Count'Img);
+               --Put_Line (Packet.Image);
+               --New_Line;
                Packet := ESL.Packet.Create;
             end loop;
 
@@ -125,7 +128,7 @@ procedure ESL.Packet.Test is
    end Test_Session;
 
 begin
-   ESL.Trace.Mute (Debug) := False;
+   -- ESL.Trace.Mute (Debug) := False;
    --ESL.Trace.Mute (Information) := True;
    --ESL.Trace.Mute (Error) := True;
    File_Tests;
