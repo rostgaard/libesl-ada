@@ -19,7 +19,6 @@ with Ada.Strings.Fixed; use Ada.Strings.Fixed; -- For Index
 with Ada.Strings.Maps;
 
 with ESL.Trace;
-with ESL.Packet_Header;
 
 package body ESL.Parsing_Utilities is
 
@@ -34,6 +33,18 @@ package body ESL.Parsing_Utilities is
       return  Translate (Source  => Source,
                          Mapping => Underscore_Map);
    end Dash_To_Underscore;
+
+   --------------------------
+   --  Slash_To_Underscore  --
+   --------------------------
+
+   function Slash_To_Underscore (Source : in String) return String is
+      Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
+        := Ada.Strings.Maps.To_Mapping ("/", "_");
+   begin
+      return  Translate (Source  => Source,
+                         Mapping => Underscore_Map);
+   end Slash_To_Underscore;
 
    ----------------
    --  Get_Line  --
@@ -197,8 +208,8 @@ package body ESL.Parsing_Utilities is
          return Buffer;
       end Receive;
 
-      Headers : ESL.Packet_Header.Instance;
-      Field   : ESL.Header_Field.Instance;
+      Packet : ESL.Packet.Instance := ESL.Packet.Create;
+      Field  : ESL.Header_Field.Instance;
 
    begin
       --  Harvest headers.
@@ -208,16 +219,13 @@ package body ESL.Parsing_Utilities is
          ESL.Trace.Debug (Message => Field.Image,
                           Context => "Get_Packet");
 
-         Headers.Add_Header (Field);
+         Packet.Push_Header (Field);
 
          exit when Field = Empty_Line;
       end loop;
 
       declare
-         Packet : ESL.Packet.Instance (Headers.Content_Type) :=
-           ESL.Packet.Create (Headers => Headers);
       begin
-
          --  Check if there is a body as well.
          if Packet.Content_Length > 0 then
             declare

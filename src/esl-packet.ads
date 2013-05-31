@@ -24,6 +24,7 @@ private with GNATCOLL.JSON;
 with ESL.Packet_Content_Type;
 with ESL.Packet_Field;
 with ESL.Packet_Header;
+with ESL.Header_Field;
 with ESL.Packet_Keys;
 with ESL.Packet_Variable;
 
@@ -34,10 +35,14 @@ package ESL.Packet is
 
    Package_Name : constant String := "ESL.Packet";
 
-   type Instance (Content_Type : Content_Types) is tagged private;
+   type Instance is tagged private;
 
-   function Has_Header (Obj : in Instance;
-                        Key : in Packet_Keys.Event_Keys) return Boolean;
+   procedure Push_Header (Obj   :    out Instance;
+                          Field : in     Header_Field.Instance);
+
+   function Has_Header (Obj   : in Instance) return Boolean;
+
+   function Create return Instance;
 
    function Content_Length (Obj : in Instance) return Natural;
 
@@ -91,18 +96,13 @@ private
    function Image (List : Payload_Storage.Map) return String;
    function Image (List : Variable_Storage.Map) return String;
 
-   type Instance (Content_Type : Content_Types) is tagged record
-      Headers        : Packet_Header.Instance;
-      Raw_Body       : Unbounded_String;
-      case Content_Type is
-         when Null_Value =>
-            null;
-         when Text_Event_JSON =>
-            JSON           : GNATCOLL.JSON.JSON_Value;
-         when others =>
-            Payload        : Payload_Storage.Map;
-            Variables      : Variable_Storage.Map;
-      end case;
+   type Instance is tagged record
+      Content_Type   : Content_Types            := Null_Value;
+      Headers        : Packet_Header.Instance   := Packet_Header.Empty_Header;
+      Raw_Body       : Unbounded_String         := Null_Unbounded_String;
+      JSON           : GNATCOLL.JSON.JSON_Value := GNATCOLL.JSON.Create;
+      Payload        : Payload_Storage.Map      := Payload_Storage.Empty_Map;
+      Variables      : Variable_Storage.Map     := Variable_Storage.Empty_Map;
    end record;
 
 end ESL.Packet;

@@ -125,7 +125,7 @@ procedure ESL.Packet.Test is
    end Test_Session;
 
 begin
-
+   ESL.Trace.Mute (Debug) := False;
    --ESL.Trace.Mute (Information) := True;
    --ESL.Trace.Mute (Error) := True;
    File_Tests;

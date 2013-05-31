@@ -14,6 +14,7 @@
 --  <http://www.gnu.org/licenses/>.                                          --
 --                                                                           --
 -------------------------------------------------------------------------------
+with Ada.Strings.Unbounded;
 
 with ESL.Trace;
 
@@ -25,7 +26,9 @@ package body ESL.Packet_Header is
    ------------------
 
    procedure Add_Header (Obj   :     out Instance;
-                         Field : in      Packet_Field.Instance) is
+                         Field : in      Header_Field.Instance) is
+      use Packet_Keys;
+
       Context : constant String := Package_Name & ".Add_Header";
    begin
 
@@ -33,13 +36,26 @@ package body ESL.Packet_Header is
          ESL.Trace.Debug (Context => Context,
                           Message => "Skipping empty line");
          return;
+      elsif Field.Key = Content_Type then
+         Obj.Content_Type := Value (Field.Value);
+
+         ESL.Trace.Debug
+           (Context => Context,
+            Message => "Setting content_type: " & Obj.Content_Type'Img);
+
+      elsif Field.Key = Content_Length then
+         Obj.Content_Length := Natural'Value (Field.Value);
+
+         ESL.Trace.Debug
+           (Context => Context,
+            Message => "Setting content_length: " & Obj.Content_Length'Img);
+      else
+         ESL.Trace.Debug (Context => Context,
+                       Message => "Adding " & Field.Image);
+         Obj.Fields.Insert (Key      => Field.Key,
+                            New_Item => Field);
       end if;
 
-      ESL.Trace.Debug (Context => Context,
-                       Message => "Adding " & Field.Image);
-
-      Obj.Fields.Insert (Key      => Field.Key,
-                          New_Item => Field);
    exception
       when others =>
          ESL.Trace.Error (Context => Context,
@@ -51,6 +67,31 @@ package body ESL.Packet_Header is
    begin
       return Obj.Fields.Is_Empty;
    end Empty;
+
+   function Image (Item : Instance) return String is
+      use Ada.Strings.Unbounded;
+      use Header_Storage;
+
+      Buffer : Unbounded_String;
+   begin
+      for C in Item.Fields.Iterate loop
+         Append (Buffer, (Key (C)'Img));
+         Append (Buffer, ": ");
+         Append (Buffer, Element (C).Value);
+         Append (Buffer, ASCII.LF);
+      end loop;
+      return To_String (Buffer);
+   end Image;
+
+   function Content_Type (Obj : in Instance) return Content_Types is
+   begin
+      return Obj.Content_Type;
+   end Content_Type;
+
+   function Content_Length (Obj : in Instance) return Natural is
+   begin
+      return Obj.Content_Length;
+   end Content_Length;
 
    -----------------------
    --  Equivalent_Keys  --

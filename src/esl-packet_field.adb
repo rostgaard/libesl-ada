@@ -17,6 +17,13 @@
 
 package body ESL.Packet_Field is
 
+   function "=" (Left  : in Instance;
+                 Right : in Instance) return Boolean is
+   begin
+      return Left.Key = Right.Key and
+        Left.Value = Right.Value;
+   end "=";
+
    function Create (Key   : in String;
                     Value : in String) return Instance is
       New_Key : Event_Keys := Unknown;

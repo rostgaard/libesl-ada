@@ -40,6 +40,8 @@ package ESL.Parsing_Utilities is
 
    function Dash_To_Underscore (Source : in String) return String;
 
+   function Slash_To_Underscore (Source : in String) return String;
+
    function Underscore_To_Dash (Source : in String) return String;
 
 end ESL.Parsing_Utilities;

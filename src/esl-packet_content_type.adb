@@ -69,8 +69,14 @@ package body ESL.Packet_Content_Type is
 
    function Value (Item : in String) return Content_Types is
       use ESL.Parsing_Utilities;
+
+      function Sanitize (Item : in String) return String is
+      begin
+         return Slash_To_Underscore (Dash_To_Underscore (Item));
+      end Sanitize;
+
    begin
-      return Content_Types'Value (Dash_To_Underscore (Item));
+      return Content_Types'Value (Sanitize (Item));
    end Value;
 
    function Value (Item : in Composite) return Content_Types is

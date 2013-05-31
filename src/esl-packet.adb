@@ -54,6 +54,12 @@ package body ESL.Packet is
       return Obj.Headers.Content_Length;
    end Content_Length;
 
+   function Create return Instance is
+      Obj : Instance;
+   begin
+      return Obj;
+   end Create;
+
    -------------------
    --  Set_Headers  --
    -------------------
@@ -85,8 +91,7 @@ package body ESL.Packet is
    --  Has_Header  --
    ------------------
 
-   function Has_Header (Obj : in Instance;
-                        Key : in Packet_Keys.Event_Keys) return Boolean is
+   function Has_Header (Obj : in Instance) return Boolean is
    begin
       return not Obj.Headers.Empty;
    end Has_Header;
@@ -106,28 +111,16 @@ package body ESL.Packet is
       if Obj.Content_Type = Text_Event_JSON then
          return "Content_Type:" & Image (Obj.Content_Type) &
            ASCII.LF & ASCII.LF &
-           "Headers:" & ASCII.LF & Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+           "Headers:" & ASCII.LF &
+           Packet_Header.Image (Obj.Headers) & ASCII.LF & ASCII.LF &
            Obj.JSON.Write;
       end if;
 
       return "Content_Type:" & Image (Obj.Content_Type) & ASCII.LF & ASCII.LF &
-        "Headers:" & ASCII.LF & Image (Obj.Headers) & ASCII.LF & ASCII.LF &
+        "Headers:" & ASCII.LF &
+        Packet_Header.Image (Obj.Headers) & ASCII.LF & ASCII.LF &
         "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
         "Variables:" & ASCII.LF & Image (Obj.Variables);
-   end Image;
-
-   function Image (List : Header_Storage.Map) return String is
-      use Header_Storage;
-
-      Buffer : Unbounded_String;
-   begin
-      for C in List.Iterate loop
-         Append (Buffer, (Key (C)'Img));
-         Append (Buffer, ": ");
-         Append (Buffer, Element (C).Value);
-         Append (Buffer, ASCII.LF);
-      end loop;
-      return To_String (Buffer);
    end Image;
 
    function Image (List : Payload_Storage.Map) return String is
@@ -288,4 +281,11 @@ package body ESL.Packet is
          end case;
       end loop;
    end Process_And_Add_Body;
+
+   procedure Push_Header (Obj   :    out Instance;
+                          Field : in    Header_Field.Instance) is
+   begin
+      Obj.Headers.Add_Header (Field => Field);
+   end Push_Header;
+
 end ESL.Packet;

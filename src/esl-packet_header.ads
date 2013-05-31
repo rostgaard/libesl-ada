@@ -42,6 +42,8 @@ package ESL.Packet_Header is
 
    function Empty (Obj : in Instance) return Boolean;
 
+   Empty_Header : constant Instance;
+
 private
    use Header_Field;
 
@@ -60,9 +62,14 @@ private
 
    type Instance is tagged
       record
-         Fields : Header_Storage.Map;
+         Content_Type   : Content_Types;
+         Content_Length : Natural := 0;
+         Fields         : Header_Storage.Map;
       end record;
 
-   Empty_Line   : constant Instance := (Fields => Header_Storage.Empty_Map);
+   Empty_Header : constant Instance :=
+     (Fields         => Header_Storage.Empty_Map,
+      Content_Length => 0,
+      Content_Type   => Null_Value);
 
 end ESL.Packet_Header;
