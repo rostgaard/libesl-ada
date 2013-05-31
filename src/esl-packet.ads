@@ -21,12 +21,12 @@ private with Ada.Strings.Unbounded;
 private with Ada.Strings.Unbounded.Hash;
 private with GNATCOLL.JSON;
 
-with ESL.Packet_Content_Type;
 with ESL.Packet_Field;
 with ESL.Packet_Header;
 with ESL.Header_Field;
 with ESL.Packet_Keys;
 with ESL.Packet_Variable;
+with ESL.Packet_Content_Type;
 
 package ESL.Packet is
    use ESL;
@@ -40,28 +40,27 @@ package ESL.Packet is
    procedure Push_Header (Obj   :    out Instance;
                           Field : in     Header_Field.Instance);
 
-   function Has_Header (Obj   : in Instance) return Boolean;
+   function Payload (Obj : in Instance) return String;
 
    function Create return Instance;
 
    function Content_Length (Obj : in Instance) return Natural;
+   function Content_Type (Obj : in Instance) return Content_Types;
 
    procedure Process_And_Add_Body (Obj      : in out Instance;
                                    Raw_Data : in     String);
 
    function Image (Obj : in Instance) return String;
 
-   procedure Set_Headers (Obj     :    out Instance;
-                          Headers : in     Packet_Header.Instance);
+   function Contains (Obj : in Instance;
+                      Key : in Packet_Keys.Event_Keys) return Boolean;
 
-   function Payload_Contains (Obj : in Instance;
-                              Key : in Packet_Keys.Event_Keys) return Boolean;
-
-   function Payload_Field (Obj : in Instance;
-                           Key : in Packet_Keys.Event_Keys)
-                           return Packet_Field.Instance;
+   function Field (Obj : in Instance;
+                   Key : in Packet_Keys.Event_Keys)
+                   return Packet_Field.Instance;
 
    function Is_Event (Obj : in Instance) return Boolean;
+   function Is_Response (Obj : in Instance) return Boolean;
 
    function Event (Obj : in Instance) return Packet_Keys.Inbound_Events;
 private

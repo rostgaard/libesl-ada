@@ -21,7 +21,7 @@ with ESL.Trace;
 with ESL.Parsing_Utilities;
 
 package body ESL.Packet is
-   use ESL.Packet_Keys;
+   use Packet_Keys;
 
    --------------------
    --  Add_Variable  --
@@ -45,6 +45,33 @@ package body ESL.Packet is
                             Packet_Variable.Image (Variable));
    end Add_Variable;
 
+   ----------------
+   --  Contains  --
+   ----------------
+
+   function Contains (Obj : in Instance;
+                      Key : in Packet_Keys.Event_Keys) return Boolean
+   is
+   begin
+      case Obj.Header.Content_Type is
+         when Null_Value | Text_Disconnect_Notice |
+              Auth_Request | API_Response |
+              Command_Reply =>
+            return False;
+
+         when Text_Event_Plain =>
+            return Obj.Payload.Contains (Key => Key);
+
+         when Text_Event_XML =>
+            raise Program_Error with "Not implemented";
+
+         when Text_Event_JSON =>
+            return Obj.JSON.Has_Field
+              (Field => String_Key (Key).all);
+      end case;
+
+   end Contains;
+
    ----------------------
    --  Content_Length  --
    ----------------------
@@ -54,21 +81,20 @@ package body ESL.Packet is
       return Obj.Header.Content_Length;
    end Content_Length;
 
+   function Content_Type (Obj : in Instance) return Content_Types is
+   begin
+      return Obj.Header.Content_Type;
+   end Content_Type;
+
+   --------------
+   --  Create  --
+   --------------
+
    function Create return Instance is
       Obj : Instance;
    begin
       return Obj;
    end Create;
-
-   -------------------
-   --  Set_Headers  --
-   -------------------
-
-   procedure Set_Headers (Obj     :    out Instance;
-                          Headers : in     Packet_Header.Instance) is
-   begin
-      Obj.Header := Headers;
-   end Set_Headers;
 
    -----------------------
    --  Equivalent_Keys  --
@@ -87,14 +113,59 @@ package body ESL.Packet is
       return Left = Right;
    end Equivalent_Keys;
 
-   ------------------
-   --  Has_Header  --
-   ------------------
-
-   function Has_Header (Obj : in Instance) return Boolean is
+   function Event (Obj : in Instance) return Packet_Keys.Inbound_Events is
+      Context   : constant String := Package_Name & ".Event";
+      Not_Event : exception;
    begin
-      return not Obj.Header.Empty;
-   end Has_Header;
+      if not Is_Event (Obj => Obj) then
+         raise Not_Event;
+      end if;
+
+      return Packet_Keys.Inbound_Events'Value
+        (Obj.Field (Key => Event_Name).Value);
+
+   exception
+      when Not_Event =>
+         ESL.Trace.Error (Message => "Packet accessed erroneusly as event",
+                          Context => Context);
+         raise Constraint_Error with "Packet is not an event";
+      when Constraint_Error =>
+         ESL.Trace.Error (Message => "Unknown Event name : " &
+                            Obj.Payload.Element (Key => Event_Name).Value,
+                          Context => Context);
+         raise Constraint_Error with  "Unknown Event name : " &
+                            Obj.Payload.Element (Key => Event_Name).Value;
+
+   end Event;
+
+   -------------
+   --  Field  --
+   -------------
+
+   function Field (Obj : in Instance;
+                   Key : in Packet_Keys.Event_Keys)
+                   return Packet_Field.Instance is
+   begin
+      case Obj.Header.Content_Type is
+         when Null_Value =>
+            raise Constraint_Error with "Null packet";
+
+         when Text_Disconnect_Notice |
+              Auth_Request | API_Response |
+              Command_Reply =>
+            raise Constraint_Error with "Use payload instead";
+
+         when Text_Event_Plain =>
+            return Obj.Payload.Element (Key => Key);
+
+         when Text_Event_XML =>
+            raise Program_Error with "Not implemented";
+
+         when Text_Event_JSON =>
+            return Create (Key, Obj.JSON.Get (Field => String_Key (Key).all));
+      end case;
+
+   end Field;
 
    function Hash_Field (Item : in Packet_Keys.Event_Keys) return
      Ada.Containers.Hash_Type is
@@ -116,7 +187,8 @@ package body ESL.Packet is
            Obj.JSON.Write;
       end if;
 
-      return "Content_Type:" & Image (Obj.Header.Content_Type) & ASCII.LF & ASCII.LF &
+      return "Content_Type:" & Image (Obj.Header.Content_Type) &
+        ASCII.LF & ASCII.LF &
         "Headers:" & ASCII.LF &
         Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
         "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
@@ -151,54 +223,18 @@ package body ESL.Packet is
 
    function Is_Event (Obj : in Instance) return Boolean is
    begin
-      return Obj.Payload.Contains (Key => Event_Name);
+      return Obj.Contains (Key => Event_Name);
    end Is_Event;
 
-   function Event (Obj : in Instance) return Packet_Keys.Inbound_Events is
-      Context   : constant String := Package_Name & ".Event";
-      Not_Event : exception;
+   function Is_Response (Obj : in Instance) return Boolean is
    begin
-      if not Is_Event (Obj => Obj) then
-         raise Not_Event;
-      end if;
+      return Obj.Header.Content_Type = API_Response;
+   end Is_Response;
 
-      return Packet_Keys.Inbound_Events'Value
-        (Obj.Payload.Element (Key => Event_Name).Value);
-   exception
-      when Not_Event =>
-         ESL.Trace.Error (Message => "Packet accessed erroneusly as event",
-                          Context => Context);
-         raise Constraint_Error with "Packet is not an event";
-      when Constraint_Error =>
-         ESL.Trace.Error (Message => "Unknown Event name : " &
-                            Obj.Payload.Element (Key => Event_Name).Value,
-                          Context => Context);
-         raise Constraint_Error with  "Unknown Event name : " &
-                            Obj.Payload.Element (Key => Event_Name).Value;
-
-   end Event;
-
-   ------------------------
-   --  Payload_Contains  --
-   ------------------------
-
-   function Payload_Contains (Obj : in Instance;
-                              Key : in Packet_Keys.Event_Keys) return Boolean
-   is
+   function Payload (Obj : in Instance) return String is
    begin
-      return Obj.Payload.Contains (Key => Key);
-   end Payload_Contains;
-
-   ---------------------
-   --  Payload_Field  --
-   ---------------------
-
-   function Payload_Field (Obj : in Instance;
-                           Key : in Packet_Keys.Event_Keys)
-                           return Packet_Field.Instance is
-   begin
-      return Obj.Payload.Element (Key => Key);
-   end Payload_Field;
+      return To_String (Obj.Raw_Body);
+   end Payload;
 
    ----------------------------
    --  Process_And_Add_Body  --
@@ -258,14 +294,13 @@ package body ESL.Packet is
                         Context => Context);
 
                      if Field = Empty_Line then
-                        if Obj.Payload_Contains (Key => Content_Length) then
+                        if Obj.Contains (Key => Content_Length) then
                            --  Skip the payload.
                            --  TODO:
                            return;
                         end if;
 
                      elsif Field.Key /= Unknown then
-
 
                         begin
                            Obj.Payload.Insert (Key      => Field.Key,

@@ -73,17 +73,23 @@ procedure ESL.Packet.Test is
             while not Ada.Streams.Stream_IO.End_Of_File (Test_File) loop
                begin
                   Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
+                  if Packet.Is_Event then
+                     Put_Line (Packet.Event'Img);
+                  else
+                     Put_Line ("Skipping" & Packet.Content_Type'Img);
+                  end if;
+
                exception
                   when others =>
                      Put_Line ("Error in file " & Tests (I).all);
                      File_Tests_Errors := File_Tests_Errors + 1;
+                     New_Line;
+                     Put_Line ("Packet contents: " & Count'Img);
+                     Put_Line (Packet.Image);
+                     New_Line;
                      raise;
                end;
                Count := Count+1;
-               --New_Line;
-               --Put_Line ("Packet contents: " & Count'Img);
-               --Put_Line (Packet.Image);
-               --New_Line;
                Packet := ESL.Packet.Create;
             end loop;
 
@@ -111,7 +117,9 @@ procedure ESL.Packet.Test is
 
       Runtime := Ada.Calendar.Clock - Time;
       Tmp := Duration (Float (Count))/Runtime;
-      Put_Line ("Processed" & Count'Img & " packages, with" & File_Tests_Errors'Img & " errors in" & Runtime'Img & " seconds (" & Tmp'Img & " pkts/s).");
+      Put_Line ("Processed" & Count'Img & " packages, with" &
+                  File_Tests_Errors'Img & " errors in" &
+                  Runtime'Img & " seconds (" & Tmp'Img & " pkts/s).");
    end File_Tests;
 
    procedure Test_Session;

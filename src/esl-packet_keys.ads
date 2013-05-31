@@ -18,7 +18,28 @@
 package ESL.Packet_Keys is
    type Events is (Unknown, Channel_Create);
 
-   type Inbound_Events is (API, HEARTBEAT, RE_SCHEDULE);
+   type Inbound_Events is (API, HEARTBEAT, RE_SCHEDULE, CHANNEL_STATE,
+                           CHANNEL_CREATE,
+                           CHANNEL_CALLSTATE, CHANNEL_EXECUTE,
+                           CHANNEL_EXECUTE_COMPLETE, CODEC,
+                           CHANNEL_PROGRESS_MEDIA,
+                           CHANNEL_ANSWER,
+                           CHANNEL_OUTGOING,
+                           CHANNEL_ORIGINATE,
+                           CHANNEL_BRIDGE,
+                           CHANNEL_HANGUP,
+                           CHANNEL_HANGUP_COMPLETE,
+                           CHANNEL_UNBRIDGE,
+                           CHANNEL_DESTROY,
+                           RELOADXML,
+                           SHUTDOWN,
+                           MODULE_UNLOAD,
+                           CUSTOM,
+                           PRESENCE_IN,
+                           CHANNEL_PROGRESS,
+                           CALL_UPDATE,
+                           MESSAGE_QUERY,
+                           MESSAGE_WAITING);
 
    type Header_Keys is
      (Unknown,
@@ -227,5 +248,9 @@ package ESL.Packet_Keys is
       Other_Leg_Callee_ID_Number,
       Other_Leg_RDNIS
      );
+
+   String_Key : constant array (Event_Keys'Range) of access String :=
+     (Event_Name => new String'("Event-Name"),
+      others     => new String'(""));
 
 end ESL.Packet_Keys;
