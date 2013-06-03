@@ -14,41 +14,48 @@
 --  <http://www.gnu.org/licenses/>.                                          --
 --                                                                           --
 -------------------------------------------------------------------------------
-with Ada.Strings.Unbounded;
 
-package ESL.Packet_Variable is
-   use Ada.Strings.Unbounded;
+with Ada.Containers.Hashed_Maps;
+private with Ada.Strings.Unbounded.Hash;
+
+with ESL.Packet;
+
+package ESL.Channel_Variable.List is
 
    type Instance is tagged private;
 
-   function "=" (Left, Right : in Instance) return Boolean;
+   type Reference is access all Instance;
 
-   function Create (Name          : in String;
-                    Initial_Value : in String := "") return Instance;
+   Not_Found : exception;
 
-   function Name (Obj : in Instance) return String;
+   function Create (Packet : in ESL.Packet.Instance) return Instance;
 
-   function Name (Obj : in Instance) return Unbounded_String;
-
-   function Value (Obj : in Instance) return String;
+   function Create return Instance;
 
    function Image (Obj : in Instance) return String;
 
-   Empty_Line   : constant Instance;
-   Unknown_Line : constant Instance;
+   function Get (Obj : in Instance;
+                 Key : in String) return String;
+   --  Use the keys from ESL.Channel_Variable.Keys, or arbitrary string.
+
+   procedure Add_Variable (Obj      : in out Instance;
+                           Variable : in     Channel_Variable.Instance);
+
 private
+
+   function Equivalent_Keys (Left  : in Unbounded_String;
+                             Right : in Unbounded_String) return Boolean;
+
+   package Variable_Storage is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Unbounded_String,
+      Element_Type    => Channel_Variable.Instance,
+      Hash            => Ada.Strings.Unbounded.Hash,
+      Equivalent_Keys => Equivalent_Keys,
+      "="             => Channel_Variable."=");
 
    type Instance is tagged
       record
-         Name  : Unbounded_String;
-         Value : Unbounded_String;
+         Storage : Variable_Storage.Map;
       end record;
 
-   Empty_Line  : constant Instance :=
-     (Name  => Null_Unbounded_String,
-      Value => Null_Unbounded_String);
-
-   Unknown_Line  : constant Instance :=
-     (Name  => Null_Unbounded_String,
-      Value => To_Unbounded_String ("Unknown"));
-end ESL.Packet_Variable;
+end ESL.Channel_Variable.List;

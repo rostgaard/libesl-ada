@@ -15,7 +15,7 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package body ESL.Packet_Variable is
+package body ESL.Channel_Variable is
 
    function "=" (Left, Right : in Instance) return Boolean is
    begin
@@ -51,4 +51,4 @@ package body ESL.Packet_Variable is
       return To_String (Obj.Value);
    end Value;
 
-end ESL.Packet_Variable;
+end ESL.Channel_Variable;

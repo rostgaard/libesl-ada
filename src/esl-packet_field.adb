@@ -17,12 +17,20 @@
 
 package body ESL.Packet_Field is
 
+   -----------
+   --  "="  --
+   -----------
+
    function "=" (Left  : in Instance;
                  Right : in Instance) return Boolean is
    begin
       return Left.Key = Right.Key and
         Left.Value = Right.Value;
    end "=";
+
+   --------------
+   --  Create  --
+   --------------
 
    function Create (Key   : in String;
                     Value : in String) return Instance is
@@ -45,12 +53,20 @@ package body ESL.Packet_Field is
                      Value => Value);
    end Create;
 
+   --------------
+   --  Create  --
+   --------------
+
    function Create (Key   : in Event_Keys;
                     Value : in String) return Instance is
    begin
       return  (Key   => Key,
                Value => To_Unbounded_String (Value));
    end Create;
+
+   -------------
+   --  Image  --
+   -------------
 
    function Image (Item : in Instance) return String is
    begin
@@ -61,10 +77,18 @@ package body ESL.Packet_Field is
       end if;
    end Image;
 
+   -----------
+   --  Key  --
+   -----------
+
    function Key (Obj : in Instance) return ESL.Packet_Keys.Event_Keys is
    begin
       return Obj.Key;
    end Key;
+
+   -------------
+   --  Value  --
+   -------------
 
    function Value (Obj : in Instance) return String is
    begin

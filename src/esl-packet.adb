@@ -23,28 +23,6 @@ with ESL.Parsing_Utilities;
 package body ESL.Packet is
    use Packet_Keys;
 
-   --------------------
-   --  Add_Variable  --
-   --------------------
-
-   procedure Add_Variable (Obj      : in out Instance;
-                           Variable : in     Packet_Variable.Instance) is
-      Context : constant String := Package_Name & ".Add_Variable";
-   begin
-
-      Obj.Variables.Insert (Key      => Variable.Name,
-                            New_Item => Variable);
-      ESL.Trace.Debug
-        (Message => "Adding variable: " & Packet_Variable.Image (Variable),
-         Context => Context);
-
-   exception
-      when others =>
-         ESL.Trace.Error (Context => Context,
-                          Message => "Error Adding " &
-                            Packet_Variable.Image (Variable));
-   end Add_Variable;
-
    ----------------
    --  Contains  --
    ----------------
@@ -191,8 +169,7 @@ package body ESL.Packet is
         ASCII.LF & ASCII.LF &
         "Headers:" & ASCII.LF &
         Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
-        "Payload:" & ASCII.LF & Image (Obj.Payload) & ASCII.LF & ASCII.LF &
-        "Variables:" & ASCII.LF & Image (Obj.Variables);
+        "Payload:" & ASCII.LF & Image (Obj.Payload);
    end Image;
 
    function Image (List : Payload_Storage.Map) return String is
@@ -201,19 +178,6 @@ package body ESL.Packet is
    begin
       for C in List.Iterate loop
          Append (Buffer, Element (C).Key'Img);
-         Append (Buffer, ": ");
-         Append (Buffer, Element (C).Value);
-         Append (Buffer, ASCII.LF);
-      end loop;
-      return To_String (Buffer);
-   end Image;
-
-   function Image (List : Variable_Storage.Map) return String is
-      use Variable_Storage;
-      Buffer : Unbounded_String;
-   begin
-      for C in List.Iterate loop
-         Append (Buffer, Key (C));
          Append (Buffer, ": ");
          Append (Buffer, Element (C).Value);
          Append (Buffer, ASCII.LF);
@@ -278,13 +242,18 @@ package body ESL.Packet is
                begin
                   if Line'Length > Variable_String'Length and then
                     Line (Variable_String'Range) = Variable_String then
+                     ESL.Trace.Debug
+                       (Message => "Found variable " & Line
+                          (Variable_String'Length + 1 .. Line'Last),
+                        Context => Context);
+
                      --  declare
                      --  Variable : Packet_Variable.Instance := Parse_Line (
                      --  begin
                      --  Obj.Variables.Insert (Parse_Line
-                     Obj.Add_Variable
-                       (Variable => Parse_Line (Line
-                        (Variable_String'Length + 1 .. Line'Last)));
+                     --  Obj.Channel.Add_Variable
+                     --  (Variable => Parse_Line (Line
+                     --   (Variable_String'Length + 1 .. Line'Last)));
                   else
 
                      Field := Parse_Line (Item => Line);

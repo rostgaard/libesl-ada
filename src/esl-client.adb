@@ -86,13 +86,10 @@ package body ESL.Client is
       Client.Channel := Stream (Client.Socket);
 
       Client.Connected := True;
-      Client.Server_Greeting := To_Unbounded_String (Client.Get_Line);
 
       Trace.Information ("Connected to " &
                                Hostname & ":" &
-                               Positive'Image (Port) & " with greeting " &
-                               To_String (Client.Server_Greeting),
-                             Context);
+                               Positive'Image (Port)& ".", Context);
 
    exception
       when E : GNAT.Sockets.Socket_Error =>
@@ -300,6 +297,10 @@ package body ESL.Client is
       use Ada.Calendar;
       Absolute_Timeout : constant Time := Clock + Timeout;
    begin
+      if Client.Connected then
+         return;
+      end if;
+
       loop
          exit when
            Client.Connected or

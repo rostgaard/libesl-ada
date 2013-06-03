@@ -34,18 +34,6 @@ package body ESL.Parsing_Utilities is
                          Mapping => Underscore_Map);
    end Dash_To_Underscore;
 
-   --------------------------
-   --  Slash_To_Underscore  --
-   --------------------------
-
-   function Slash_To_Underscore (Source : in String) return String is
-      Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
-        := Ada.Strings.Maps.To_Mapping ("/", "_");
-   begin
-      return  Translate (Source  => Source,
-                         Mapping => Underscore_Map);
-   end Slash_To_Underscore;
-
    ----------------
    --  Get_Line  --
    ----------------
@@ -75,9 +63,9 @@ package body ESL.Parsing_Utilities is
    --  Parse_Line  --
    ------------------
 
-   function Parse_Line (Item : in String) return ESL.Packet_Variable.Instance
+   function Parse_Line (Item : in String) return ESL.Channel_Variable.Instance
    is
-      use ESL.Packet_Variable;
+      use ESL.Channel_Variable;
       use ESL.Packet_Field;
 
       Context : constant String := Package_Name & ".Parse_Line (Variable)";
@@ -91,7 +79,7 @@ package body ESL.Parsing_Utilities is
                        Context => Context);
 
       if Item'Length = 0 then
-         return Packet_Variable.Empty_Line;
+         return Channel_Variable.Empty_Line;
       end if;
 
       declare
@@ -240,6 +228,18 @@ package body ESL.Parsing_Utilities is
          return Packet;
       end;
    end Read_Packet;
+
+   --------------------------
+   --  Slash_To_Underscore  --
+   --------------------------
+
+   function Slash_To_Underscore (Source : in String) return String is
+      Underscore_Map : constant Ada.Strings.Maps.Character_Mapping
+        := Ada.Strings.Maps.To_Mapping ("/", "_");
+   begin
+      return  Translate (Source  => Source,
+                         Mapping => Underscore_Map);
+   end Slash_To_Underscore;
 
    function Underscore_To_Dash (Source : in String) return String is
       Underscore_Map : constant Ada.Strings.Maps.Character_Mapping

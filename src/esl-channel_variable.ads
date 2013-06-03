@@ -14,44 +14,43 @@
 --  <http://www.gnu.org/licenses/>.                                          --
 --                                                                           --
 -------------------------------------------------------------------------------
+with Ada.Strings.Unbounded;
 
-package ESL.Trace is
+package ESL.Channel_Variable is
+   use Ada.Strings.Unbounded;
 
-   type Debug_Threshold_Levels is range 0 .. 32;
+   Package_Name : constant String := "ESL.Channel_Variable";
 
-   No_Debug_Information : constant Debug_Threshold_Levels;
+   type Instance is tagged private;
 
-   All_Debug_Information : constant Debug_Threshold_Levels;
+   function "=" (Left, Right : in Instance) return Boolean;
 
-   type Kind is (Debug, Information, Error, Warning, Critical, Every);
+   function Create (Name          : in String;
+                    Initial_Value : in String := "") return Instance;
 
-   procedure Mute (Trace : in Kind);
+   function Name (Obj : in Instance) return String;
 
-   procedure Unmute (Trace : in Kind);
+   function Name (Obj : in Instance) return Unbounded_String;
 
-   procedure Debug (Message : in String;
-                    Context : in String := "";
-                    Level   : in Debug_Threshold_Levels :=
-                      Debug_Threshold_Levels'Last);
+   function Value (Obj : in Instance) return String;
 
-   procedure Error (Message : in String;
-                    Context : in String := "");
+   function Image (Obj : in Instance) return String;
 
-   procedure Information (Message : in String;
-                          Context : in String := "");
-   procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels);
-
+   Empty_Line   : constant Instance;
+   Unknown_Line : constant Instance;
 private
 
-   Muted : array (Kind) of Boolean := (Debug  => True,
-                                       others => False);
+   type Instance is tagged
+      record
+         Name  : Unbounded_String;
+         Value : Unbounded_String;
+      end record;
 
-   No_Debug_Information : constant Debug_Threshold_Levels :=
-                            Debug_Threshold_Levels'First;
+   Empty_Line  : constant Instance :=
+     (Name  => Null_Unbounded_String,
+      Value => Null_Unbounded_String);
 
-   All_Debug_Information : constant Debug_Threshold_Levels :=
-                             Debug_Threshold_Levels'Last;
-
-   Current_Debug_Threshold : Debug_Threshold_Levels := All_Debug_Information;
-
-end ESL.Trace;
+   Unknown_Line  : constant Instance :=
+     (Name  => Null_Unbounded_String,
+      Value => To_Unbounded_String ("Unknown"));
+end ESL.Channel_Variable;

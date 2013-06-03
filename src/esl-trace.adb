@@ -28,7 +28,8 @@ package body ESL.Trace is
                     Level   : in Debug_Threshold_Levels :=
                       Debug_Threshold_Levels'Last) is
    begin
-      if Level <= Current_Debug_Threshold and not Mute (Debug) then
+      if Level <= Current_Debug_Threshold and not (Muted (Debug) or
+                                                     Muted (Every)) then
          if Context /= "" then
             Put_Line (Kind'Image (Debug) & ": " & Context & ": " & Message);
          else
@@ -44,7 +45,7 @@ package body ESL.Trace is
    procedure Error (Message : in String;
                     Context : in String := "") is
    begin
-      if not Mute (Error) then
+      if not (Muted (Error) or Muted (Every)) then
          if Context /= "" then
             Put_Line (Kind'Image (Error) & ": " & Context & ": " & Message);
          else
@@ -60,7 +61,7 @@ package body ESL.Trace is
    procedure Information (Message : in String;
                           Context : in String := "") is
    begin
-      if not Mute (Information) then
+      if not (Muted (Information) or Muted (Every)) then
          if Context /= "" then
             Put_Line (Kind'Image (Information) & ": " & Context & ": " & Message);
          else
@@ -69,13 +70,31 @@ package body ESL.Trace is
       end if;
    end Information;
 
-   ---------------------------
-   --  Set_Debug_Threshold  --
-   ---------------------------
+   ------------
+   --  Mute  --
+   ------------
 
-   procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels) is
+   procedure Mute (Trace : in Kind) is
    begin
-      Current_Debug_Threshold := New_Threshold;
-   end Set_Debug_Threshold;
+      Muted (Trace) := True;
+   end Mute;
 
-end ESL.Trace;
+   --------------
+   --  Unmute  --
+   --------------
+
+   procedure Unmute (Trace : in Kind) is
+   begin
+      Muted (Trace) := False;
+   end Unmute;
+
+   ---------------------------
+      --  Set_Debug_Threshold  --
+      ---------------------------
+
+      procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels) is
+      begin
+         Current_Debug_Threshold := New_Threshold;
+      end Set_Debug_Threshold;
+
+   end ESL.Trace;

@@ -11,6 +11,9 @@ package body ESL.Client.Tasking.Test_Utilities is
       ESL.Trace.Information
         (Message => "Triggered!",
          Context => Context);
+      ESL.Trace.Information
+        (Message => Packet.Image,
+         Context => Context);
    end Notify;
 
    procedure Notify (Observer : access Re_Schedule_Observer;

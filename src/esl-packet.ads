@@ -18,14 +18,12 @@
 with Ada.Containers.Hashed_Maps;
 --  with Ada.Finalization;
 private with Ada.Strings.Unbounded;
-private with Ada.Strings.Unbounded.Hash;
 private with GNATCOLL.JSON;
 
 with ESL.Packet_Field;
 with ESL.Packet_Header;
 with ESL.Header_Field;
 with ESL.Packet_Keys;
-with ESL.Packet_Variable;
 with ESL.Packet_Content_Type;
 
 package ESL.Packet is
@@ -67,15 +65,11 @@ private
    use Ada.Strings.Unbounded;
    use Ada.Strings;
 
-   procedure Add_Variable (Obj      : in out Instance;
-                           Variable : in     Packet_Variable.Instance);
-
    function Equivalent_Keys (Left  : in Packet_Keys.Event_Keys;
                              Right : in Packet_Keys.Event_Keys) return Boolean;
 
    function Equivalent_Keys (Left  : in Unbounded_String;
                              Right : in Unbounded_String) return Boolean;
-
    function Hash_Field (Item : in Packet_Keys.Event_Keys) return
      Ada.Containers.Hash_Type;
 
@@ -85,22 +79,13 @@ private
       Hash            => Hash_Field,
       Equivalent_Keys => Equivalent_Keys);
 
-   package Variable_Storage is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Unbounded_String,
-      Element_Type    => Packet_Variable.Instance,
-      Hash            => Ada.Strings.Unbounded.Hash,
-      Equivalent_Keys => Equivalent_Keys,
-      "="             => Packet_Variable."=");
-
    function Image (List : Payload_Storage.Map) return String;
-   function Image (List : Variable_Storage.Map) return String;
 
    type Instance is tagged record
       Header         : Packet_Header.Instance   := Packet_Header.Empty_Header;
       Raw_Body       : Unbounded_String         := Null_Unbounded_String;
       JSON           : GNATCOLL.JSON.JSON_Value := GNATCOLL.JSON.Create;
       Payload        : Payload_Storage.Map      := Payload_Storage.Empty_Map;
-      Variables      : Variable_Storage.Map     := Variable_Storage.Empty_Map;
    end record;
 
 end ESL.Packet;

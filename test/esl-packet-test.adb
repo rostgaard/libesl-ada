@@ -73,6 +73,7 @@ procedure ESL.Packet.Test is
             while not Ada.Streams.Stream_IO.End_Of_File (Test_File) loop
                begin
                   Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
+
                   if Packet.Is_Event then
                      Put_Line (Packet.Event'Img);
                   else

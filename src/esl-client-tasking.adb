@@ -1,3 +1,20 @@
+-------------------------------------------------------------------------------
+--                                                                           --
+--                     Copyright (C) 2012-, AdaHeads K/S                     --
+--                                                                           --
+--  This is free software;  you can redistribute it and/or modify it         --
+--  under terms of the  GNU General Public License  as published by the      --
+--  Free Software  Foundation;  either version 3,  or (at your  option) any  --
+--  later version. This library is distributed in the hope that it will be   --
+--  useful, but WITHOUT ANY WARRANTY;  without even the implied warranty of  --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                     --
+--  You should have received a copy of the GNU General Public License and    --
+--  a copy of the GCC Runtime Library Exception along with this program;     --
+--  see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see    --
+--  <http://www.gnu.org/licenses/>.                                          --
+--                                                                           --
+-------------------------------------------------------------------------------
+
 with Ada.Calendar;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
@@ -192,26 +209,28 @@ package body ESL.Client.Tasking is
 
       procedure Reader_Loop is
       begin
-         Trace.Debug (Context => Context,
-                      Message => "Waiting for connection...");
-         Client.Wait_For_Connection (Timeout => 3.0);
-         Trace.Debug (Context => Context,
-                      Message => "Connection ok!");
-
-         declare
-            Packet : constant ESL.Packet.Instance :=
-              ESL.Parsing_Utilities.Read_Packet (Stream => Client.Stream);
-         begin
-            if Packet.Is_Event then
-               Notify_Observers
-                 (Observing => Attr.Event_Observers (Packet.Event),
-                  Packet    => Packet,
-                  Client    => Client);
-            end if;
-
+         loop
             Trace.Debug (Context => Context,
-                         Message => Packet.Image);
-         end;
+                         Message => "Waiting for connection...");
+            Client.Wait_For_Connection (Timeout => 3.0);
+            Trace.Debug (Context => Context,
+                         Message => "Connection ok!");
+
+            declare
+               Packet : constant ESL.Packet.Instance :=
+                 ESL.Parsing_Utilities.Read_Packet (Stream => Client.Stream);
+            begin
+               if Packet.Is_Event then
+                  Trace.Debug (Context => Context,
+                               Message => Packet.Content_Type'Img);
+                  Notify_Observers
+                    (Observing => Attr.Event_Observers (Packet.Event),
+                     Packet    => Packet,
+                     Client    => Client);
+               end if;
+
+            end;
+         end loop;
 --           Dispatch (Ref    => Client,
 --                     Packet => Client.Read_Packet);
       exception

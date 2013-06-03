@@ -15,43 +15,46 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package ESL.Trace is
+with Ada.Containers;
+with Ada.Containers.Hashed_Maps;
 
-   type Debug_Threshold_Levels is range 0 .. 32;
+with ESL.Packet;
 
-   No_Debug_Information : constant Debug_Threshold_Levels;
+package ESL.Channel.List is
 
-   All_Debug_Information : constant Debug_Threshold_Levels;
+   type Instance is tagged private;
 
-   type Kind is (Debug, Information, Error, Warning, Critical, Every);
+   type Reference is access all Instance;
 
-   procedure Mute (Trace : in Kind);
+   Not_Found : exception;
 
-   procedure Unmute (Trace : in Kind);
+   function Create (Packet : in ESL.Packet.Instance) return Instance;
 
-   procedure Debug (Message : in String;
-                    Context : in String := "";
-                    Level   : in Debug_Threshold_Levels :=
-                      Debug_Threshold_Levels'Last);
+   function Create return Instance;
 
-   procedure Error (Message : in String;
-                    Context : in String := "");
+   function Image (Obj : in Instance) return String;
 
-   procedure Information (Message : in String;
-                          Context : in String := "");
-   procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels);
+   function Get (Key : in Channel_Key) return Channel.Instance;
+   --  Use the keys from ESL.Channel_Variable.Keys, or arbitrary string.
+
+   procedure Add_Variable (Obj      : in out Instance;
+                           Variable : in     Channel_Variable.Instance);
 
 private
 
-   Muted : array (Kind) of Boolean := (Debug  => True,
-                                       others => False);
+   function Equivalent_Keys (Left  : in Unbounded_String;
+                             Right : in Unbounded_String) return Boolean;
 
-   No_Debug_Information : constant Debug_Threshold_Levels :=
-                            Debug_Threshold_Levels'First;
+   package Channel_Storage is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Channel_Key,
+      Element_Type    => Channel.Instance,
+      Hash            => ESL.Channel.Hash,
+      Equivalent_Keys => Equivalent_Keys,
+      "="             => Channel."=");
 
-   All_Debug_Information : constant Debug_Threshold_Levels :=
-                             Debug_Threshold_Levels'Last;
+   type Instance is tagged
+      record
+         Storage : Channel_Storage.Map;
+      end record;
 
-   Current_Debug_Threshold : Debug_Threshold_Levels := All_Debug_Information;
-
-end ESL.Trace;
+end ESL.Channel.List;

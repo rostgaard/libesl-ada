@@ -15,43 +15,35 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package ESL.Trace is
+with ESL.Observer.Event_Observers;
+with ESL.Packet;
+with ESL.Client;
 
-   type Debug_Threshold_Levels is range 0 .. 32;
+package ESL.Channel.List.Observers is
+--  CHANNEL_ANSWER
+--  CHANNEL_BRIDGE
+--  CHANNEL_CALLSTATE
+--  CHANNEL_CREATE
+--  CHANNEL_DESTROY
+--  CHANNEL_EXECUTE
+--  CHANNEL_EXECUTE_COMPLETE
+--  CHANNEL_HANGUP
+--  CHANNEL_HANGUP_COMPLETE
+--  CHANNEL_ORIGINATE
+--  CHANNEL_OUTGOING
+--  CHANNEL_PROGRESS
+--  CHANNEL_PROGRESS_MEDIA
+--  CHANNEL_STATE
+--  CHANNEL_UNBRIDGE
 
-   No_Debug_Information : constant Debug_Threshold_Levels;
+   type Answer_Observer is
+     new ESL.Observer.Event_Observers.Instance with
+      record
+         Channel_List : Channel.List.Reference := null;
+      end record;
 
-   All_Debug_Information : constant Debug_Threshold_Levels;
-
-   type Kind is (Debug, Information, Error, Warning, Critical, Every);
-
-   procedure Mute (Trace : in Kind);
-
-   procedure Unmute (Trace : in Kind);
-
-   procedure Debug (Message : in String;
-                    Context : in String := "";
-                    Level   : in Debug_Threshold_Levels :=
-                      Debug_Threshold_Levels'Last);
-
-   procedure Error (Message : in String;
-                    Context : in String := "");
-
-   procedure Information (Message : in String;
-                          Context : in String := "");
-   procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels);
-
-private
-
-   Muted : array (Kind) of Boolean := (Debug  => True,
-                                       others => False);
-
-   No_Debug_Information : constant Debug_Threshold_Levels :=
-                            Debug_Threshold_Levels'First;
-
-   All_Debug_Information : constant Debug_Threshold_Levels :=
-                             Debug_Threshold_Levels'Last;
-
-   Current_Debug_Threshold : Debug_Threshold_Levels := All_Debug_Information;
-
-end ESL.Trace;
+   overriding
+   procedure Notify (Observer : access Answer_Observer;
+                     Packet   : in     ESL.Packet.Instance;
+                     Client   : in     ESL.Client.Reference);
+end ESL.Channel.List.Observers;

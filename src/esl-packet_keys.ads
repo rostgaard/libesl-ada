@@ -251,6 +251,7 @@ package ESL.Packet_Keys is
 
    String_Key : constant array (Event_Keys'Range) of access String :=
      (Event_Name => new String'("Event-Name"),
+      Core_UUID  => new String'("Core-UUID"),
       others     => new String'(""));
 
 end ESL.Packet_Keys;

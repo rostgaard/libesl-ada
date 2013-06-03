@@ -4,9 +4,11 @@ with ESL.Packet_Keys;
 with ESL.Client.Tasking.Test_Utilities;
 
 with ESL;
+with ESL.Trace;
 
 procedure ESL.Client.Tasking.Test is
    use ESL;
+   use ESL.Trace;
    use Client.Tasking.Test_Utilities;
 
    Client : ESL.Client.Tasking.Instance := Create;
@@ -21,13 +23,12 @@ procedure ESL.Client.Tasking.Test is
 begin
    --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
 
-   Connect (Client, "localhost", 8021);
-   Authenticate (Client, Password => "ClueCon");
+   Connect (Client, "responsum.pbx.jay.net", 8021);
+   Authenticate (Client, Password => "1234");
 
-   Send (Client, "event plain ALL" &
+   Send (Client, "event json ALL" &
            ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
    Send (Client, "api status" &
                   ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
-   delay 10.0;
 end ESL.Client.Tasking.Test;
