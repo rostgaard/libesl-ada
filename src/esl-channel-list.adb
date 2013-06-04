@@ -71,8 +71,6 @@ package body ESL.Channel.List is
          Buffer : Unbounded_String;
       begin
          for C in Storage.Iterate loop
-            Append (Buffer, Key (C));
-            Append (Buffer, ": ");
             Append (Buffer, Element (C).Image);
             Append (Buffer, ASCII.LF);
          end loop;

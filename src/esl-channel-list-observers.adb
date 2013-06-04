@@ -30,7 +30,7 @@ package body ESL.Channel.List.Observers is
 
       Observer.Channel_List.Change_State
         (Key       =>
-           Value (Packet.Field (Key => ESL.Packet_Keys.Channel_Name).Value),
+           Value (Packet.Field (Key => ESL.Packet_Keys.Unique_ID).Value),
          New_State =>
            Value (Packet.Field (Key => ESL.Packet_Keys.Channel_State).Value));
 

@@ -95,9 +95,7 @@ package body ESL.Channel_Variable.List is
       Buffer : Unbounded_String;
    begin
       for C in Obj.Storage.Iterate loop
-         Append (Buffer, Key (C));
-         Append (Buffer, ": ");
-         Append (Buffer, Element (C).Value);
+         Append (Buffer, Element (C).Image);
          Append (Buffer, ASCII.LF);
       end loop;
       return To_String (Buffer);

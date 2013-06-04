@@ -63,7 +63,7 @@ begin
 
    loop
       if not List.Empty then
-         Put_Line (List.Image);
+         Put (List.Image);
       end if;
       delay 1.0;
    end loop;

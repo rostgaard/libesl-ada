@@ -35,7 +35,7 @@ package body ESL.Channel is
    function Create (Packet : in ESL.Packet.Instance) return Instance is
       use ESL.Packet_Keys;
    begin
-      return (Name      => Value (Packet.Field (Key => Channel_Name).Value),
+      return (Name      => Value (Packet.Field (Key => Unique_ID).Value),
               State     => Value (Packet.Field (Key => Channel_State).Value),
               Variables => Channel_Variable.List.Create (Packet => Packet));
    exception
