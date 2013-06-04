@@ -15,8 +15,10 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Packet_Keys;
 with Ada.Strings.Unbounded.Hash_Case_Insensitive;
+
+with ESL.Packet_Keys;
+with ESL.Trace;
 
 package body ESL.Channel is
 
@@ -36,6 +38,11 @@ package body ESL.Channel is
       return (Name      => Value (Packet.Field (Key => Channel_Name).Value),
               State     => Value (Packet.Field (Key => Channel_State).Value),
               Variables => Channel_Variable.List.Create (Packet => Packet));
+   exception
+      when Unknown_State =>
+         ESL.Trace.Error (Message => "Unknown_State:",
+                          Context => "Create");
+         raise;
    end Create;
 
    -------------------
@@ -57,6 +64,16 @@ package body ESL.Channel is
    end Hash;
 
    -------------
+   --  Image  --
+   -------------
+
+   function Image (Obj : in Instance) return String is
+   begin
+      return To_String (Obj.Name) & ", " &
+        Obj.State'Img &  ", " & Obj.Variables.Image;
+   end Image;
+
+   -------------
    --  Value  --
    -------------
 
@@ -70,10 +87,13 @@ package body ESL.Channel is
    -------------
 
    function Value (Item : in String) return States is
+      Context : constant String := Package_Name & ".Value (String -> States)";
    begin
       return States'Value (Item);
    exception
       when Constraint_Error =>
+         ESL.Trace.Error (Message => "Invalid value: " & Item,
+                          Context => Context);
          raise Unknown_State;
    end Value;
 

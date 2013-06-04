@@ -30,6 +30,7 @@ package ESL.Channel is
 
    type States is (CS_NEW, CS_INIT, CS_ROUTING, CS_SOFT_EXECUTE,
                    CS_EXECUTE, CS_EXCHANGE_MEDIA, CS_PARK, CS_CONSUME_MEDIA,
+                   CS_REPORTING, CS_DESTROY,
                    CS_HIBERNATE, CS_RESET, CS_HANGUP, CS_DONE);
    --  Channel states.
 
@@ -52,6 +53,8 @@ package ESL.Channel is
 
    function Create (Packet : in ESL.Packet.Instance) return Instance;
    --
+
+   function Image (Obj : in Instance) return String;
 
    procedure Add_Variable (Obj      : in out Instance;
                            Variable : in     Channel_Variable.Instance);
@@ -82,8 +85,16 @@ private
          new String'("Channel is in a sleep state"),
       CS_RESET          =>
          new String'("Channel is in a reset state"),
+      CS_REPORTING      =>
+         new String'("The channel is already hung up, media is already down,"&
+          " and now it's time to do any sort of reporting processes" &
+          " such as CDR logging."),
       CS_HANGUP         =>
           new String'("Channel is flagged for hangup and ready to end"),
+      CS_DESTROY        =>
+         new String'("Channel is ready to be destroyed and out of the "&
+          " state machine. Memory pools are returned to the core and " &
+          "utilized memory from the channel is freed."),
       CS_DONE           =>
          new String'("Channel is ready to be destroyed " &
                      "and out of the state machine"));

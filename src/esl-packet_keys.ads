@@ -39,7 +39,9 @@ package ESL.Packet_Keys is
                            CHANNEL_PROGRESS,
                            CALL_UPDATE,
                            MESSAGE_QUERY,
-                           MESSAGE_WAITING);
+                           MESSAGE_WAITING,
+                           PLAYBACK_START,
+                           PLAYBACK_STOP);
 
    type Header_Keys is
      (Unknown,

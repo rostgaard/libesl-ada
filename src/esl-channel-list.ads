@@ -22,9 +22,11 @@ with ESL.Packet;
 
 package ESL.Channel.List is
 
-   type Instance is tagged private;
+   Package_Name : constant String := "ESL.Channel.List";
 
-   type Reference is access all Instance;
+   type Instance is tagged limited private;
+
+   type Reference is access all Instance'Class;
 
    Not_Found : exception;
 
@@ -34,16 +36,23 @@ package ESL.Channel.List is
 
    function Image (Obj : in Instance) return String;
 
-   function Get (Key : in Channel_Key) return Channel.Instance;
+   function Get (Obj : in Instance;
+                 Key : in Channel_Key) return Channel.Instance;
    --  Use the keys from ESL.Channel_Variable.Keys, or arbitrary string.
 
-   procedure Add_Variable (Obj      : in out Instance;
-                           Variable : in     Channel_Variable.Instance);
+   function Empty (Obj : in Instance) return Boolean;
+
+   procedure Insert (Obj     : in out Instance;
+                     Channel : in     ESL.Channel.Instance);
+
+   procedure Change_State (Obj       : in out Instance;
+                           Key       : in     ESL.Channel.Channel_Key;
+                           New_State : in     ESL.Channel.States);
 
 private
 
-   function Equivalent_Keys (Left  : in Unbounded_String;
-                             Right : in Unbounded_String) return Boolean;
+   function Equivalent_Keys (Left  : in Channel_Key;
+                             Right : in Channel_Key) return Boolean;
 
    package Channel_Storage is new Ada.Containers.Hashed_Maps
      (Key_Type        => Channel_Key,
@@ -52,9 +61,20 @@ private
       Equivalent_Keys => Equivalent_Keys,
       "="             => Channel."=");
 
-   type Instance is tagged
+   protected type Synchronized_Storage (Owner : access Instance'Class) is
+      procedure Change_State (Key       : in     ESL.Channel.Channel_Key;
+                              New_State : in     ESL.Channel.States);
+      function Empty return Boolean;
+      function Get (Key : in Channel_Key) return Channel.Instance;
+      function Image return String;
+      procedure Insert (Channel : in ESL.Channel.Instance);
+   private
+      Storage : Channel_Storage.Map;
+   end Synchronized_Storage;
+
+   type Instance is tagged limited
       record
-         Storage : Channel_Storage.Map;
+         Channel_List : Synchronized_Storage (Instance'Access);
       end record;
 
 end ESL.Channel.List;

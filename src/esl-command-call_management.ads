@@ -18,11 +18,17 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+with ESL.Command.Option_List;
+
 package ESL.Command.Call_Management is
    use ESL;
    use Ada.Strings.Unbounded;
 
    type Instance is tagged private;
+
+   procedure Add_Option (Obj    : in out Instance;
+                         Option : in     ESL.Command.Option_List.Options);
+   --  Adds an option to a given command.
 
    procedure Break is null;
    --  Deprecated. See uuid_break.
@@ -376,5 +382,8 @@ package ESL.Command.Call_Management is
    --  calls in limbo.
 
 private
-   type Instance is new Command.Instance with null record;
+   type Instance is new Command.Instance with
+      record
+         Options : ESL.Command.Option_List.Instance;
+      end record;
 end ESL.Command.Call_Management;

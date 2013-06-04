@@ -41,4 +41,10 @@ package body ESL.Command.Call_Management is
       return Obj;
    end Originate;
 
+   procedure Add_Option (Obj    : in out Instance;
+                         Option : in     ESL.Command.Option_List.Options) is
+   begin
+      Obj.Options.Add (Option);
+   end Add_Option;
+
 end ESL.Command.Call_Management;

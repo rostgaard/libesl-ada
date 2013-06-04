@@ -20,11 +20,13 @@ with ESL.Packet;
 with ESL.Client;
 
 package ESL.Channel.List.Observers is
+
+   Package_Name : constant String := "ESL.Channel.List.Observers";
+
 --  CHANNEL_ANSWER
 --  CHANNEL_BRIDGE
 --  CHANNEL_CALLSTATE
 --  CHANNEL_CREATE
---  CHANNEL_DESTROY
 --  CHANNEL_EXECUTE
 --  CHANNEL_EXECUTE_COMPLETE
 --  CHANNEL_HANGUP
@@ -36,14 +38,33 @@ package ESL.Channel.List.Observers is
 --  CHANNEL_STATE
 --  CHANNEL_UNBRIDGE
 
-   type Answer_Observer is
+   type Channel_Observer is abstract
      new ESL.Observer.Event_Observers.Instance with
       record
-         Channel_List : Channel.List.Reference := null;
+         Channel_List : access Channel.List.Instance'Class := null;
       end record;
+
+   type State_Observer is
+     new Channel_Observer with null record;
+
+   overriding
+   procedure Notify (Observer : access State_Observer;
+                     Packet   : in     ESL.Packet.Instance;
+                     Client   : in     ESL.Client.Reference);
+
+   type Answer_Observer is
+     new Channel_Observer with null record;
 
    overriding
    procedure Notify (Observer : access Answer_Observer;
+                     Packet   : in     ESL.Packet.Instance;
+                     Client   : in     ESL.Client.Reference);
+
+   type Create_Observer is
+     new Channel_Observer with null record;
+
+   overriding
+   procedure Notify (Observer : access Create_Observer;
                      Packet   : in     ESL.Packet.Instance;
                      Client   : in     ESL.Client.Reference);
 end ESL.Channel.List.Observers;

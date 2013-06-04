@@ -1,7 +1,10 @@
+with ESL.Channel.List;
 with ESL.Observer.Event_Observers;
 with ESL.Packet;
 
 package ESL.Client.Tasking.Test_Utilities is
+
+   List : aliased ESL.Channel.List.Instance;
 
    Package_Name : constant String := "ESL.Client.Tasking.Test_Utilities";
 
