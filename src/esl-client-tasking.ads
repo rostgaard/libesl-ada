@@ -55,6 +55,8 @@ package ESL.Client.Tasking is
                               Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
                               return Event_Streams_Access;
 
+   function Channel_List (Obj : in Instance) return Channel.List.Reference;
+
 private
    type Event_Streams is new ESL.Observer.Observables with
      null record;

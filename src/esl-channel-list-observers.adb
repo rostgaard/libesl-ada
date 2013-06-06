@@ -28,11 +28,12 @@ package body ESL.Channel.List.Observers is
 
    begin
 
-      Observer.Channel_List.Change_State
-        (Key       =>
-           Value (Packet.Field (Key => ESL.Packet_Keys.Unique_ID).Value),
-         New_State =>
-           Value (Packet.Field (Key => ESL.Packet_Keys.Channel_State).Value));
+      --  TODO: FIX
+--        Client.Channel_List.Change_State
+--          (Key       =>
+--             Value (Packet.Field (Key => ESL.Packet_Keys.Unique_ID).Value),
+--           New_State =>
+--             Value (Packet.Field (Key => ESL.Packet_Keys.Channel_State).Value));
 
       ESL.Trace.Debug (Message => "Triggered",
                        Context => Context);
@@ -56,18 +57,19 @@ package body ESL.Channel.List.Observers is
    begin
       ESL.Trace.Information (Message => "Triggered",
                              Context => Context);
-      if Observer.Channel_List = null then
-         ESL.Trace.Information (Message => "null-list detected!",
-                                Context => Context);
-      else
-         ESL.Trace.Information (Message => "inserting",
-                                Context => Context);
-         Observer.Channel_List.Insert (C);
-      end if;
-   exception
-      when others =>
-         ESL.Trace.Error (Message => "EXCEPTION!",
-                          Context => Context);
+      --  TODO: FIX
+--        if Client.Channel_List = null then
+--           ESL.Trace.Information (Message => "null-list detected!",
+--                                  Context => Context);
+--        else
+--           ESL.Trace.Information (Message => "inserting",
+--                                  Context => Context);
+--           Client.Channel_List.Insert (C);
+--        end if;
+--     exception
+--        when others =>
+--           ESL.Trace.Error (Message => "EXCEPTION!",
+--                            Context => Context);
 
    end Notify;
 

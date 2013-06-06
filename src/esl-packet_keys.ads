@@ -46,7 +46,7 @@ package ESL.Packet_Keys is
                            PLAYBACK_START,
                            PLAYBACK_STOP);
 
-   type Inbound_Sub_Events is ();
+   type Inbound_Sub_Events is (FIFO_INFO);
 
    type Header_Keys is
      (Unknown,

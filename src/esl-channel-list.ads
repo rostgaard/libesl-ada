@@ -42,14 +42,14 @@ package ESL.Channel.List is
 
    function Empty (Obj : in Instance) return Boolean;
 
+private
+
    procedure Insert (Obj     : in out Instance;
                      Channel : in     ESL.Channel.Instance);
 
    procedure Change_State (Obj       : in out Instance;
                            Key       : in     ESL.Channel.Channel_Key;
                            New_State : in     ESL.Channel.States);
-
-private
 
    function Equivalent_Keys (Left  : in Channel_Key;
                              Right : in Channel_Key) return Boolean;

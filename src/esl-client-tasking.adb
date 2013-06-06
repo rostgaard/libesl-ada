@@ -32,13 +32,6 @@ package body ESL.Client.Tasking is
    use ESL;
    use Ada.Strings.Unbounded;
 
---     package Client_Callback_Collections is
---       new Ada.Containers.Vectors
---         (Index_Type   => Positive,
---          Element_Type => ESL.Observer.Event_Listener_Reference,
---          "="          => ESL.Observer."=");
---
-
    type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
      of aliased Event_Streams;
 
@@ -50,13 +43,15 @@ package body ESL.Client.Tasking is
          Client_Ref          : Client.Reference;
          Event_Observers     : access Client_Event_Listeners;
          Sub_Event_Observers : access Client_Sub_Event_Listeners;
+         Channel_List        : ESL.Channel.List.Reference;
       end record;
 
    package Client_Attribute is new Ada.Task_Attributes
      (Attribute => Client_Data, Initial_Value =>
         (Client_Ref          => null,
          Event_Observers     => null,
-         Sub_Event_Observers => null));
+         Sub_Event_Observers => null,
+         Channel_List        => null));
 
 --     procedure Notify (Event  : in AMI.Event.Event_Type;
 --                          Packet : in AMI.Parser.Packet_Type);
@@ -95,8 +90,11 @@ package body ESL.Client.Tasking is
    begin
       return Obj : Instance do
          Client_Attribute.Set_Value
-           (Val => (Client_Ref      => Client.Create,
-                   Event_Observers => new Client_Event_Listeners),
+           (Val =>
+              (Client_Ref          => Client.Create,
+               Event_Observers     => new Client_Event_Listeners,
+               Sub_Event_Observers => new Client_Sub_Event_Listeners,
+               Channel_List        => new Channel.List.Instance),
             T   => Obj'Identity);
          Ada.Task_Termination.Set_Specific_Handler
            (T       => Obj'Identity,
@@ -119,6 +117,12 @@ package body ESL.Client.Tasking is
    begin
       return Attr.Event_Observers (Stream)'Access;
    end Event_Stream;
+
+   function Channel_List (Obj : in Instance) return Channel.List.Reference is
+      Attr : Client_Data renames Client_Attribute.Value (T => Obj'Identity);
+   begin
+      return Attr.Channel_List;
+   end Channel_List;
 
    function Sub_Event_Stream (Client : in Instance;
                               Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
@@ -159,7 +163,7 @@ package body ESL.Client.Tasking is
    --  Shutdown_Handler  --
    ------------------------
 
-protected body Shutdown_Handler is
+   protected body Shutdown_Handler is
 
       procedure Termination_Finalizer
         (Cause : in Ada.Task_Termination.Cause_Of_Termination;

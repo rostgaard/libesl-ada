@@ -7,6 +7,7 @@ with ESL.Client.Tasking.Test_Utilities;
 with ESL.Channel.List;
 with ESL.Channel.List.Observers;
 with ESL;
+with ESL.Trace;
 
 procedure ESL.Client.Tasking.Channel_List_Test is
    use Ada.Command_Line;
@@ -42,10 +43,7 @@ procedure ESL.Client.Tasking.Channel_List_Test is
 
 begin
 
-   SO.Channel_List := ESL.Client.Tasking.Test_Utilities.List'Access;
-   CO.Channel_List := ESL.Client.Tasking.Test_Utilities.List'Access;
-
-   --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
+   ESL.Trace.Unmute (Trace => ESL.Trace.Every);
 
    if Argument_Count < 3 then
       Usage;
@@ -62,8 +60,8 @@ begin
            ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
    loop
-      if not List.Empty then
-         Put (List.Image);
+      if not Channel_List (Client).Empty then
+         Put (Esl.Client.Tasking.Channel_List (Client).Image);
       end if;
       delay 1.0;
    end loop;

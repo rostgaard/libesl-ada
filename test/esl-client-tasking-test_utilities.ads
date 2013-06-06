@@ -4,8 +4,6 @@ with ESL.Packet;
 
 package ESL.Client.Tasking.Test_Utilities is
 
-   List : aliased ESL.Channel.List.Instance;
-
    Package_Name : constant String := "ESL.Client.Tasking.Test_Utilities";
 
    type Heartbeat_Observer is

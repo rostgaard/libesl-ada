@@ -25,6 +25,7 @@ private with GNAT.Sockets;
 with ESL.Outbund_Event;
 with ESL.Send_Message;
 with ESL.Command;
+with ESL.Channel.List;
 
 package ESL.Client is
    use ESL;
