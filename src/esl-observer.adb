@@ -18,7 +18,10 @@
 with ESL.Trace;
 
 package body ESL.Observer is
---     function "=" (Left, Right : in Reference) return Boolean is
+
+   type Ost is null record;
+
+   --     function "=" (Left, Right : in Reference) return Boolean is
 --     begin
 --        return True;
 --     end "=";

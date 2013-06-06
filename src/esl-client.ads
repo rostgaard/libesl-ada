@@ -16,7 +16,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Finalization;
-with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Streams.Stream_IO;
 
@@ -105,10 +104,22 @@ package ESL.Client is
 
    function "=" (Left, Right : in Reference) return Boolean;
 
-private
+   function Channel_List (Obj : in Instance) return Channel.List.Reference;
 
-   --  function Read_Packet (Client : access AMI.Client.Instance)
-   --                        return AMI.Parser.Packet_Type;
+--     type Event_Streams is new ESL.Observer.Observables with private;
+--     type Event_Streams_Access is access all Event_Streams;
+--
+--     function Event_Stream (Client : in Instance;
+--                            Stream : in ESL.Packet_Keys.Inbound_Events)
+--                            return Event_Streams_Access;
+--
+--     function Sub_Event_Stream (Client : in Instance;
+--                                Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
+--                                return Event_Streams_Access;
+--
+private
+--     type Event_Streams is new ESL.Observer.Observables with
+--       null record;
 
    procedure Ignore is null;
    Ignore_Event : constant Connection_Event_Handler := Ignore'Access;
@@ -121,8 +132,8 @@ private
       record
          Initialized           : Boolean := False;
          Connected             : Boolean := False;
-         Server_Greeting       : Ada.Strings.Unbounded.Unbounded_String;
          Authenticated         : Boolean := False;
+         Channels              : Channel.List.Instance;
          Shutdown              : Boolean := False;
          Socket                : GNAT.Sockets.Socket_Type :=
            GNAT.Sockets.No_Socket;

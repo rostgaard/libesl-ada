@@ -20,11 +20,12 @@ with ESL.Command;
 with ESL.Packet_Keys;
 
 package ESL.Client.Tasking is
-   task type Instance;
+   type Instance is new Client.Instance with private;
 
    function Create return Instance;
 
-   type Event_Streams is new ESL.Observer.Observables with private;
+   type Event_Streams is new ESL.Observer.Observables with null record;
+
    type Event_Streams_Access is access all Event_Streams;
 
    procedure Authenticate (Obj     : in out Instance;
@@ -39,12 +40,6 @@ package ESL.Client.Tasking is
    --  function Send (Packet : AMI.Packet.Action.Request)
    --  return AMI.Packet.Reponse;
 
-   procedure Connect (Obj      : in Instance;
-                      Hostname : in String;
-                      Port     : in Natural);
-
-   procedure Disconnect (Obj : in Instance);
-
    procedure Shutdown (Obj : in Instance);
 
    function Event_Stream (Client : in Instance;
@@ -55,12 +50,16 @@ package ESL.Client.Tasking is
                               Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
                               return Event_Streams_Access;
 
-   function Channel_List (Obj : in Instance) return Channel.List.Reference;
-
 private
-   type Event_Streams is new ESL.Observer.Observables with
-     null record;
 
    Recheck_Connection_Delay : constant Duration := 2.0;
    --  How long we should wait between connection polling.
+
+   task type Stream_Reader  (Owner : access Client.Instance'Class);
+
+   type Instance is new Client.Instance with
+      record
+         Reader : Stream_Reader (Instance'Access);
+      end record;
+
 end ESL.Client.Tasking;

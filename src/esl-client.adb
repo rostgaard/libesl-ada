@@ -27,6 +27,13 @@ package body ESL.Client is
    use ESL;
    use GNAT.Sockets;
 
+   task body Reader_Task is
+   begin
+      null;
+   end Reader_Task;
+
+
+
    -----------
    --  "="  --
    -----------
@@ -126,6 +133,7 @@ package body ESL.Client is
    procedure Disconnect (Client : in out Instance) is
    begin
       --  TODO: send "exit"
+      Obj.Connected := False;
       Shutdown_Socket (Client.Socket);
    end Disconnect;
 
