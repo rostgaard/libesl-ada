@@ -23,4 +23,5 @@ package ESL.Client.Tasking.Test_Utilities is
    procedure Notify (Observer : access Re_Schedule_Observer;
                      Packet   : in     ESL.Packet.Instance;
                      Client   : in     ESL.Client.Reference);
+
 end ESL.Client.Tasking.Test_Utilities;

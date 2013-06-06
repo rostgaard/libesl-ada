@@ -42,16 +42,21 @@ package body ESL.Client.Tasking is
    type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
      of aliased Event_Streams;
 
+   type Client_Sub_Event_Listeners is array
+     (ESL.Packet_Keys.Inbound_Sub_Events) of aliased Event_Streams;
+
    type Client_Data is
       record
-         Client_Ref      : Client.Reference;
-         Event_Observers : access Client_Event_Listeners;
+         Client_Ref          : Client.Reference;
+         Event_Observers     : access Client_Event_Listeners;
+         Sub_Event_Observers : access Client_Sub_Event_Listeners;
       end record;
 
    package Client_Attribute is new Ada.Task_Attributes
      (Attribute => Client_Data, Initial_Value =>
-        (Client_Ref      => null,
-         Event_Observers => null));
+        (Client_Ref          => null,
+         Event_Observers     => null,
+         Sub_Event_Observers => null));
 
 --     procedure Notify (Event  : in AMI.Event.Event_Type;
 --                          Packet : in AMI.Parser.Packet_Type);
@@ -115,6 +120,15 @@ package body ESL.Client.Tasking is
       return Attr.Event_Observers (Stream)'Access;
    end Event_Stream;
 
+   function Sub_Event_Stream (Client : in Instance;
+                              Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
+                              return Event_Streams_Access is
+      Attr : Client_Data renames
+        Client_Attribute.Value (T => Client'Identity);
+   begin
+      return Attr.Sub_Event_Observers (Stream)'Access;
+   end Sub_Event_Stream;
+
    ----------------
    --  Dispatch  --
    ----------------
@@ -145,7 +159,7 @@ package body ESL.Client.Tasking is
    --  Shutdown_Handler  --
    ------------------------
 
-   protected body Shutdown_Handler is
+protected body Shutdown_Handler is
 
       procedure Termination_Finalizer
         (Cause : in Ada.Task_Termination.Cause_Of_Termination;
@@ -279,9 +293,10 @@ package body ESL.Client.Tasking is
 --     end Notify;
 
    procedure Send (Obj    : in Instance;
-                   Packet : in ESL.Command.Instance) is
+                   Packet : in ESL.Command.Instance'Class) is
    begin
-      Client_Attribute.Value (Obj'Identity).Client_Ref.Send (Packet);
+      Client_Attribute.Value
+        (Obj'Identity).Client_Ref.Send (String (Packet.Serialize));
    end Send;
 
    procedure Send (Obj    : in Instance;

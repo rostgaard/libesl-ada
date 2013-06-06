@@ -19,11 +19,14 @@ package ESL.Packet_Keys is
    type Events is (Unknown, Channel_Create);
 
    type Inbound_Events is (API, HEARTBEAT, RE_SCHEDULE, CHANNEL_STATE,
+                           COMMAND,
                            CHANNEL_CREATE,
                            CHANNEL_CALLSTATE, CHANNEL_EXECUTE,
                            CHANNEL_EXECUTE_COMPLETE, CODEC,
                            CHANNEL_PROGRESS_MEDIA,
                            CHANNEL_ANSWER,
+                           CHANNEL_HOLD,
+                           CHANNEL_UNHOLD,
                            CHANNEL_OUTGOING,
                            CHANNEL_ORIGINATE,
                            CHANNEL_BRIDGE,
@@ -42,6 +45,8 @@ package ESL.Packet_Keys is
                            MESSAGE_WAITING,
                            PLAYBACK_START,
                            PLAYBACK_STOP);
+
+   type Inbound_Sub_Events is ();
 
    type Header_Keys is
      (Unknown,

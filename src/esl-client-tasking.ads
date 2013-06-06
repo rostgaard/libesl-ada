@@ -35,7 +35,7 @@ package ESL.Client.Tasking is
    pragma Obsolescent (Send);
 
    procedure Send (Obj    : in Instance;
-                   Packet : in ESL.Command.Instance);
+                   Packet : in ESL.Command.Instance'Class);
    --  function Send (Packet : AMI.Packet.Action.Request)
    --  return AMI.Packet.Reponse;
 
@@ -50,6 +50,10 @@ package ESL.Client.Tasking is
    function Event_Stream (Client : in Instance;
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access;
+
+   function Sub_Event_Stream (Client : in Instance;
+                              Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
+                              return Event_Streams_Access;
 
 private
    type Event_Streams is new ESL.Observer.Observables with

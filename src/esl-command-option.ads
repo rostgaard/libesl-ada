@@ -28,7 +28,7 @@ package ESL.Command.Option is
    function "=" (Left, Right : in Instance) return Boolean;
 private
 
-   Option_Seperator : constant String := ",";
+   Key_Value_Separator : constant String := "=";
 
    type Instance is tagged
       record

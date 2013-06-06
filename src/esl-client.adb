@@ -220,7 +220,13 @@ package body ESL.Client is
                    Item   : in String) is
    begin
       Client.Wait_For_Connection;
-      String'Write (Client.Channel, Item);
+
+      ESL.Trace.Information (Message => "Sending: " & Item,
+                             Context => "client.Send");
+
+      String'Write (Client.Channel, Item &
+                      ASCII.CR & ASCII.LF &
+                      ASCII.CR & ASCII.LF);
    end Send;
 
    ------------

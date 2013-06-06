@@ -28,15 +28,39 @@ package body ESL.Command is
         (New_Item => To_Unbounded_String (Component));
    end Add_Component;
 
+   function Image (Command : Serialized_Command) return String is
+   begin
+      return String (Command);
+   end Image;
+
    -----------------
    --  Serialize  --
    -----------------
 
    function Serialize (Obj : in Instance)
                        return Serialized_Command is
+      use Command_Component_Storage;
+      Buffer : Unbounded_String := Obj.Command & " ";
    begin
-      raise Program_Error with "Not implemented";
-      return "";
+      for C in Obj.Command_Components.Iterate loop
+         Append (Buffer, Element (C));
+
+         if C /= Obj.Command_Components.Last then
+            Append (Buffer, " ");
+         end if;
+      end loop;
+
+      return Serialized_Command (To_String (Buffer));
    end Serialize;
+
+   -------------------
+   --  Set_Command  --
+   -------------------
+
+   procedure Set_Command (Obj     :    out Instance;
+                          Command : in     String) is
+   begin
+      Obj.Command := To_Unbounded_String (Command);
+   end Set_Command;
 
 end ESL.Command;

@@ -38,12 +38,6 @@ package ESL.Channel.List.Observers is
 --  CHANNEL_STATE
 --  CHANNEL_UNBRIDGE
 
-   type Channel_Observer is abstract
-     new ESL.Observer.Event_Observers.Instance with
-      record
-         Channel_List : access Channel.List.Instance'Class := null;
-      end record;
-
    type State_Observer is
      new Channel_Observer with null record;
 

@@ -15,28 +15,26 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Command.Option;
+package body ESL.Command.Option is
 
-package ESL.Command.Option_List is
+   function "=" (Left, Right : in Instance) return Boolean is
+   begin
+      return Left.Key = Right.Key;
+   end "=";
 
-   type Instance is tagged private;
-
-   procedure Add (Obj    : in out Instance;
-                  Option : in     ESL.Command.Option.Instance);
+   function Create (Key   : in String;
+                    Value : in String) return Instance is
+   begin
+      return (Key   => To_Unbounded_String (Key),
+              Value => To_Unbounded_String (Value));
+   end Create;
 
    function Serialize (Obj : in Instance)
-                       return Serialized_Command;
-private
-   use ESL.Command.Option;
+                       return Serialized_Command is
+   begin
+      return Serialized_Command
+        (To_String (Obj.Key) &
+           Key_Value_Separator & To_String (Obj.Value));
+   end Serialize;
 
-   Option_Separator : constant String := ",";
-
-   package Option_Storage is new Ada.Containers.Doubly_Linked_Lists
-     (Element_Type => ESL.Command.Option.Instance);
-
-   type Instance is tagged
-      record
-         Options : Option_Storage.List;
-      end record;
-
-end ESL.Command.Option_List;
+end ESL.Command.Option;

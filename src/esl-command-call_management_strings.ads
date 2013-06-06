@@ -15,28 +15,6 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Command.Option;
-
-package ESL.Command.Option_List is
-
-   type Instance is tagged private;
-
-   procedure Add (Obj    : in out Instance;
-                  Option : in     ESL.Command.Option.Instance);
-
-   function Serialize (Obj : in Instance)
-                       return Serialized_Command;
-private
-   use ESL.Command.Option;
-
-   Option_Separator : constant String := ",";
-
-   package Option_Storage is new Ada.Containers.Doubly_Linked_Lists
-     (Element_Type => ESL.Command.Option.Instance);
-
-   type Instance is tagged
-      record
-         Options : Option_Storage.List;
-      end record;
-
-end ESL.Command.Option_List;
+package ESL.Command.Call_Management_Strings is
+   Originate : constant String := "originate";
+end ESL.Command.Call_Management_Strings;

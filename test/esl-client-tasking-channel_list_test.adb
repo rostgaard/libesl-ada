@@ -36,7 +36,7 @@ procedure ESL.Client.Tasking.Channel_List_Test is
 
    procedure Usage is
    begin
-      Put_Line ("Usage:" & Command_Name & " hostname port");
+      Put_Line ("Usage:" & Command_Name & " hostname port password");
       Set_Exit_Status (Failure);
    end Usage;
 
@@ -47,13 +47,13 @@ begin
 
    --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
 
-   if Argument_Count < 2 then
+   if Argument_Count < 3 then
       Usage;
       return;
    end if;
 
    Connect (Client, Argument (1), Natural'Value (Argument (2)));
-   Authenticate (Client, Password => "1234");
+   Authenticate (Client, Password => Argument (3));
 
    Send (Client, "event plain ALL" &
            ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);

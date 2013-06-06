@@ -15,28 +15,14 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Command.Option;
+with Ada.Text_IO; use Ada.Text_IO;
 
-package ESL.Command.Option_List is
+procedure ESL.Command.Call_Management.Test is
+   Command : ESL.Command.Call_Management.Instance :=
+     Originate (Call_URL         => "user/1001",
+                Extension        => "5900");
 
-   type Instance is tagged private;
+begin
+   Put_Line ("""" & ESL.Command.Image (Command.Serialize) & """");
+end ESL.Command.Call_Management.Test;
 
-   procedure Add (Obj    : in out Instance;
-                  Option : in     ESL.Command.Option.Instance);
-
-   function Serialize (Obj : in Instance)
-                       return Serialized_Command;
-private
-   use ESL.Command.Option;
-
-   Option_Separator : constant String := ",";
-
-   package Option_Storage is new Ada.Containers.Doubly_Linked_Lists
-     (Element_Type => ESL.Command.Option.Instance);
-
-   type Instance is tagged
-      record
-         Options : Option_Storage.List;
-      end record;
-
-end ESL.Command.Option_List;

@@ -15,36 +15,61 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Strings;
+with Ada.Strings.Fixed;
+
+with ESL.Command.Call_Management_Strings;
+
 package body ESL.Command.Call_Management is
+   use ESL.Command;
+
+   procedure Add_Option (Obj    : in out Instance;
+                         Option : in     ESL.Command.Option.Instance) is
+   begin
+      Obj.Options.Add (Option);
+   end Add_Option;
 
    function Originate (Call_URL         : in String;
                         --  URL you are calling.
                         Extension        : in String;
                         --  Destination number to enter dialplan with
-                        Dialplan         : in String := "";
+                        Dialplan         : in String := "xml";
                         --  Which dialplan to perform the lookup in.
                         --  Defaults to 'xml'.
-                        Context          : in String := "";
+                        Context          : in String := "default";
                         --  Defaults to 'default'.
                         Caller_ID_Name   : in String := "";
                         --  CallerID name.
                         Caller_ID_Number : in String := "";
                         --  CallerID number.
-                        Timeout          : in Duration;
+                        Timeout          : in Duration := Duration'First
                         --  Timeout in seconds.
-                        Options : Originate_Parameters)
+                      )
                        return Instance is
       Obj : Instance;
    begin
+      Obj.Set_Command ("api " & Call_Management_Strings.Originate);
       Obj.Add_Component (Call_URL);
+      Obj.Add_Component (Extension);
+      Obj.Add_Component (Dialplan);
+      Obj.Add_Component (Context);
+
+      if Caller_ID_Name /= "" then
+         Obj.Add_Component (Caller_ID_Name);
+      end if;
+
+      if Caller_ID_Number /= "" then
+         Obj.Add_Component (Caller_ID_Number);
+      end if;
+
+      if Timeout /= Duration'First then
+
+         Obj.Add_Component (Ada.Strings.Fixed.Trim
+                            (Source => Timeout'Img,
+                             Side   => Ada.Strings.Both));
+      end if;
 
       return Obj;
    end Originate;
-
-   procedure Add_Option (Obj    : in out Instance;
-                         Option : in     ESL.Command.Option_List.Options) is
-   begin
-      Obj.Options.Add (Option);
-   end Add_Option;
 
 end ESL.Command.Call_Management;

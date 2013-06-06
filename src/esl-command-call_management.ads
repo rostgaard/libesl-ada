@@ -18,16 +18,17 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+with ESL.Command.Option;
 with ESL.Command.Option_List;
 
 package ESL.Command.Call_Management is
    use ESL;
    use Ada.Strings.Unbounded;
 
-   type Instance is tagged private;
+   type Instance is new Command.Instance with private;
 
    procedure Add_Option (Obj    : in out Instance;
-                         Option : in     ESL.Command.Option_List.Options);
+                         Option : in     ESL.Command.Option.Instance);
    --  Adds an option to a given command.
 
    procedure Break is null;
@@ -58,18 +59,18 @@ package ESL.Command.Call_Management is
                         --  URL you are calling.
                         Extension        : in String;
                         --  Destination number to enter dialplan with
-                        Dialplan         : in String := "";
+                        Dialplan         : in String := "xml";
                         --  Which dialplan to perform the lookup in.
                         --  Defaults to 'xml'.
-                        Context          : in String := "";
+                        Context          : in String := "default";
                         --  Defaults to 'default'.
                         Caller_ID_Name   : in String := "";
                         --  CallerID name.
                         Caller_ID_Number : in String := "";
                         --  CallerID number.
-                        Timeout          : in Duration;
-                        --  Timeout in seconds.
-                        Options : Originate_Parameters)
+                        Timeout          : in Duration := Duration'First
+                       --  Timeout in seconds.
+                       )
    return Instance;
    --  Originate a new Call using an extension.
 

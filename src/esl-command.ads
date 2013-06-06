@@ -24,6 +24,11 @@ package ESL.Command is
 
    function Serialize (Obj : in Instance)
                        return Serialized_Command;
+
+   function Image (Command : Serialized_Command) return String;
+
+   procedure Set_Command (Obj     :    out Instance;
+                          Command : in     String);
 private
    use Ada.Strings.Unbounded;
 
@@ -34,6 +39,7 @@ private
 
    type Instance is abstract tagged
       record
+         Command            : Unbounded_String;
          Command_Components : Command_Component_Storage.List;
       end record;
 
