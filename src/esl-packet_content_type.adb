@@ -38,6 +38,33 @@ package body ESL.Packet_Content_Type is
    end "=";
 
    -------------
+   --  Image  --
+   -------------
+
+   function Image (Item : in Composite) return String is
+      use Ada.Strings.Fixed;
+      use Ada.Strings.Maps.Constants;
+      use ESL.Parsing_Utilities;
+
+   begin
+      return
+        Underscore_To_Dash (Translate (Source  => Item.Base'Img,
+                                       Mapping => Lower_Case_Map)) & "/" &
+        Underscore_To_Dash (Translate (Source  => Item.Sub'Img,
+                                       Mapping => Lower_Case_Map));
+
+   end Image;
+
+   function Image (Item : in Content_Types) return String is
+      use Ada.Strings.Fixed;
+      use Ada.Strings.Maps.Constants;
+      use ESL.Parsing_Utilities;
+   begin
+      return Underscore_To_Dash (Translate (Source  => Item'Img,
+                                            Mapping => Lower_Case_Map));
+   end Image;
+
+   -------------
    --  Value  --
    -------------
 
@@ -70,6 +97,8 @@ package body ESL.Packet_Content_Type is
    function Value (Item : in String) return Content_Types is
       use ESL.Parsing_Utilities;
 
+      function Sanitize (Item : in String) return String;
+
       function Sanitize (Item : in String) return String is
       begin
          return Slash_To_Underscore (Dash_To_Underscore (Item));
@@ -90,33 +119,6 @@ package body ESL.Packet_Content_Type is
       raise Program_Error with "Not implemented";
       return Null_Instance;
    end Value;
-
-   -------------
-   --  Image  --
-   -------------
-
-   function Image (Item : in Composite) return String is
-      use Ada.Strings.Fixed;
-      use Ada.Strings.Maps.Constants;
-      use ESL.Parsing_Utilities;
-
-   begin
-      return
-        Underscore_To_Dash (Translate (Source  => Item.Base'Img,
-                                       Mapping => Lower_Case_Map)) & "/" &
-        Underscore_To_Dash (Translate (Source  => Item.Sub'Img,
-                                       Mapping => Lower_Case_Map));
-
-   end Image;
-
-   function Image (Item : in Content_Types) return String is
-      use Ada.Strings.Fixed;
-      use Ada.Strings.Maps.Constants;
-      use ESL.Parsing_Utilities;
-   begin
-      return Underscore_To_Dash (Translate (Source  => Item'Img,
-                                            Mapping => Lower_Case_Map));
-   end Image;
 
    -------------
    --  Value  --

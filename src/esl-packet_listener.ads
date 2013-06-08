@@ -25,11 +25,11 @@ package ESL.Packet_Listener is
                                                  Element_Type => Natural);
 
    procedure Add_Filter (Obj  : in out Instance;
-                         Item : in     Filter.Vector);
+                         Item : in     Filter.Vector) is null;
 
-   procedure Clear_Filters (Obj  : in out Instance);
+   procedure Clear_Filters (Obj  : in out Instance) is null;
 
    procedure Delete_Filter (Obj  : in out Instance;
-                            Item : in     Filter.Vector);
+                            Item : in     Filter.Vector) is null;
 
 end ESL.Packet_Listener;

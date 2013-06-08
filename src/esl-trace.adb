@@ -63,7 +63,8 @@ package body ESL.Trace is
    begin
       if not (Muted (Information) or Muted (Every)) then
          if Context /= "" then
-            Put_Line (Kind'Image (Information) & ": " & Context & ": " & Message);
+            Put_Line
+              (Kind'Image (Information) & ": " & Context & ": " & Message);
          else
             Put_Line (Kind'Image (Information) & ": " & Message);
          end if;
@@ -79,6 +80,15 @@ package body ESL.Trace is
       Muted (Trace) := True;
    end Mute;
 
+   ---------------------------
+   --  Set_Debug_Threshold  --
+   ---------------------------
+
+   procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels) is
+   begin
+      Current_Debug_Threshold := New_Threshold;
+   end Set_Debug_Threshold;
+
    --------------
    --  Unmute  --
    --------------
@@ -88,13 +98,4 @@ package body ESL.Trace is
       Muted (Trace) := False;
    end Unmute;
 
-   ---------------------------
-      --  Set_Debug_Threshold  --
-      ---------------------------
-
-      procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels) is
-      begin
-         Current_Debug_Threshold := New_Threshold;
-      end Set_Debug_Threshold;
-
-   end ESL.Trace;
+end ESL.Trace;

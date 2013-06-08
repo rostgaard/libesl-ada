@@ -31,6 +31,9 @@ clean: tests_clean
 	gnatclean -P esl_build
 	BUILDTYPE=Debug gnatclean -P esl_build
 
+distclean: clean
+	rm esl
+
 uninstall:
 	rm -rf $(PREFIX)/esl
 	rm -rf $(PREFIX)/include/esl
@@ -45,6 +48,7 @@ install: all
 	cp -pr esl.gpr.dist $(PREFIX)/lib/gnat/esl.gpr
 
 tests: esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
+
 tests_clean:
 	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
 	

@@ -19,13 +19,6 @@ with ESL.Trace;
 
 package body ESL.Observer is
 
-   type Ost is null record;
-
-   --     function "=" (Left, Right : in Reference) return Boolean is
---     begin
---        return True;
---     end "=";
-
    procedure Finalize (Observer : in out Observers) is
    begin
       Unregister (Observer.Observing, Observer'Access);

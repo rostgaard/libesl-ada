@@ -16,7 +16,6 @@
 -------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
 with Ada.Exceptions;

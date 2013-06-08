@@ -106,21 +106,7 @@ package ESL.Client is
 
    function Channel_List (Obj : in Instance) return Channel.List.Reference;
 
---     type Event_Streams is new ESL.Observer.Observables with private;
---     type Event_Streams_Access is access all Event_Streams;
---
---     function Event_Stream (Client : in Instance;
---                            Stream : in ESL.Packet_Keys.Inbound_Events)
---                            return Event_Streams_Access;
---
---     function Sub_Event_Stream
---  (Client : in Instance;
---                                Stream : in ESL.Packet_Keys.Inbound_Sub_Event	s)
---                                return Event_Streams_Access;
---
 private
---     type Event_Streams is new ESL.Observer.Observables with
---       null record;
 
    procedure Ignore is null;
    Ignore_Event : constant Connection_Event_Handler := Ignore'Access;

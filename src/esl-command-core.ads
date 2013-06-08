@@ -25,8 +25,8 @@ package ESL.Command.Core is
    --  The blocking member determines if command should be sent with
    --  "api" (blocking) or "bgapi" (non-blockin).
 
-   function Serialize (Obj : in Instance)
-                       return Serialized_Command;
+--     function Serialize (Obj : in Instance)
+--                         return Serialized_Command;
 
    procedure ACL (IP_Address : String;
                   List       : String) is null;

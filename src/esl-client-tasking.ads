@@ -16,7 +16,6 @@
 -------------------------------------------------------------------------------
 
 with ESL.Observer;
-with ESL.Command;
 with ESL.Packet_Keys;
 
 package ESL.Client.Tasking is
@@ -37,6 +36,8 @@ package ESL.Client.Tasking is
                               return Event_Streams_Access;
 
 private
+
+   --  TODO: Add initialization and finalization.
 
    Recheck_Connection_Delay : constant Duration := 2.0;
    --  How long we should wait between connection polling.

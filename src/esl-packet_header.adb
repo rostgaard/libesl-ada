@@ -63,35 +63,32 @@ package body ESL.Packet_Header is
          raise;
    end Add_Header;
 
-   function Empty (Obj : in Instance) return Boolean is
-   begin
-      return Obj.Fields.Is_Empty;
-   end Empty;
+   ----------------------
+   --  Content_Length  --
+   ----------------------
 
-   function Image (Item : Instance) return String is
-      use Ada.Strings.Unbounded;
-      use Header_Storage;
-
-      Buffer : Unbounded_String;
+   function Content_Length (Obj : in Instance) return Natural is
    begin
-      for C in Item.Fields.Iterate loop
-         Append (Buffer, (Key (C)'Img));
-         Append (Buffer, ": ");
-         Append (Buffer, Element (C).Value);
-         Append (Buffer, ASCII.LF);
-      end loop;
-      return To_String (Buffer);
-   end Image;
+      return Obj.Content_Length;
+   end Content_Length;
+
+   --------------------
+   --  Content_Type  --
+   --------------------
 
    function Content_Type (Obj : in Instance) return Content_Types is
    begin
       return Obj.Content_Type;
    end Content_Type;
 
-   function Content_Length (Obj : in Instance) return Natural is
+   -------------
+   --  Empty  --
+   -------------
+
+   function Empty (Obj : in Instance) return Boolean is
    begin
-      return Obj.Content_Length;
-   end Content_Length;
+      return Obj.Fields.Is_Empty;
+   end Empty;
 
    -----------------------
    --  Equivalent_Keys  --
@@ -114,4 +111,23 @@ package body ESL.Packet_Header is
    begin
       return Packet_Keys.Header_Keys'Pos (Item);
    end Hash_Header;
+
+   -------------
+   --  Image  --
+   -------------
+
+   function Image (Item : Instance) return String is
+      use Ada.Strings.Unbounded;
+      use Header_Storage;
+
+      Buffer : Unbounded_String;
+   begin
+      for C in Item.Fields.Iterate loop
+         Append (Buffer, (Key (C)'Img));
+         Append (Buffer, ": ");
+         Append (Buffer, Element (C).Value);
+         Append (Buffer, ASCII.LF);
+      end loop;
+      return To_String (Buffer);
+   end Image;
 end ESL.Packet_Header;

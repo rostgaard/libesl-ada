@@ -38,7 +38,7 @@ package body ESL.Channel.List is
             Ch.State := New_State;
          end Process;
 
-         C : Cursor := Storage.Find (Key);
+         C : constant Cursor := Storage.Find (Key);
 
       begin
          --  TODO: check if this is okay to do.
@@ -95,6 +95,8 @@ package body ESL.Channel.List is
 
    --  TODO
    function Create (Packet : in ESL.Packet.Instance) return Instance is
+      pragma Unreferenced (Packet);
+
    begin
       return Create;
    end Create;

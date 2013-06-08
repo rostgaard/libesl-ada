@@ -25,6 +25,7 @@ package body ESL.Channel.List.Observers is
                      Packet   : in     ESL.Packet.Instance;
                      Client   : in     ESL.Client.Reference) is
       Context : constant String := Package_Name & "Nofity (State_Observer)";
+      pragma Unreferenced (Observer);
 
    begin
 
@@ -44,6 +45,7 @@ package body ESL.Channel.List.Observers is
                      Client   : in     ESL.Client.Reference) is
       Context : constant String := Package_Name & "Nofity (Answer_Observer)";
 
+      pragma Unreferenced (Observer, Packet, Client);
    begin
       ESL.Trace.Debug (Message => "Triggered",
                        Context => Context);
@@ -52,8 +54,11 @@ package body ESL.Channel.List.Observers is
    procedure Notify (Observer : access Create_Observer;
                      Packet   : in     ESL.Packet.Instance;
                     Client   : in     ESL.Client.Reference) is
+      pragma Unreferenced (Observer);
+
       Context : constant String := Package_Name & "Nofity (Create_Observer)";
-      C       : Channel.Instance := Channel.Create (Packet => Packet);
+      C       : constant Channel.Instance := Channel.Create (Packet => Packet);
+
    begin
       ESL.Trace.Information (Message => "Triggered",
                              Context => Context);
