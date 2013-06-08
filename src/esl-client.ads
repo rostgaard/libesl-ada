@@ -97,7 +97,7 @@ package ESL.Client is
    --  Raises TIMEOUT if the connection is not established within the
    --  given duration.
 
-   type Reference is access Instance;
+   type Reference is access all Instance;
 
    function Stream (Obj : in Instance)
                     return Ada.Streams.Stream_IO.Stream_Access;
@@ -113,8 +113,9 @@ package ESL.Client is
 --                            Stream : in ESL.Packet_Keys.Inbound_Events)
 --                            return Event_Streams_Access;
 --
---     function Sub_Event_Stream (Client : in Instance;
---                                Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
+--     function Sub_Event_Stream
+--  (Client : in Instance;
+--                                Stream : in ESL.Packet_Keys.Inbound_Sub_Event	s)
 --                                return Event_Streams_Access;
 --
 private
@@ -133,7 +134,8 @@ private
          Initialized           : Boolean := False;
          Connected             : Boolean := False;
          Authenticated         : Boolean := False;
-         Channels              : Channel.List.Instance;
+         Channels              : Channel.List.Reference
+           := new Channel.List.Instance;
          Shutdown              : Boolean := False;
          Socket                : GNAT.Sockets.Socket_Type :=
            GNAT.Sockets.No_Socket;

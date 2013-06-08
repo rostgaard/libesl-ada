@@ -15,7 +15,7 @@ procedure ESL.Client.Tasking.Test is
    use ESL.Trace;
    use Client.Tasking.Test_Utilities;
 
-   Client : ESL.Client.Tasking.Instance := Create;
+   Client : ESL.Client.Tasking.Instance;
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream (Client => Client,
@@ -43,7 +43,7 @@ begin
 
    if Argument_Count < 3 then
       Usage;
-      --TODO: STOP the task.
+      --  TODO: STOP the task.
       return;
    end if;
 
@@ -53,6 +53,6 @@ begin
    Send (Client, "event plain ALL");
 
    Send (Client, "api status");
-   ESL.Client.Tasking.Send (Client, Command);
+   Client.Send (String (Command.Serialize));
 
 end ESL.Client.Tasking.Test;

@@ -15,7 +15,7 @@ procedure ESL.Client.Tasking.Channel_List_Test is
    use ESL;
    use Client.Tasking.Test_Utilities;
 
-   Client : ESL.Client.Tasking.Instance := Create;
+   Client : ESL.Client.Tasking.Instance;
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream (Client => Client,

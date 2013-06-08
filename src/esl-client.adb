@@ -22,17 +22,9 @@ with ESL.Trace;
 with Ada.Exceptions;
 
 package body ESL.Client is
-   use Ada.Strings.Unbounded;
    use ESL.Trace;
    use ESL;
    use GNAT.Sockets;
-
-   task body Reader_Task is
-   begin
-      null;
-   end Reader_Task;
-
-
 
    -----------
    --  "="  --
@@ -59,6 +51,11 @@ package body ESL.Client is
       Obj.Send ("auth " & Password & ESL.End_Packet_String);
 
    end Authenticate;
+
+   function Channel_List (Obj : in Instance) return Channel.List.Reference is
+   begin
+      return Obj.Channels;
+   end Channel_List;
 
    ---------------
    --  Connect  --
@@ -133,7 +130,7 @@ package body ESL.Client is
    procedure Disconnect (Client : in out Instance) is
    begin
       --  TODO: send "exit"
-      Obj.Connected := False;
+      Client.Connected := False;
       Shutdown_Socket (Client.Socket);
    end Disconnect;
 
