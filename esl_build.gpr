@@ -13,6 +13,8 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with "gnatcoll";
+
 library project ESL_Build is
 
    type Build_Type is ("Debug", "Production");
