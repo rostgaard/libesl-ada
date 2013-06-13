@@ -299,6 +299,16 @@ package body ESL.Client is
       return Ada.Streams.Stream_IO.Stream_Access (Obj.Channel);
    end Stream;
 
+   ----------------
+   --  Shutdown  --
+   ----------------
+
+   procedure Shutdown (Client : in out Instance) is
+   begin
+      Client.Shutdown  := True;
+      Client.Disconnect;
+   end Shutdown;
+
    ---------------------------
    --  Wait_For_Connection  --
    ---------------------------

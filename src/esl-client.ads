@@ -49,6 +49,8 @@ package ESL.Client is
 
    procedure Disconnect (Client : in out Instance);
 
+   procedure Shutdown (Client : in out Instance);
+
    procedure Authenticate (Obj     : in out Instance;
                            Password : in     String);
 

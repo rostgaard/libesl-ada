@@ -176,11 +176,28 @@ package body ESL.Client.Tasking is
       end Reader_Loop;
 
    begin
+      Trace.Information (Context => Context,
+                         Message => "Starting stream consumer.");
+
       while not Owner.Shutdown loop
          delay until Next_Attempt;
          Next_Attempt := Next_Attempt + Recheck_Connection_Delay;
          Reader_Loop;
       end loop;
+
+      Trace.Information (Context => Context,
+                         Message => "Ending stream consumer.");
+   exception
+      when Ada.IO_Exceptions.End_Error =>
+         Trace.Error (Context => Context,
+                      Message => "Reader operated on closed socket");
+         Owner.Connected := False;
+      when Connection_Timeout =>
+         Trace.Error (Context => Context,
+                      Message => "Timeout reached for reader");
+      when others =>
+         Trace.Error (Context => Context,
+                      Message => "other error");
    end Stream_Reader;
 
    --------------

@@ -28,6 +28,12 @@ package body ESL.Channel is
       Obj.Variables.Add_Variable (Variable => Variable);
    end Add_Variable;
 
+   function Create return Instance is
+      Obj : Instance;
+   begin
+      return Obj;
+   end Create;
+
    --------------
    --  Create  --
    --------------

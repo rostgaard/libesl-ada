@@ -54,6 +54,9 @@ package ESL.Channel is
    function Create (Packet : in ESL.Packet.Instance) return Instance;
    --
 
+   function Create return Instance;
+   --  Empty instance;
+
    function Image (Obj : in Instance) return String;
 
    procedure Add_Variable (Obj      : in out Instance;

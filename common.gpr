@@ -1,3 +1,4 @@
+With "aws";
 With "gnatcoll";
 
 project Common is
@@ -31,7 +32,7 @@ project Common is
                                               "-gnaty3abcdefhiklmnoprstux",
                                               "-Wall",
                                               "-O2",
-                                              "-gnat2005");
+                                              "-gnat2012");
          when "Debug" =>
             for Default_Switches ("Ada") use ("-fstack-check",
                                               "-gnatA",
@@ -44,7 +45,7 @@ project Common is
                                               "-gnatE",
                                               "-Wall",
                                               "-O1",
-                                              "-gnat2005",
+                                              "-gnat2012",
                                               "-g");
 
       end case;

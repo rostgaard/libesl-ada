@@ -26,7 +26,7 @@ begin
          Packet : constant ESL.Packet.Instance :=
            ESL.Parsing_Utilities.Read_Packet (Stream => Client.Stream);
       begin
-         Count := Count+1;
+         Count := Count + 1;
          Put_Line (Packet.Content_Type'Img & Count'Img);
       end;
    end loop;
