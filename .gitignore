@@ -5,3 +5,19 @@ debug/
 # Test executables:
 esl-client-tasking-test
 
+# Do not track build objects.
+build*/*
+!build*/.gitignore
+
+# Do not track emacs temporary and backup files
+\#*#
+*~
+
+# Do not track Nano temporary files
+.#*#
+
+# Do not track Vi(m) temporary files
+.*.swp
+
+# Local files @krc
+TODO

@@ -1,5 +1,11 @@
+Libesl
+======
 ESL library for use with Freeswitch PBX written in Ada.
 
-######
+Status
+------
+Usable with little testing done.
 
-Status: early alpha, with missing features.
+Usage
+-----
+Check out test/esl-client-tasking-test.adb for an example on how to use the client.
