@@ -253,7 +253,12 @@ package ESL.Packet_Keys is
       Caller_RDNIS,
       Other_Leg_Callee_ID_Name,
       Other_Leg_Callee_ID_Number,
-      Other_Leg_RDNIS
+      Other_Leg_RDNIS,
+      FIFO_Name,
+      FIFO_Action,
+      FIFO_Slot,
+      Playback_File_Type,
+      Playback_File_Path
      );
 
    String_Key : constant array (Event_Keys'Range) of access String :=

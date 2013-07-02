@@ -13,13 +13,16 @@
 #                                                                             #
 ###############################################################################
 
+LIBNAME=esl
 GPR_TARGET=lib/gnat/ 
 GNATMAKE_TEST=gnatmake -P common
 include makefile.setup
 
-all: esl
+all: ${LIBNAME}
 
-esl:
+esl: esl_build
+
+${LIBNAME}_build:
 	-mkdir lib
 	-mkdir build
 	gnatmake -P esl_build && touch esl

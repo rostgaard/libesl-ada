@@ -124,6 +124,10 @@ package body ESL.Packet is
                    Key : in Packet_Keys.Event_Keys)
                    return Packet_Field.Instance is
    begin
+      if not Obj.Payload.Contains (Key) then
+         raise Constraint_Error with "No value for key " & Key'Img;
+      end if;
+
       case Obj.Header.Content_Type is
          when Null_Value =>
             raise Constraint_Error with "Null packet";

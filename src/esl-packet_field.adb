@@ -14,6 +14,7 @@
 --  <http://www.gnu.org/licenses/>.                                          --
 --                                                                           --
 -------------------------------------------------------------------------------
+with URL_Utilities;
 
 package body ESL.Packet_Field is
 
@@ -63,6 +64,15 @@ package body ESL.Packet_Field is
       return  (Key   => Key,
                Value => To_Unbounded_String (Value));
    end Create;
+
+   ---------------------
+   --  Decoded_Value  --
+   ---------------------
+
+   function Decoded_Value (Obj : in Instance) return String is
+   begin
+      return URL_Utilities.Decode (To_String (Obj.Value));
+   end Decoded_Value;
 
    -------------
    --  Image  --

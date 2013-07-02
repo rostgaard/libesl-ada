@@ -40,6 +40,8 @@ package ESL.Packet_Field is
 
    function Value (Obj : in Instance) return String;
 
+   function Decoded_Value (Obj : in Instance) return String;
+
    function "=" (Left  : in Instance;
                  Right : in Instance) return Boolean;
 

@@ -34,7 +34,7 @@ library project ESL_Build is
 
    for Library_Dir use "lib";
 
-   for Library_Name use "ami";
+   for Library_Name use "esl";
 
    package Ide is
 
