@@ -28,6 +28,7 @@ ${LIBNAME}_build:
 	gnatmake -P esl_build && touch esl
 
 debug:
+	mkdir -p debug
 	BUILDTYPE=Debug gnatmake -P esl_build
 
 clean: tests_clean
@@ -56,15 +57,19 @@ tests_clean:
 	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
 	
 esl-client-tasking-test:
+	mkdir -p build debug
 	${GNATMAKE_TEST} $@
 
 esl-packet_content_type-test:
+	mkdir -p build debug
 	${GNATMAKE_TEST} $@
 
 esl-packet-test:
+	mkdir -p build debug
 	${GNATMAKE_TEST} $@
 
 parser:
+	mkdir -p build debug
 	${GNATMAKE_TEST} $@
 
-.PHONY: tests
+.PHONY: debug tests

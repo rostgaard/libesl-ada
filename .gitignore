@@ -1,0 +1,7 @@
+# Build directories:
+build/
+debug/
+
+# Test executables:
+esl-client-tasking-test
+
