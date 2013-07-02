@@ -51,11 +51,14 @@ package ESL.Client is
 
    procedure Shutdown (Client : in out Instance);
 
+   function Image (Client : in Instance) return String;
+
    procedure Authenticate (Obj     : in out Instance;
                            Password : in     String);
 
    procedure Set_Log_Level (Obj   : in out Instance;
                             Level : in     Natural);
+   --  Corresponds to "log".
 
    function Receive (Client : in Instance;
                      Count  : in Natural) return String;
@@ -76,11 +79,15 @@ package ESL.Client is
    procedure Send (Client : in Instance;
                    Item   : in String);
    --  Send an abitrary string. Use this as a last resort, as most should be
-   --  available through AMI.Packet.Action.
+   --  available via ESL.Command.*
+   pragma Obsolescent
+     (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
    procedure Send (Client : in Instance;
                    Item   : in ESL.Command.Instance);
    --  Primary send function.
+   pragma Obsolescent
+     (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
    --  function Send (Client : in Instance;
    --                 Item   : in AMI.Packet.Action.Request)

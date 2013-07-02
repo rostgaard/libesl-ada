@@ -153,13 +153,23 @@ package body ESL.Client is
       return Parsing_Utilities.Get_Line (Stream => Client.Channel);
    end Get_Line;
 
+   -------------
+   --  Image  --
+   -------------
+
+   function Image (Client : in Instance) return String is
+   begin
+      raise Program_Error with "Not implemented!";
+      return "";
+   end Image;
+
    ------------------
    --  Initialize  --
    ------------------
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Trace.Debug ("Initialize (instance) called for new client" &
+      Trace.Information ("Initialize (instance) called for new client" &
                          Obj.Initialized'Img);
    end Initialize;
    --------------------

@@ -29,12 +29,55 @@ with ESL.Parsing_Utilities;
 
 package body ESL.Client.Tasking is
    use ESL;
+
+   procedure Dispatch (Client : access ESL.Client.Instance'Class;
+                       Packet : in ESL.Packet.Instance);
+
    protected Shutdown_Handler is
       procedure Termination_Finalizer
         (Cause : in Ada.Task_Termination.Cause_Of_Termination;
          T     : in Ada.Task_Identification.Task_Id;
          X     : in Ada.Exceptions.Exception_Occurrence);
    end Shutdown_Handler;
+
+   ----------------
+   --  Dispatch  --
+   ----------------
+
+   procedure Dispatch (Client : access ESL.Client.Instance'Class;
+                       Packet : in ESL.Packet.Instance) is
+      Context : constant String := Package_Name & ".Dispatch";
+   begin
+      if Packet.Is_Event then
+         declare
+            Observing : ESL.Observer.Observables renames
+              ESL.Observer.Observables
+                (ESL.Client.Tasking.Reference
+                     (Client).Event_Observers (Packet.Event));
+         begin
+
+            Trace.Debug (Context => Context,
+                         Message => Packet.Content_Type'Img);
+
+            ESL.Observer.Notify_Observers
+              (Observing => Observing,
+               Packet    => Packet,
+               Client    => ESL.Client.Reference (Client));
+         end;
+      end if;
+
+   exception
+      when E : others =>
+         ESL.Trace.Error (Message => "Dispatch Failed with" &
+                          Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
+         ESL.Trace.Error (Message => "Packet dump follows=====>",
+                          Context => Context);
+         ESL.Trace.Error (Message => Packet.Payload,
+                          Context => Context);
+         ESL.Trace.Error (Message => "<======Packet dump End",
+                          Context => Context);
+   end Dispatch;
 
    function Event_Stream (Client : in Instance;
                           Stream : in ESL.Packet_Keys.Inbound_Events)
@@ -50,31 +93,21 @@ package body ESL.Client.Tasking is
       return Client.Sub_Event_Observers (Stream)'Access;
    end Sub_Event_Stream;
 
-   ----------------
-   --  Dispatch  --
-   ----------------
+   ------------------
+   --  Initialize  --
+   ------------------
 
---     procedure Dispatch (Ref    : in Client.Reference;
---                         Packet : in AMI.Parser.Packet_Type) is
---        Context : constant String := Package_Name & ".Dispatch";
---        pragma Unreferenced (Context);
---        use AMI.Packet_Keys;
---
---        Attr : Client_Data renames Client_Attribute.Value;
---
---     begin
---
---        if Packet.Header.Key = AMI.Packet_Keys.Event then
---           --  Notify the local observers.
---           Notify (Event     => AMI.Event.Event_Type'Value
---                   (To_String (Packet.Header.Value)),
---                   Packet    => Packet);
---           --  Notify the global observers.
---           AMI.Observers.Notify (AMI.Event.Event_Type'Value
---                                 (To_String (Packet.Header.Value)),
---                                 Packet);
---        end if;
---     end Dispatch;
+   procedure Initialize (Obj : in out Instance) is
+   begin
+      Trace.Information ("Initialize (instance) called for new client" &
+                           Obj.Initialized'Img);
+   end Initialize;
+
+   procedure Finalize (Obj : in out Instance) is
+   begin
+      Trace.Information ("Finalize (instance) called for new client" &
+                           Obj.Initialized'Img);
+   end Finalize;
 
    ------------------------
    --  Shutdown_Handler  --
@@ -137,6 +170,11 @@ package body ESL.Client.Tasking is
 
       procedure Reader_Loop is
       begin
+
+         Ada.Task_Termination.Set_Specific_Handler
+           (T => Current_Task,
+            Handler => Shutdown_Handler.Termination_Finalizer'Access);
+
          loop
             Trace.Debug (Context => Context,
                          Message => "Waiting for connection...");
@@ -148,23 +186,10 @@ package body ESL.Client.Tasking is
                Packet : constant ESL.Packet.Instance :=
                  ESL.Parsing_Utilities.Read_Packet (Stream => Owner.Stream);
             begin
-               if Packet.Is_Event then
-                  Trace.Debug (Context => Context,
-                               Message => Packet.Content_Type'Img);
-
-                  ESL.Observer.Notify_Observers
-                    (Observing =>
-                       ESL.Observer.Observables
-                         (ESL.Client.Tasking.Reference
-                              (Owner).Event_Observers (Packet.Event)),
-                     Packet    => Packet,
-                     Client    => ESL.Client.Reference (Owner));
-               end if;
-
+               Dispatch (Client => Owner,
+                         Packet => Packet);
             end;
          end loop;
---           Dispatch (Ref    => Client,
---                     Packet => Client.Read_Packet);
       exception
          when Ada.IO_Exceptions.End_Error =>
             Trace.Debug (Context => Context,

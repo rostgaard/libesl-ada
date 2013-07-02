@@ -61,4 +61,7 @@ private
          Reader              : Stream_Reader (Instance'Access);
       end record;
 
+   overriding procedure Initialize (Obj : in out Instance);
+   overriding procedure Finalize (Obj : in out Instance);
+
 end ESL.Client.Tasking;
