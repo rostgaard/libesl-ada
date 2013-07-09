@@ -292,6 +292,16 @@ package body ESL.Client is
       end if;
    end Set_Log_Level;
 
+   ----------------
+   --  Shutdown  --
+   ----------------
+
+   procedure Shutdown (Client : in out Instance) is
+   begin
+      Client.Shutdown  := True;
+      Client.Disconnect;
+   end Shutdown;
+
    -----------------------------
    --  Skip_Until_Empty_Line  --
    -----------------------------
@@ -308,16 +318,6 @@ package body ESL.Client is
    begin
       return Ada.Streams.Stream_IO.Stream_Access (Obj.Channel);
    end Stream;
-
-   ----------------
-   --  Shutdown  --
-   ----------------
-
-   procedure Shutdown (Client : in out Instance) is
-   begin
-      Client.Shutdown  := True;
-      Client.Disconnect;
-   end Shutdown;
 
    ---------------------------
    --  Wait_For_Connection  --

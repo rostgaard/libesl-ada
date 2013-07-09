@@ -86,12 +86,15 @@ package body ESL.Client.Tasking is
       return Client.Event_Observers (Stream)'Access;
    end Event_Stream;
 
-   function Sub_Event_Stream (Client : in Instance;
-                              Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
-                              return Event_Streams_Access is
+   ----------------
+   --  Finalize  --
+   ----------------
+
+   procedure Finalize (Obj : in out Instance) is
    begin
-      return Client.Sub_Event_Observers (Stream)'Access;
-   end Sub_Event_Stream;
+      Trace.Information ("Finalize (instance) called for new client" &
+                           Obj.Initialized'Img);
+   end Finalize;
 
    ------------------
    --  Initialize  --
@@ -103,11 +106,16 @@ package body ESL.Client.Tasking is
                            Obj.Initialized'Img);
    end Initialize;
 
-   procedure Finalize (Obj : in out Instance) is
+   ------------------------
+   --  Sub_Event_Stream  --
+   ------------------------
+
+   function Sub_Event_Stream (Client : in Instance;
+                              Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
+                              return Event_Streams_Access is
    begin
-      Trace.Information ("Finalize (instance) called for new client" &
-                           Obj.Initialized'Img);
-   end Finalize;
+      return Client.Sub_Event_Observers (Stream)'Access;
+   end Sub_Event_Stream;
 
    ------------------------
    --  Shutdown_Handler  --
