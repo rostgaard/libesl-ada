@@ -51,7 +51,7 @@ install: all
 	cp -pr src/*.ad[sb] $(PREFIX)/include/esl
 	cp -pr esl.gpr.dist $(PREFIX)/lib/gnat/esl.gpr
 
-tests: esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
+tests: esl-client-tasking-test esl-packet-test parser
 
 tests_clean:
 	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
