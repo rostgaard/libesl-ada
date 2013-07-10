@@ -1,0 +1,48 @@
+#! /bin/bash
+#-----------------------------------------------------------------------------
+#--  Set current working directory:
+
+if cd "$(dirname "$0")"; then
+   true
+else
+   echo "Could not make '$(dirname "$0")' the current working directory." 1>&2
+   exit 1
+fi
+
+#-----------------------------------------------------------------------------
+#--  Temporary storage:
+
+generated_units=$(mktemp)
+source_units=$(mktemp)
+
+#-----------------------------------------------------------------------------
+#--  List generated files:
+
+find ../../ -type f \( -name '*.ali' -o -name '*.o' \) \
+  | perl -lpe 's:^.*/([^/]+)[.](ali|o)$:$1:;' \
+  | LANG=C sort -u \
+  > ${generated_units}
+
+#-----------------------------------------------------------------------------
+#--  List source files:
+
+find ../../ -type f \( -name '*.ads' -o -name '*.adb' \) \
+  | perl -lpe 's:^.*/([^/]+)[.](ad[sb])$:$1:;' \
+  | LANG=C sort -u \
+  > ${source_units}
+
+#-----------------------------------------------------------------------------
+
+if diff ${generated_units} ${source_units} | grep '^> ' 1>/dev/null; then
+   echo "Untested units:"
+   diff ${generated_units} ${source_units} | grep '^> '
+   result=1
+else
+   result=0
+fi
+
+rm -f ${generated_units} ${source_units}
+
+exit ${result}
+
+#-----------------------------------------------------------------------------

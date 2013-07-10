@@ -1,0 +1,4 @@
+*.output
+*.errors
+build.status
+run.status
