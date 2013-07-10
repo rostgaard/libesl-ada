@@ -23,8 +23,8 @@ all: ${LIBNAME}
 esl: esl_build
 
 ${LIBNAME}_build:
-	-mkdir lib
-	-mkdir build
+	-mkdir -p lib
+	-mkdir -p build
 	gnatmake -P esl_build && touch esl
 
 debug:
@@ -44,12 +44,12 @@ uninstall:
 	rm -f $(PREFIX)/$(GPR_TARGET)/esl.gpr
 
 install: all
-	mkdir -p $(PREFIX)/lib/gnat
-	mkdir -p $(PREFIX)/esl
-	mkdir -p $(PREFIX)/include/esl
-	cp -pr lib/* $(PREFIX)/esl
-	cp -pr src/*.ad[sb] $(PREFIX)/include/esl
-	cp -pr esl.gpr.dist $(PREFIX)/lib/gnat/esl.gpr
+	install --directory        $(DESTDIR)$(PREFIX)/esl
+	install --target-directory=$(DESTDIR)$(PREFIX)/esl              lib/*
+	install --directory        $(DESTDIR)$(PREFIX)/include/esl
+	install --target-directory=$(DESTDIR)$(PREFIX)/include/esl      src/*.ad[sb]
+	install --directory        $(DESTDIR)$(PREFIX)/lib/gnat
+	install esl.gpr.dist       $(DESTDIR)$(PREFIX)/lib/gnat/esl.gpr
 
 tests: esl-client-tasking-test esl-packet-test parser
 
