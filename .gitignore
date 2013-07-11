@@ -2,11 +2,6 @@
 build/
 debug/
 
-# Test executables:
-esl-client-tasking-test
-esl-packet-test
-parser
-
 # Do not track build objects.
 build*/*
 !build*/.gitignore

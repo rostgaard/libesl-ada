@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 --                                                                           --
---                     Copyright (C) 2012-, AdaHeads K/S                     --
+--                      Copyright (C) 2013-, AdaHeads K/S                    --
 --                                                                           --
 --  This is free software;  you can redistribute it and/or modify it         --
 --  under terms of the  GNU General Public License  as published by the      --
@@ -15,36 +15,16 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Text_IO; use Ada.Text_IO;
+with "../shared";
 
-with ESL.Parsing_Utilities;
-with ESL.Client;
-with ESL.Packet;
-with ESL;
+project Test is
+   for Main use ("esl-command-call_management-test");
 
-procedure Parser is
-   use ESL;
-   use ESL.Parsing_Utilities;
+   for Source_Dirs use (".", "../../src/**");
+   for Exec_Dir    use ".";
+   for Object_Dir  use "../../build";
 
-   Client : ESL.Client.Instance;
-   Count  : Natural := 0;
-begin
-
-   Client.Connect ("responsum.pbx.jay.net", 8021);
-   Client.Authenticate (Password => "1234");
-
-   Client.Send ("event json all" & ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
-
-   Client.Send ("api status" &
-                  ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
-
-   loop
-      declare
-         Packet : constant ESL.Packet.Instance :=
-           ESL.Parsing_Utilities.Read_Packet (Stream => Client.Stream);
-      begin
-         Count := Count + 1;
-         Put_Line (Packet.Content_Type'Img & Count'Img);
-      end;
-   end loop;
-end Parser;
+   package Compiler renames Shared.Compiler;
+   package Naming   renames Shared.Naming;
+   package IDE      renames Shared.IDE;
+end Test;
