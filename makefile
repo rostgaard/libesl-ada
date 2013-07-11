@@ -51,7 +51,9 @@ install: all
 	install --directory        $(DESTDIR)$(PREFIX)/lib/gnat
 	install esl.gpr.dist       $(DESTDIR)$(PREFIX)/lib/gnat/esl.gpr
 
-tests: esl-client-tasking-test esl-packet-test parser
+tests: all
+	@./tests/build
+	@./tests/run
 
 tests_clean:
 	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
