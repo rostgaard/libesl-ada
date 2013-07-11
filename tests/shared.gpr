@@ -15,6 +15,8 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with "gnatcoll";
+
 abstract project Shared is
    for Source_Dirs use ();
 
@@ -33,4 +35,7 @@ abstract project Shared is
    package IDE is
       for Compiler_Command ("ada") use "gnatmake";
    end IDE;
+
+   package Naming is
+   end Naming;
 end Shared;
