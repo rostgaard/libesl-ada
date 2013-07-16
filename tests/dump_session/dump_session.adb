@@ -52,7 +52,5 @@ begin
 
    Client.Send ("event plain all");
 
-   loop
-      Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
-   end loop;
+   Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
 end Dump_Session;
