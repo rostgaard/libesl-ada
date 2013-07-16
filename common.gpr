@@ -5,7 +5,7 @@ project Common is
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("BUILDTYPE", "Production");
 
-   Source_Options := ("src/**", "test/**");
+   Source_Options := ("src/**", "tests/**");
    for Source_Dirs use Source_Options;
 
    for Exec_Dir use ".";
@@ -27,12 +27,11 @@ project Common is
             for Default_Switches ("Ada") use ("-fstack-check",
                                               "-gnata",
                                               "-gnatf",
-                                              "-gnato13",
                                               "-gnatwa",
                                               "-gnaty3abcdefhiklmnoprstux",
                                               "-Wall",
                                               "-O2",
-                                              "-gnat2012");
+                                              "-gnat2005");
          when "Debug" =>
             for Default_Switches ("Ada") use ("-fstack-check",
                                               "-gnatA",
@@ -44,7 +43,7 @@ project Common is
                                               "-gnatVn",
                                               "-Wall",
                                               "-O1",
-                                              "-gnat2012",
+                                              "-gnat2005",
                                               "-g");
 
       end case;
