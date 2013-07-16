@@ -117,7 +117,6 @@ package ESL.Client is
 
 private
    use GNAT.Sockets;
-   Connection_Timeout_Duration : constant Selector_Duration := 2.0;
 
    procedure Ignore is null;
    Ignore_Event : constant Connection_Event_Handler := Ignore'Access;

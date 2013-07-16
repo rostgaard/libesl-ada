@@ -66,20 +66,20 @@ package body ESL.Client is
       use Ada.Exceptions;
 
       Context : constant String := Package_Name & ".Connect";
-      Address : Sock_Addr_Type (Family_Inet);
+      Address : constant Sock_Addr_Type :=
+        (Family => GNAT.Sockets.Family_Inet,
+         Addr   => Addresses (Get_Host_By_Name (Hostname)),
+         Port   => Port_Type (Port));
+
       Socket  : Socket_Type;
       Status  : GNAT.Sockets.Selector_Status;
    begin
       Create_Socket (Socket);
-
       Client.Socket := Socket;
 
       Client.Connected := False;
       Client.Connecting := True;
       Client.Authenticated := False;
-
-      Address.Addr   := Addresses (Get_Host_By_Name (Hostname));
-      Address.Port   := Port_Type (Port);
 
       Trace.Information ("Connecting to " &
                          Hostname & ":" &
@@ -88,7 +88,7 @@ package body ESL.Client is
 
       Connect_Socket (Socket   => Client.Socket,
                       Server   => Address,
-                      Timeout  => Connection_Timeout_Duration,
+                      Timeout  => GNAT.Sockets.Forever,
                       Selector => Client.Selector'Access,
                       Status   => Status);
 
@@ -150,7 +150,7 @@ package body ESL.Client is
       end if;
    exception
       when Program_Error =>
-         ESL.Trace.Error (Message => "Tried to abort a closed socket!",
+         ESL.Trace.Error (Message => "Tried to abort a closed selector!",
                           Context => Context);
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -164,8 +164,10 @@ package body ESL.Client is
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
-      --  Obj.Disconnect;
+      Obj.Disconnect;
       Trace.Debug ("Finalize (instance) called for Client ");
+      GNAT.Sockets.Close_Selector (Obj.Selector);
+
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -197,8 +199,9 @@ package body ESL.Client is
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Trace.Information ("Initialize (instance) called for new client" &
-                         Obj.Initialized'Img);
+      Trace.Information
+        ("Initialize (instance) called for new client, creating selector");
+      GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
    --------------------
    --  Is_Connected  --

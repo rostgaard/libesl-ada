@@ -95,6 +95,8 @@ package body ESL.Client.Tasking is
    begin
       Trace.Information ("Finalize (instance) called for client");
       Obj.Shutdown := True;
+      Obj.Disconnect;
+      GNAT.Sockets.Close_Selector (Obj.Selector);
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -108,6 +110,7 @@ package body ESL.Client.Tasking is
    procedure Initialize (Obj : in out Instance) is
    begin
       Trace.Information ("Initialize (instance) called for new client");
+      GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
 
    ------------------------
