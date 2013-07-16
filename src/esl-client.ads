@@ -116,6 +116,8 @@ package ESL.Client is
    function Channel_List (Obj : in Instance) return Channel.List.Reference;
 
 private
+   use GNAT.Sockets;
+   Connection_Timeout_Duration : constant Selector_Duration := 2.0;
 
    procedure Ignore is null;
    Ignore_Event : constant Connection_Event_Handler := Ignore'Access;
@@ -126,6 +128,7 @@ private
 
    type Instance is new Ada.Finalization.Limited_Controlled with
       record
+         Connecting            : Boolean := False;
          Initialized           : Boolean := False;
          Connected             : Boolean := False;
          Authenticated         : Boolean := False;
@@ -137,6 +140,7 @@ private
          Channel               : GNAT.Sockets.Stream_Access := null;
          On_Connect_Handler    : Connection_Event_Handler := Ignore_Event;
          On_Disconnect_Handler : Connection_Event_Handler := Ignore_Event;
+         Selector              : aliased GNAT.Sockets.Selector_Type;
       end record;
 
    overriding procedure Initialize (Obj : in out Instance);

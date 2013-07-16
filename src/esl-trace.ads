@@ -30,8 +30,8 @@ package ESL.Trace is
    procedure Unmute (Trace : in Kind);
 
    procedure Debug (Message : in String;
-                    Context : in String := "";
-                    Level   : in Debug_Threshold_Levels :=
+                     Context : in String := "";
+                     Level   : in Debug_Threshold_Levels :=
                       Debug_Threshold_Levels'Last);
 
    procedure Error (Message : in String;
@@ -47,10 +47,10 @@ private
                                        others => False);
 
    No_Debug_Information : constant Debug_Threshold_Levels :=
-                            Debug_Threshold_Levels'First;
+     Debug_Threshold_Levels'First;
 
    All_Debug_Information : constant Debug_Threshold_Levels :=
-                             Debug_Threshold_Levels'Last;
+     Debug_Threshold_Levels'Last;
 
    Current_Debug_Threshold : Debug_Threshold_Levels := All_Debug_Information;
 

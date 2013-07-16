@@ -91,9 +91,14 @@ package body ESL.Client.Tasking is
    ----------------
 
    procedure Finalize (Obj : in out Instance) is
+      Context : constant String := Package_Name & ".Finalize";
    begin
-      Trace.Information ("Finalize (instance) called for new client" &
-                           Obj.Initialized'Img);
+      Trace.Information ("Finalize (instance) called for client");
+      Obj.Shutdown := True;
+   exception
+      when E : others =>
+         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
    end Finalize;
 
    ------------------
@@ -102,8 +107,7 @@ package body ESL.Client.Tasking is
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Trace.Information ("Initialize (instance) called for new client" &
-                           Obj.Initialized'Img);
+      Trace.Information ("Initialize (instance) called for new client");
    end Initialize;
 
    ------------------------

@@ -24,7 +24,6 @@ with Ada.Exceptions;
 package body ESL.Client is
    use ESL.Trace;
    use ESL;
-   use GNAT.Sockets;
 
    -----------
    --  "="  --
@@ -69,12 +68,14 @@ package body ESL.Client is
       Context : constant String := Package_Name & ".Connect";
       Address : Sock_Addr_Type (Family_Inet);
       Socket  : Socket_Type;
+      Status  : GNAT.Sockets.Selector_Status;
    begin
       Create_Socket (Socket);
 
       Client.Socket := Socket;
 
       Client.Connected := False;
+      Client.Connecting := True;
       Client.Authenticated := False;
 
       Address.Addr   := Addresses (Get_Host_By_Name (Hostname));
@@ -85,19 +86,31 @@ package body ESL.Client is
                          Positive'Image (Port),
                        Context);
 
-      Connect_Socket (Socket => Client.Socket,
-                      Server => Address);
-      Client.Channel := Stream (Client.Socket);
+      Connect_Socket (Socket   => Client.Socket,
+                      Server   => Address,
+                      Timeout  => Connection_Timeout_Duration,
+                      Selector => Client.Selector'Access,
+                      Status   => Status);
 
-      Client.Connected := True;
+      if Status = Completed then
+         Client.Channel := Stream (Client.Socket);
+         Client.Connected := True;
 
-      Trace.Information ("Connected to " &
-                               Hostname & ":" &
-                               Positive'Image (Port)& ".", Context);
+         Trace.Information ("Connected to " &
+                              Hostname & ":" &
+                              Positive'Image (Port)& ".", Context);
+      else
+         Trace.Information ("Could not connect to " &
+                              Hostname & ":" &
+                              Positive'Image (Port)& ".", Context);
+      end if;
+
+      --  Pull down the connecting flag.
+      Client.Connecting := False;
 
    exception
       when E : GNAT.Sockets.Socket_Error =>
-         --  Synchronize the state
+         --  Assert the state
          Client.Connected := False;
          Client.Authenticated := False;
          Client.On_Disconnect_Handler.all;
@@ -128,10 +141,20 @@ package body ESL.Client is
    ------------------
 
    procedure Disconnect (Client : in out Instance) is
+      Context : constant String := Package_Name & ".Disconnect";
    begin
-      --  TODO: send "exit"
-      Client.Connected := False;
-      Shutdown_Socket (Client.Socket);
+      if Client.Connecting then
+         Abort_Selector (Client.Selector);
+      elsif Client.Connected then
+         Shutdown_Socket (Client.Socket);
+      end if;
+   exception
+      when Program_Error =>
+         ESL.Trace.Error (Message => "Tried to abort a closed socket!",
+                          Context => Context);
+      when E : others =>
+         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
    end Disconnect;
 
    ----------------
@@ -139,9 +162,14 @@ package body ESL.Client is
    ----------------
 
    procedure Finalize (Obj : in out Instance) is
+      Context : constant String := Package_Name & ".Finalize";
    begin
-      Obj.Disconnect;
+      --  Obj.Disconnect;
       Trace.Debug ("Finalize (instance) called for Client ");
+   exception
+      when E : others =>
+         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
    end Finalize;
 
    ----------------
