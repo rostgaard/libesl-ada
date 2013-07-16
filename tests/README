@@ -1,6 +1,6 @@
 A few things to remember when creating a new test:
 
-* "with shared.gpr" in the test project file.
+* 'with "../shared";' in the test project file.
 * Use Ada.Command_Line to set the exit status of the test.
 * Remember that all executable files in the test directory _will_ be executed.
 * Use the "test_name.argument" file to add command line arguments to the test.
