@@ -20,85 +20,65 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions;
 
 with ESL.Client.Tasking;
-with ESL.Packet_Keys;
-with ESL.Client.Tasking.Test_Utilities;
 
 with ESL;
 with ESL.Trace;
-with ESL.Command.Call_Management;
 
-procedure ESL.Client.Tasking.Test is
+procedure ESL.Client.Tasking.Start_Stop_Test is
    use ESL;
    use ESL.Trace;
-   use Client.Tasking.Test_Utilities;
 
    Client : ESL.Client.Tasking.Instance;
-
-   Testobs1 : Re_Schedule_Observer
-     (Observing => Event_Stream (Client => Client,
-                                 Stream => ESL.Packet_Keys.RE_SCHEDULE));
-   pragma Unreferenced (Testobs1);
-
-   Testobs2 : Heartbeat_Observer
-     (Observing => Event_Stream (Client => Client,
-                                 Stream => ESL.Packet_Keys.HEARTBEAT));
-   pragma Unreferenced (Testobs2);
-
-   Command : ESL.Command.Call_Management.Instance :=
-     ESL.Command.Call_Management.Originate
-       (Call_URL         => "user/1001",
-        Extension        => "5900");
-   pragma Unreferenced (Command);
 
    procedure Usage;
 
    procedure Usage is
    begin
-      Put_Line ("Usage:" & Command_Name & " hostname port password");
+      Put_Line ("Usage:" & Command_Name & " hostname port");
       Set_Exit_Status (Failure);
    end Usage;
 
    task Tasking_Connect is
       entry Start;
+      entry Abort_Task;
    end Tasking_Connect;
 
    task body Tasking_Connect is
+      Started : Boolean := False;
    begin
-      accept Start;
-      Client.Connect (Argument (1), Natural'Value (Argument (2)));
+      select
+         accept Start do
+            Started := True;
+         end Start;
+      or
+         accept Abort_Task do
+            Shutdown (Client);
+         end Abort_Task;
+      end select;
+
+      if Started then
+         Client.Connect (Argument (1), Natural'Value (Argument (2)));
+      end if;
+
    end Tasking_Connect;
 
-   Delay_Count : Natural := 0;
 begin
-   --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
 
-   if Argument_Count < 3 then
+   if Argument_Count < 2 then
       Usage;
-      --  TODO: STOP the task.
+      Tasking_Connect.Abort_Task;
       return;
    end if;
 
    Tasking_Connect.Start;
+   delay 3.0;
+   Shutdown (Client);
+   Ada.Command_Line.Set_Exit_Status (Code => Ada.Command_Line.Success);
 
-   while not Client.Connected loop
-      delay 1.0;
-
-      if Delay_Count = 3 then
-         raise Program_Error with
-           "Test expected valid Freeswitch PBX - none found.";
-      end if;
-      Delay_Count := Delay_Count + 1;
-   end loop;
-
-   Client.Authenticate (Password => Argument (3));
-
-   Send (Client, "event plain ALL");
-
-   Send (Client, "api status");
-   Client.Send (String (Command.Serialize));
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
                           Context => "ESL.Client.Tasking.Test");
+      Ada.Command_Line.Set_Exit_Status (Code => Ada.Command_Line.Failure);
 
-end ESL.Client.Tasking.Test;
+end ESL.Client.Tasking.Start_Stop_Test;

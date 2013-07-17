@@ -93,7 +93,7 @@ package body ESL.Client.Tasking is
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
-      Trace.Information ("Finalize (instance) called for client");
+      Trace.Debug ("Finalize (instance) called for client");
       Obj.Shutdown := True;
       Obj.Disconnect;
       GNAT.Sockets.Close_Selector (Obj.Selector);
@@ -109,7 +109,7 @@ package body ESL.Client.Tasking is
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Trace.Information ("Initialize (instance) called for new client");
+      Trace.Debug ("Initialize (instance) called for new client");
       GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
 
@@ -216,7 +216,7 @@ package body ESL.Client.Tasking is
       end Reader_Loop;
 
    begin
-      Trace.Information (Context => Context,
+      Trace.Debug (Context => Context,
                          Message => "Starting stream consumer.");
 
       while not Owner.Shutdown loop
@@ -225,7 +225,7 @@ package body ESL.Client.Tasking is
          Reader_Loop;
       end loop;
 
-      Trace.Information (Context => Context,
+      Trace.Debug (Context => Context,
                          Message => "Ending stream consumer.");
    exception
       when Ada.IO_Exceptions.End_Error =>

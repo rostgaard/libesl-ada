@@ -25,7 +25,7 @@ esl: esl_build
 ${LIBNAME}_build:
 	-mkdir -p lib
 	-mkdir -p build
-	gnatmake -P esl_build && touch esl
+	-gnatmake -P esl_build && touch esl
 
 debug:
 	mkdir -p debug

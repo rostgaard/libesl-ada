@@ -37,8 +37,6 @@ package ESL.Client.Tasking is
 
 private
 
-   --  TODO: Add initialization and finalization.
-
    Recheck_Connection_Delay : constant Duration := 2.0;
    --  How long we should wait between connection polling.
 
