@@ -86,32 +86,27 @@ package body ESL.Client.Tasking is
       return Client.Event_Observers (Stream)'Access;
    end Event_Stream;
 
-   ----------------
-   --  Finalize  --
-   ----------------
-
+--     ----------------
+--     --  Finalize  --
+--     ----------------
+--
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
+      pragma Unreferenced (Context);
    begin
-      Trace.Debug ("Finalize (instance) called for client");
       Obj.Shutdown := True;
-      Obj.Disconnect;
-      GNAT.Sockets.Close_Selector (Obj.Selector);
-   exception
-      when E : others =>
-         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
-                          Context => Context);
+      ESL.Client.Instance (Obj).Finalize; --  Call the parent finalization.
    end Finalize;
 
-   ------------------
-   --  Initialize  --
-   ------------------
+   ----------------
+   --  Shutdown  --
+   ----------------
 
-   procedure Initialize (Obj : in out Instance) is
+   procedure Shutdown (Client : in out Instance) is
    begin
-      Trace.Debug ("Initialize (instance) called for new client");
-      GNAT.Sockets.Create_Selector (Obj.Selector);
-   end Initialize;
+      Client.Shutdown  := True;
+      Client.Disconnect;
+   end Shutdown;
 
    ------------------------
    --  Sub_Event_Stream  --

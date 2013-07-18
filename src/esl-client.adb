@@ -34,22 +34,43 @@ package body ESL.Client is
       return Left.Socket = Right.Socket;
    end "=";
 
+   -----------
+   --  API  --
+   -----------
+
+   procedure API (Client  : in Instance;
+                  Command : in ESL.Command.Instance) is
+   begin
+      Client.Send (String (Command.Serialize));
+   end API;
+
    --------------------
    --  Authenticate  --
    --------------------
 
-   procedure Authenticate (Obj     : in out Instance;
-                          Password : in     String) is
+   procedure Authenticate (Client   : in out Instance;
+                           Password : in     String) is
    begin
-      if not Obj.Connected then
-         raise Not_Connected;
-      elsif Obj.Authenticated then
-         return;
-      end if;
 
-      Obj.Send ("auth " & Password & ESL.End_Packet_String);
+      Client.Send ("auth " & Password & ESL.End_Packet_String);
 
    end Authenticate;
+
+   ----------------------
+   --  Background_API  --
+   ----------------------
+
+   procedure Background_API (Client  : in     Instance;
+                             Command : in     ESL.Command.Instance) is
+   begin
+      null;
+--        Client.Send (Known_Commands'Image (Auth) & " "
+--                       Password & ESL.End_Packet_String);
+   end Background_API;
+
+   --------------------
+   --  Channel_List  --
+   --------------------
 
    function Channel_List (Obj : in Instance) return Channel.List.Reference is
    begin
@@ -165,7 +186,6 @@ package body ESL.Client is
       Context : constant String := Package_Name & ".Finalize";
    begin
       Obj.Disconnect;
-      Trace.Debug ("Finalize (instance) called for Client ");
       GNAT.Sockets.Close_Selector (Obj.Selector);
 
    exception
@@ -203,15 +223,6 @@ package body ESL.Client is
         ("Initialize (instance) called for new client, creating selector");
       GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
-   --------------------
-   --  Is_Connected  --
-   --------------------
-
-   function Is_Connected (Client  : in Instance) return Boolean is
-   begin
-      raise Program_Error with "Not supported";
-      return False;
-   end Is_Connected;
 
    ---------------
    --  Receive  --
@@ -226,38 +237,6 @@ package body ESL.Client is
       return Buffer;
    end Receive;
 
-   -------------------
-   --  Read_Packet  --
-   -------------------
-
-   --  function Read_Packet (Client : access AMI.Client.Instance)
-   --                        return AMI.Parser.Packet_Type is
-   --     use AMI.Packet_Keys;
-   --     use AMI.Parser;
-   --     Context        : constant String := Package_Name & ".Read_Packet";
-   --     Current_Pair   : Pair_Type       := Null_Pair;
-   --     Current_Packet : Packet_Type     := New_Packet;
-   --  begin
-   --     loop
-   --        Current_Pair := AMI.Parser.Parse_Line (Line => Client.Get_Line);
-
-   --        --  We return on an empty line, meaning the packet is complete
-   --        if Current_Pair = Empty_Line then
-   --           return Current_Packet;
-
-   --           --  Fill the header
-   --        elsif Current_Packet.Header = Null_Pair then
-   --           Current_Packet.Header (Current_Pair);
-
-   --           --  Or simply insert a key/value pair
-   --        elsif Current_Pair.Key /= Null_Key then
-   --           Current_Packet.Push (Current_Pair);
-   --        else
-   --           AMI.Trace.Debug ("Read_Packet: Skipping bad line", Context);
-   --        end if;
-   --     end loop;
-   --  end Read_Packet;
-
    ------------
    --  Send  --
    ------------
@@ -265,11 +244,6 @@ package body ESL.Client is
    procedure Send (Client : in Instance;
                    Item   : in String) is
    begin
-      Client.Wait_For_Connection;
-
-      ESL.Trace.Information (Message => "Sending: " & Item,
-                             Context => "client.Send");
-
       String'Write (Client.Channel, Item &
                       ASCII.CR & ASCII.LF &
                       ASCII.CR & ASCII.LF);
@@ -323,16 +297,6 @@ package body ESL.Client is
       end if;
    end Set_Log_Level;
 
-   ----------------
-   --  Shutdown  --
-   ----------------
-
-   procedure Shutdown (Client : in out Instance) is
-   begin
-      Client.Shutdown  := True;
-      Client.Disconnect;
-   end Shutdown;
-
    -----------------------------
    --  Skip_Until_Empty_Line  --
    -----------------------------
@@ -366,8 +330,7 @@ package body ESL.Client is
       loop
          exit when
            Client.Connected or
-           Clock > Absolute_Timeout or
-           Client.Shutdown;
+           Clock > Absolute_Timeout;
          delay 0.05;
 
       end loop;

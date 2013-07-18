@@ -35,6 +35,11 @@ package ESL.Client.Tasking is
                               Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
                               return Event_Streams_Access;
 
+   procedure Shutdown (Client : in out Instance);
+
+--     procedure Background_API (Client  : in     Instance;
+--                               Command : in     ESL.Command.Instance;
+--                               Ticket  :    out ESL.Reply_Ticket.Instance);
 private
 
    Recheck_Connection_Delay : constant Duration := 2.0;
@@ -42,7 +47,7 @@ private
 
    type Reference is access all Instance;
 
-   task type Stream_Reader (Owner : access Client.Instance'Class);
+   task type Stream_Reader (Owner : access Client.Tasking.Instance'Class);
 
    type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
      of aliased Event_Streams;
@@ -52,6 +57,7 @@ private
 
    type Instance is new Client.Instance with
       record
+         Shutdown            : Boolean := False;
          Event_Observers     : access Client_Event_Listeners
            := new Client_Event_Listeners;
          Sub_Event_Observers : access Client_Sub_Event_Listeners
@@ -59,7 +65,6 @@ private
          Reader              : Stream_Reader (Instance'Access);
       end record;
 
-   overriding procedure Initialize (Obj : in out Instance);
    overriding procedure Finalize (Obj : in out Instance);
 
 end ESL.Client.Tasking;

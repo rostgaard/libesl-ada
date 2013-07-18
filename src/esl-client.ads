@@ -25,6 +25,7 @@ with ESL.Outbund_Event;
 with ESL.Send_Message;
 with ESL.Command;
 with ESL.Channel.List;
+with ESL.Reply_Ticket;
 
 package ESL.Client is
    use ESL;
@@ -33,6 +34,8 @@ package ESL.Client is
 
    Connection_Timeout : exception;
    Not_Connected      : exception;
+
+   type Event_Formats is (Plain, XML, JSON);
 
    type Connection_Event_Handler is not null access procedure;
    --  Parameterless procedure to execute when connection state changes.
@@ -49,11 +52,9 @@ package ESL.Client is
 
    procedure Disconnect (Client : in out Instance);
 
-   procedure Shutdown (Client : in out Instance);
-
    function Image (Client : in Instance) return String;
 
-   procedure Authenticate (Obj     : in out Instance;
+   procedure Authenticate (Client 		  : in out Instance;
                            Password : in     String);
 
    procedure Set_Log_Level (Obj   : in out Instance;
@@ -89,16 +90,17 @@ package ESL.Client is
    pragma Obsolescent
      (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
-   --  function Send (Client : in Instance;
-   --                 Item   : in AMI.Packet.Action.Request)
-   --                    return AMI.Parser.Packet_Type;
-   --  --  Synchronous version of send operation. Uses an internal buffer to
-   --  --  achieve synchronous operation.
+   procedure API (Client  : in Instance;
+                  Command : in ESL.Command.Instance);
+   --  Synchronously sends an API command.
 
-   function Is_Connected (Client : in Instance) return Boolean;
-   pragma Obsolescent (Is_Connected, "Not supported by GNAT.Sockets.");
+   procedure Background_API (Client  : in     Instance;
+                             Command : in     ESL.Command.Instance);
+   --  Asynchronously sends an API command. A reply is still returned, but
+   --  only for the purpose of comfirming that the command was sent.
 
    function Connected (Client : in Instance) return Boolean;
+   --  Returns the last known connection state.
 
    procedure Wait_For_Connection (Client  : in Instance;
                                   Timeout : in     Duration := 3.0);
@@ -133,7 +135,6 @@ private
          Authenticated         : Boolean := False;
          Channels              : Channel.List.Reference
            := new Channel.List.Instance;
-         Shutdown              : Boolean := False;
          Socket                : GNAT.Sockets.Socket_Type :=
            GNAT.Sockets.No_Socket;
          Channel               : GNAT.Sockets.Stream_Access := null;
@@ -148,5 +149,7 @@ private
    procedure Deallocate is new Ada.Unchecked_Deallocation
      (Object => Instance,
       Name   => Reference);
+
+   type Known_Commands is (Help, API, BGAPI, Event, Log);
 
 end ESL.Client;
