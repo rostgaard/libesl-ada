@@ -39,9 +39,10 @@ package body ESL.Client is
    -----------
 
    procedure API (Client  : in Instance;
-                  Command : in ESL.Command.Instance) is
+                  Command : in ESL.Command.Instance'Class) is
    begin
-      Client.Send (String (Command.Serialize));
+      Client.Send (Known_Commands'Image (API) & " " &
+                     String (Command.Serialize));
    end API;
 
    --------------------
@@ -61,11 +62,10 @@ package body ESL.Client is
    ----------------------
 
    procedure Background_API (Client  : in     Instance;
-                             Command : in     ESL.Command.Instance) is
+                             Command : in     ESL.Command.Instance'class) is
    begin
-      null;
---        Client.Send (Known_Commands'Image (Auth) & " "
---                       Password & ESL.End_Packet_String);
+      Client.Send (Known_Commands'Image (BGAPI) & " " &
+                     String (Command.Serialize));
    end Background_API;
 
    --------------------
@@ -254,7 +254,7 @@ package body ESL.Client is
    ------------
 
    procedure Send (Client : in Instance;
-                   Item   : in ESL.Command.Instance) is
+                   Item   : in ESL.Command.Instance'Class) is
    begin
       --  AMI.Response.Subscribe (Item);
 

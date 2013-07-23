@@ -15,6 +15,7 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
 package ESL.Reply_Ticket is
@@ -22,14 +23,19 @@ package ESL.Reply_Ticket is
 
    type Instance is tagged private;
 
-   function "=" (Left, Right : Instance) return Boolean;
+   function "=" (Left, Right : in Instance) return Boolean;
+
+   function "<" (Left, Right : in Instance) return Boolean;
+
+   function Create (Item : in String) return Instance;
 
    function Image (Ticket : Instance) return String;
 
 private
    type Instance is tagged
       record
-         Key : Unbounded_String;
+         Timestamp : Ada.Calendar.Time := Ada.Calendar.Clock;
+         Key       : Unbounded_String;
       end record;
 
 end ESL.Reply_Ticket;

@@ -20,14 +20,14 @@ with Ada.Calendar;
 with Ada.Text_IO;
 with Ada.Streams.Stream_IO;
 
-with ESL.Trace;
+--  with ESL.Trace;
 with ESL.Parsing_Utilities;
 with ESL.Packet;
 
 procedure ESL.Packet.Test is
    use Ada.Calendar;
    use ESL;
-   use ESL.Trace;
+   --  use ESL.Trace;
    use ESL.Parsing_Utilities;
    use ESL.Packet_Field;
    use ESL.Packet_Keys;
@@ -36,14 +36,14 @@ procedure ESL.Packet.Test is
    Tests     : constant array (Natural range <>) of access String :=
      (
        new String'("test_cases/basic_session"),
-     -- new String'("test_cases/event_channel_hangup_complete"),
+      --  new String'("test_cases/event_channel_hangup_complete"),
       new String'("test_cases/call_session2"),
       new String'("test_cases/session1.json")
-      --new String'("test_cases/event_channel_destroy"),
-      --new String'("test_cases/event_channel_hangup"),
-      --new String'("test_cases/event_channel_state"),
---      new String'("test_cases/event_channel_create"),
-     -- new String'("test_cases/event_channel_callstate")
+      --  new String'("test_cases/event_channel_destroy"),
+      --  new String'("test_cases/event_channel_hangup"),
+      --  new String'("test_cases/event_channel_state"),
+      --  new String'("test_cases/event_channel_create"),
+      --  new String'("test_cases/event_channel_callstate")
      );
 
    Test_File         : Ada.Streams.Stream_IO.File_Type;
@@ -62,7 +62,7 @@ procedure ESL.Packet.Test is
       Time := Ada.Calendar.Clock;
       for I in 1 .. 10 loop
          for I in Tests'Range loop
-            --Put_Line ("Testing file " & Tests (I).all);
+            --  Put_Line ("Testing file " & Tests (I).all);
             Ada.Streams.Stream_IO.Open
               (File => Test_File,
                Name => Tests (I).all,

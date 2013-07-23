@@ -37,6 +37,9 @@ package ESL.Trace is
    procedure Error (Message : in String;
                     Context : in String := "");
 
+   procedure Critical (Message : in String;
+                       Context : in String := "");
+
    procedure Information (Message : in String;
                           Context : in String := "");
    procedure Set_Debug_Threshold (New_Threshold : in Debug_Threshold_Levels);

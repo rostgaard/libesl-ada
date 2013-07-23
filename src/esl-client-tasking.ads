@@ -15,8 +15,12 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Containers.Ordered_Sets;
+
 with ESL.Observer;
 with ESL.Packet_Keys;
+with ESL.Reply_Ticket.List;
+with ESL.Reply;
 
 package ESL.Client.Tasking is
 
@@ -37,10 +41,29 @@ package ESL.Client.Tasking is
 
    procedure Shutdown (Client : in out Instance);
 
---     procedure Background_API (Client  : in     Instance;
---                               Command : in     ESL.Command.Instance;
---                               Ticket  :    out ESL.Reply_Ticket.Instance);
+   procedure Background_API (Client  : in out Instance;
+                             Command : in     ESL.Command.Instance'Class;
+                             Reply   : in out ESL.Reply.Instance);
+
+--     overriding function Receive (Client : in Instance;
+--                                  Count  : in Natural) return String;
+--     pragma Obsolescent (Receive, "Illegal usage of Receive, " &
+--                           "Program_Error will be raise at run-time.");
+--     overriding function Get_Line (Client : in Instance) return String;
+--     pragma Obsolescent (Get_Line, "Illegal usage of Get_Line, " &
+--                           "Program_Error will be raise at run-time.");
+--     overriding  procedure Skip_Until_Empty_Line (Client : in Instance);
+--     pragma Obsolescent (Skip_Until_Empty_Line, "Illegal usage of " &
+--                           "Skip_Until_Empty_Line, " &
+--                           "Program_Error will be raise at run-time.");
+   --  Disables Receiving calls as we are now handling it internally.
+
 private
+   use ESL.Reply_Ticket;
+
+   package Packet_Storage is new Ada.Containers.Ordered_Sets
+     (Element_Type => ESL.Reply_Ticket.Instance);
+   --  TODO: Make synchronized.
 
    Recheck_Connection_Delay : constant Duration := 2.0;
    --  How long we should wait between connection polling.
@@ -55,14 +78,28 @@ private
    type Client_Sub_Event_Listeners is array
      (ESL.Packet_Keys.Inbound_Sub_Events) of aliased Event_Streams;
 
+   protected type Synchronized_IO
+     (Owner : access Client.Tasking.Instance'Class) is
+      procedure Send (Item  : in ESL.Command.Instance'Class);
+
+      procedure Push_Reply (Item : Reply.Instance);
+
+      entry Pop_Reply (Item : out Reply.Instance);
+   private
+      Next_Reply : ESL.Reply.Instance := ESL.Reply.Null_Reply;
+   end Synchronized_IO;
+
    type Instance is new Client.Instance with
       record
-         Shutdown            : Boolean := False;
-         Event_Observers     : access Client_Event_Listeners
+         Shutdown                : Boolean := False;
+         Event_Observers         : access Client_Event_Listeners
            := new Client_Event_Listeners;
-         Sub_Event_Observers : access Client_Sub_Event_Listeners
+         Sub_Event_Observers     : access Client_Sub_Event_Listeners
            := new Client_Sub_Event_Listeners;
-         Reader              : Stream_Reader (Instance'Access);
+         Reader                  : Stream_Reader (Instance'Access);
+         Reply_Buffer            : ESL.Reply_Ticket.List.Instance;
+         Sending                 : Boolean := False;
+         Synchonous_Operations   : Synchronized_IO (Instance'Access);
       end record;
 
    overriding procedure Finalize (Obj : in out Instance);

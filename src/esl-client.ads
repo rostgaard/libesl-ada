@@ -25,7 +25,6 @@ with ESL.Outbund_Event;
 with ESL.Send_Message;
 with ESL.Command;
 with ESL.Channel.List;
-with ESL.Reply_Ticket;
 
 package ESL.Client is
    use ESL;
@@ -54,7 +53,7 @@ package ESL.Client is
 
    function Image (Client : in Instance) return String;
 
-   procedure Authenticate (Client 		  : in out Instance;
+   procedure Authenticate (Client   : in out Instance;
                            Password : in     String);
 
    procedure Set_Log_Level (Obj   : in out Instance;
@@ -85,17 +84,17 @@ package ESL.Client is
      (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
    procedure Send (Client : in Instance;
-                   Item   : in ESL.Command.Instance);
+                   Item   : in ESL.Command.Instance'Class);
    --  Primary send function.
    pragma Obsolescent
      (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
    procedure API (Client  : in Instance;
-                  Command : in ESL.Command.Instance);
+                  Command : in ESL.Command.Instance'Class);
    --  Synchronously sends an API command.
 
    procedure Background_API (Client  : in     Instance;
-                             Command : in     ESL.Command.Instance);
+                             Command : in     ESL.Command.Instance'Class);
    --  Asynchronously sends an API command. A reply is still returned, but
    --  only for the purpose of comfirming that the command was sent.
 
@@ -141,6 +140,7 @@ private
          On_Connect_Handler    : Connection_Event_Handler := Ignore_Event;
          On_Disconnect_Handler : Connection_Event_Handler := Ignore_Event;
          Selector              : aliased GNAT.Sockets.Selector_Type;
+         Sequence              : Natural := 0;
       end record;
 
    overriding procedure Initialize (Obj : in out Instance);

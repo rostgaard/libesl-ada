@@ -33,11 +33,10 @@ package body ESL.Packet is
    begin
       case Obj.Header.Content_Type is
          when Null_Value | Text_Disconnect_Notice |
-              Auth_Request | API_Response |
-              Command_Reply =>
+              Auth_Request | API_Response =>
             return False;
 
-         when Text_Event_Plain =>
+         when Text_Event_Plain | Command_Reply =>
             return Obj.Payload.Contains (Key => Key);
 
          when Text_Event_XML =>
@@ -196,7 +195,8 @@ package body ESL.Packet is
 
    function Is_Response (Obj : in Instance) return Boolean is
    begin
-      return Obj.Header.Content_Type = API_Response;
+      return Obj.Header.Content_Type = API_Response or
+        Obj.Header.Content_Type = Command_Reply;
    end Is_Response;
 
    function Payload (Obj : in Instance) return String is

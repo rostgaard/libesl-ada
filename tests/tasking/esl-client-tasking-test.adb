@@ -69,6 +69,7 @@ procedure ESL.Client.Tasking.Test is
    end Tasking_Connect;
 
    Delay_Count : Natural := 0;
+   Reply       : ESL.Reply.Instance := ESL.Reply.Null_Reply;
 begin
    --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
 
@@ -91,6 +92,13 @@ begin
    end loop;
 
    Client.Authenticate (Password => Argument (3));
+
+   Ada.Text_IO.Put_Line ("Sending");
+
+   Client.Background_API (Command => Command,
+                          Reply   => Reply);
+
+   Ada.Text_IO.Put_Line (Reply.Image);
 
    Send (Client, "event plain ALL");
 

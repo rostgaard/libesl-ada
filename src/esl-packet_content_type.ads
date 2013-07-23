@@ -25,7 +25,8 @@ package ESL.Packet_Content_Type is
                      Reply, Response, Disconnect_Notice);
 
    type Content_Types is (Null_Value,
-                          Auth_Request, API_Response, Command_Reply,
+                          Auth_Request, API_Response,
+                          Command_Reply,
                           Text_Event_JSON, Text_Event_Plain,
                           Text_Event_XML,
                           Text_Disconnect_Notice);

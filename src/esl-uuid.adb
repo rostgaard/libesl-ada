@@ -15,28 +15,21 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  with ESL.Channel.List;
-with ESL.Observer.Event_Observers;
-with ESL.Packet;
+package body ESL.UUID is
 
-package ESL.Client.Tasking.Test_Utilities is
+   --  TODO: complete.
+   function Create (Item : in String) return UUID.Instance is
+   begin
+      return Null_UUID;
+   end Create;
 
-   Package_Name : constant String := "ESL.Client.Tasking.Test_Utilities";
+   function Image (UUID : in Instance) return String is
+   begin
+      if UUID = Null_UUID then
+         return "<null>";
+      else
+         return To_String (UUID.Value);
+      end if;
+   end Image;
 
-   type Heartbeat_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
-
-   overriding
-   procedure Notify (Observer : access Heartbeat_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
-
-   type Re_Schedule_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
-
-   overriding
-   procedure Notify (Observer : access Re_Schedule_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
-
-end ESL.Client.Tasking.Test_Utilities;
+end ESL.UUID;

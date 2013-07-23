@@ -15,6 +15,25 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+private with Ada.Strings.Unbounded;
+
 package ESL.UUID is
-   type Instance is null record;
+   type Instance is tagged private;
+
+   function Create (Item : in String) return UUID.Instance;
+
+   function Image (UUID : in Instance) return String;
+
+   Null_UUID : constant UUID.Instance;
+
+private
+   use Ada.Strings.Unbounded;
+
+   type Instance is tagged
+      record
+         Value : Unbounded_String := Null_Unbounded_String;
+      end record;
+
+   Null_UUID : constant UUID.Instance := (Value => Null_Unbounded_String);
+
 end ESL.UUID;

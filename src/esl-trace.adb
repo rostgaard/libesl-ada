@@ -19,6 +19,21 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 package body ESL.Trace is
 
+   ----------------
+   --  Critical  --
+   ----------------
+
+   procedure Critical (Message : in String;
+                       Context : in String := "") is
+   begin
+      if Context /= "" then
+         Put_Line
+           (Kind'Image (Critical) & ": " & Context & ": " & Message);
+      else
+         Put_Line (Kind'Image (Critical) & ": " & Message);
+      end if;
+   end Critical;
+
    -------------
    --  Debug  --
    -------------

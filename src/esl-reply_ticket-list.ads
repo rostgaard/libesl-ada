@@ -15,28 +15,39 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  with ESL.Channel.List;
-with ESL.Observer.Event_Observers;
-with ESL.Packet;
+private with Ada.Containers.Ordered_Maps;
 
-package ESL.Client.Tasking.Test_Utilities is
+package ESL.Reply_Ticket.List is
 
-   Package_Name : constant String := "ESL.Client.Tasking.Test_Utilities";
+   Package_Name : constant String := "ESL.Reply_Ticket.List";
 
-   type Heartbeat_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+   type Instance is tagged limited private;
 
-   overriding
-   procedure Notify (Observer : access Heartbeat_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+   procedure Add (List   : in out Instance;
+                  Object : in     ESL.Reply_Ticket.Instance);
 
-   type Re_Schedule_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+   procedure Remove (List   : in out Instance;
+                     Object : in     ESL.Reply_Ticket.Instance);
 
-   overriding
-   procedure Notify (Observer : access Re_Schedule_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+   function Contains (List   : in Instance;
+                      Object : in ESL.Reply_Ticket.Instance) return Boolean;
 
-end ESL.Client.Tasking.Test_Utilities;
+private
+   package Ticket_Storage is new Ada.Containers.Ordered_Maps
+     (Key_Type     => ESL.Reply_Ticket.Instance,
+      Element_Type => Natural);
+
+   protected type Synchronized_Storage is
+      procedure Add (Item : in ESL.Reply_Ticket.Instance);
+      function Contains (Object : in ESL.Reply_Ticket.Instance) return Boolean;
+      procedure Remove (Item : in ESL.Reply_Ticket.Instance);
+   private
+      Protected_List : Ticket_Storage.Map;
+   end Synchronized_Storage;
+
+   type Instance is tagged limited
+      record
+         Storage : Synchronized_Storage;
+      end record;
+
+end ESL.Reply_Ticket.List;

@@ -20,8 +20,6 @@ with Ada.Task_Identification;
 with Ada.Task_Termination;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
---  with Ada.Strings.Unbounded;
---  with Ada.Containers.Vectors;
 
 with ESL.Trace;
 with ESL.Packet;
@@ -29,9 +27,20 @@ with ESL.Parsing_Utilities;
 
 package body ESL.Client.Tasking is
    use ESL;
+   use ESL.Reply;
 
-   procedure Dispatch (Client : access ESL.Client.Instance'Class;
+   procedure Background_API (Client  : in out Instance;
+                             Command : in     ESL.Command.Instance'Class;
+                             Reply   : in out ESL.Reply.Instance) is
+   begin
+      Client.Synchonous_Operations.Send (Item  => Command);
+      Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
+   end Background_API;
+
+   procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
                        Packet : in ESL.Packet.Instance);
+   --  Dispatches a collected packet to the appropriate handler(s). Be that
+   --  procedures waiting for a reply, or event observers.
 
    protected Shutdown_Handler is
       procedure Termination_Finalizer
@@ -39,12 +48,15 @@ package body ESL.Client.Tasking is
          T     : in Ada.Task_Identification.Task_Id;
          X     : in Ada.Exceptions.Exception_Occurrence);
    end Shutdown_Handler;
+   --  Last-breath handler for our internal task. Doesn't serve any other
+   --  purpose other than keeping an eye on whether our internal task
+   --  behaves inappropriately
 
    ----------------
    --  Dispatch  --
    ----------------
 
-   procedure Dispatch (Client : access ESL.Client.Instance'Class;
+   procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
                        Packet : in ESL.Packet.Instance) is
       Context : constant String := Package_Name & ".Dispatch";
    begin
@@ -52,8 +64,7 @@ package body ESL.Client.Tasking is
          declare
             Observing : ESL.Observer.Observables renames
               ESL.Observer.Observables
-                (ESL.Client.Tasking.Reference
-                     (Client).Event_Observers (Packet.Event));
+                (Client.Event_Observers (Packet.Event));
          begin
 
             Trace.Debug (Context => Context,
@@ -64,6 +75,13 @@ package body ESL.Client.Tasking is
                Packet    => Packet,
                Client    => ESL.Client.Reference (Client));
          end;
+      elsif Packet.Is_Response then
+         ESL.Trace.Information (Message => "Pushing reply",
+                                Context => Context);
+         Client.Synchonous_Operations.Push_Reply
+           (Item => ESL.Reply.Create (Packet => Packet));
+         ESL.Trace.Information (Message => "Pushed reply",
+                                Context => Context);
       end if;
 
    exception
@@ -79,6 +97,10 @@ package body ESL.Client.Tasking is
                           Context => Context);
    end Dispatch;
 
+   --------------------
+   --  Event_Stream  --
+   --------------------
+
    function Event_Stream (Client : in Instance;
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access is
@@ -86,10 +108,10 @@ package body ESL.Client.Tasking is
       return Client.Event_Observers (Stream)'Access;
    end Event_Stream;
 
---     ----------------
---     --  Finalize  --
---     ----------------
---
+   ----------------
+   --  Finalize  --
+   ----------------
+
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
       pragma Unreferenced (Context);
@@ -97,6 +119,32 @@ package body ESL.Client.Tasking is
       Obj.Shutdown := True;
       ESL.Client.Instance (Obj).Finalize; --  Call the parent finalization.
    end Finalize;
+
+   ----------------
+   --  Get_Line  --
+   ----------------
+
+--     overriding function Get_Line (Client : in Instance) return String is
+--        pragma Unreferenced (Client);
+--     begin
+--        raise Program_Error with "Erronous usage. Only internal object " &
+--          "may recieve";
+--        return "";
+--     end Get_Line;
+
+   ---------------
+   --  Receive  --
+   ---------------
+
+--     overriding function Receive (Client : in Instance;
+--                                  Count  : in Natural) return String is
+--        pragma Unreferenced (Client, Count);
+--     begin
+--        raise Program_Error with "Erronous usage. Only internal object " &
+--          "may recieve";
+--
+--        return "";
+--     end Receive;
 
    ----------------
    --  Shutdown  --
@@ -107,6 +155,17 @@ package body ESL.Client.Tasking is
       Client.Shutdown  := True;
       Client.Disconnect;
    end Shutdown;
+
+   -----------------------------
+   --  Skip_Until_Empty_Line  --
+   -----------------------------
+
+--     overriding  procedure Skip_Until_Empty_Line (Client : in Instance) is
+--        pragma Unreferenced (Client);
+--     begin
+--        raise Program_Error with "Erronous usage. Only internal object " &
+--          "may recieve";
+--     end Skip_Until_Empty_Line;
 
    ------------------------
    --  Sub_Event_Stream  --
@@ -165,18 +224,16 @@ package body ESL.Client.Tasking is
 
    task body Stream_Reader is
       use Ada.Calendar;
+      use Ada.Task_Identification;
       use ESL.Observer;
+
+      Context : constant String :=
+        Package_Name & ".Instance(" & Image (Current_Task) & ")";
 
       function Current_Time return Time renames Clock;
       procedure Reader_Loop;
 
       Next_Attempt    : Time := Current_Time;
---      Event_Observers : Client_Event_Listeners;
-
-      use Ada.Task_Identification;
-
-      Context : constant String :=
-        Package_Name & ".Instance(" & Image (Current_Task) & ")";
 
       procedure Reader_Loop is
       begin
@@ -202,12 +259,12 @@ package body ESL.Client.Tasking is
          end loop;
       exception
          when Ada.IO_Exceptions.End_Error =>
-            Trace.Debug (Context => Context,
-                             Message => "Reader operated on closed socket");
+            Trace.Error (Context => Context,
+                             Message => "Reader operated on closed socket.");
             Owner.Connected := False;
          when Connection_Timeout =>
-            Trace.Debug (Context => Context,
-                             Message => "Timeout reached for reader");
+            Trace.Error (Context => Context,
+                             Message => "Timeout reached.");
       end Reader_Loop;
 
    begin
@@ -221,59 +278,44 @@ package body ESL.Client.Tasking is
       end loop;
 
       Trace.Debug (Context => Context,
-                         Message => "Ending stream consumer.");
+                   Message => "Ending stream consumer.");
    exception
-      when Ada.IO_Exceptions.End_Error =>
-         Trace.Error (Context => Context,
-                      Message => "Reader operated on closed socket");
-         Owner.Connected := False;
-      when Connection_Timeout =>
-         Trace.Error (Context => Context,
-                      Message => "Timeout reached for reader");
       when others =>
-         Trace.Error (Context => Context,
-                      Message => "other error");
+         Trace.Critical (Context => Context,
+                         Message => "Unhandled Error!");
    end Stream_Reader;
 
-   --------------
-   --  Notify  --
-   --------------
+   -----------------------
+   --  Synchronized_IO  --
+   -----------------------
 
---     procedure Notify (Event  : in AMI.Event.Event_Type;
---                       Packet : in AMI.Parser.Packet_Type) is
---        Context : constant String := Package_Name & ".Notify ";
---        use Client_Callback_Collections;
---
---        procedure Call (C : Cursor);
---
---        Attr : Client_Data renames
---          Client_Attribute.Value;
---
---        procedure Call (C : Cursor) is
---        begin
---           Element (C) (Attr.Client_Ref, Packet);
---        end Call;
---
---     begin
---        if Attr.Event_Observers (Event).Is_Empty then
---         AMI.Trace.Debug ("Nobody cared about event " & Event'Img, Context);
---        end if;
---
---        Attr.Event_Observers (Event).Iterate (Process => Call'Access);
---     end Notify;
+   protected body Synchronized_IO is
 
---     -----------------
---     --  Subscribe  --
---     -----------------
---
---     procedure Subscribe (Obj      : in Instance;
---                          Event    : in ESL.Packet_Keys.Inbound_Events;
---                          Observer : in
---  ESL.Observer.Event_Listener_Reference) is
---        Attr : Client_Data renames
---          Client_Attribute.Value (T => Obj'Identity);
---     begin
---           Attr.Event_Observers (Event).Append (New_Item => Observer);
---     end Subscribe;
+      procedure Push_Reply (Item : Reply.Instance) is
+         Context : constant String := Package_Name &
+           ".Synchronized_IO.Push_Reply";
+      begin
+         ESL.Trace.Information (Message => "Pushing",
+                                Context => Context);
+         Next_Reply := Item;
+      end Push_Reply;
+
+      entry Pop_Reply (Item : out Reply.Instance)
+        when Next_Reply /= Null_Reply is
+      begin
+         Item       := Next_Reply;
+         Next_Reply := Null_Reply;
+      end Pop_Reply;
+
+      procedure Send (Item  : in ESL.Command.Instance'Class) is
+         Context : constant String := Package_Name &
+           ".Synchronized_IO.Send";
+      begin
+         Owner.Send (Item);
+         ESL.Trace.Information (Message => "Sent Item.",
+                                Context => Context);
+      end Send;
+
+   end Synchronized_IO;
 
 end ESL.Client.Tasking;

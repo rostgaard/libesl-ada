@@ -74,4 +74,4 @@ parser:
 	mkdir -p build debug
 	${GNATMAKE_TEST} $@
 
-.PHONY: debug tests
+.PHONY: debug tests esl-client-tasking-test

@@ -15,15 +15,40 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Equal_Case_Insensitive;
+with Ada.Strings.Unbounded.Less_Case_Insensitive;
 
 package body ESL.Reply_Ticket is
-   function "=" (Left, Right : Instance) return Boolean is
+
+   function "<" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
    begin
-      return Ada.Strings.Unbounded.Equal_Case_Insensitive
+      if Left.Timestamp = Right.Timestamp then
+         return Ada.Strings.Unbounded.Less_Case_Insensitive
+           (Left  => Left.Key,
+            Right => Right.Key);
+      else
+         return Left.Timestamp < Right.Timestamp;
+      end if;
+   end "<";
+
+   function "=" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
+   begin
+      return (Ada.Strings.Unbounded.Equal_Case_Insensitive
         (Left  => Left.Key,
-         Right => Right.Key);
+         Right => Right.Key) and Left.Timestamp = Right.Timestamp);
    end "=";
+
+   function Create (Item : in String) return Instance is
+      use Ada.Strings;
+      use Ada.Strings.Fixed;
+   begin
+      return (Timestamp => Ada.Calendar.Clock,
+              Key       => To_Unbounded_String (Trim (Source => Item,
+                                                      Side   => Both)));
+   end Create;
 
    function Image (Ticket : Instance) return String is
    begin

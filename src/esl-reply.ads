@@ -15,28 +15,35 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  with ESL.Channel.List;
-with ESL.Observer.Event_Observers;
 with ESL.Packet;
+with ESL.UUID;
 
-package ESL.Client.Tasking.Test_Utilities is
+package ESL.Reply is
 
-   Package_Name : constant String := "ESL.Client.Tasking.Test_Utilities";
+   Package_Name : constant String := "ESL.Reply";
 
-   type Heartbeat_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+   type Instance is tagged private;
 
-   overriding
-   procedure Notify (Observer : access Heartbeat_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+   type Responses is (Null_Response, Error, Timeout, OK);
 
-   type Re_Schedule_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+   function Create (Packet : in ESL.Packet.Instance) return Reply.Instance;
 
-   overriding
-   procedure Notify (Observer : access Re_Schedule_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+   function UUID (Reply : in Instance) return ESL.UUID.Instance;
 
-end ESL.Client.Tasking.Test_Utilities;
+   function Response (Reply : in Instance) return Responses;
+
+   function Image (Reply : in Instance) return String;
+
+   Null_Reply : constant Reply.Instance;
+
+private
+   type Instance is tagged
+      record
+         UUID     : ESL.UUID.Instance;
+         Response : Responses;
+      end record;
+
+   Null_Reply : constant Reply.Instance := (UUID     => ESL.UUID.Null_UUID,
+                                            Response => Null_Response);
+
+end ESL.Reply;
