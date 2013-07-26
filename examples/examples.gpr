@@ -1,6 +1,7 @@
+
 -------------------------------------------------------------------------------
 --                                                                           --
---                     Copyright (C) 2012-, AdaHeads K/S                     --
+--                      Copyright (C) 2013-, AdaHeads K/S                    --
 --                                                                           --
 --  This is free software;  you can redistribute it and/or modify it         --
 --  under terms of the  GNU General Public License  as published by the      --
@@ -15,42 +16,18 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  Dumps the output from a FreeSWITCH ESL session to stdout.
+--with "../common";
+with "esl";
+with "gnatcoll";
 
-with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Command_Line; use Ada.Command_Line;
+project Examples is
+--   for Main use ("dump_session", "esl_job_list_test");
+   for Main use ("esl_job_list_test");
 
-with ESL.Parsing_Utilities;
-with ESL.Client;
-with ESL.Trace;
-with ESL;
-
-procedure Dump_Session is
-   use ESL;
-   use ESL.Trace;
-   use ESL.Parsing_Utilities;
-
-   Client : ESL.Client.Instance;
-
-   procedure Usage;
-
-   procedure Usage is
-   begin
-      Put_Line ("Usage:" & Command_Name & " hostname port password");
-      Set_Exit_Status (Failure);
-   end Usage;
-begin
-   ESL.Trace.Mute (Every);
-
-   if Argument_Count < 3 then
-      Usage;
-      return;
-   end if;
-
-   Client.Connect (Argument (1), Natural'Value (Argument (2)));
-   Client.Authenticate (Password => Argument (3));
-
-   Client.Send ("event plain all");
-
-   Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
-end Dump_Session;
+   for Source_Dirs use (".");
+   for Exec_Dir    use "..";
+   for Object_Dir  use "../build";
+--   package Compiler renames Common.Compiler;
+--   package Naming   renames Common.Naming;
+--   package IDE      renames Common.IDE;
+end Examples;

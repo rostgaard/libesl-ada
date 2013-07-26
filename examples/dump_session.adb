@@ -15,39 +15,44 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-private with Ada.Containers.Ordered_Maps;
+--  Dumps the output (all events) from a FreeSWITCH ESL session to stdout.
 
-package ESL.Reply_Ticket.List is
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Command_Line; use Ada.Command_Line;
 
-   Package_Name : constant String := "ESL.Reply_Ticket.List";
+with ESL.Parsing_Utilities;
+with ESL.Client;
+with ESL.Trace;
+with ESL;
 
-   type Instance is tagged limited private;
+procedure Dump_Session is
+   use ESL;
+   use ESL.Trace;
+   use ESL.Parsing_Utilities;
 
-   procedure Add (List   : in out Instance;
-                  Object : in     ESL.Reply_Ticket.Instance);
+   Client : ESL.Client.Instance
+     (On_Connect_Handler    => ESL.Client.Ignore_Event,
+      On_Disconnect_Handler => ESL.Client.Ignore_Event);
 
-   procedure Remove (List   : in out Instance;
-                     Object : in     ESL.Reply_Ticket.Instance);
+   procedure Usage;
 
-   function Contains (List   : in Instance;
-                      Object : in ESL.Reply_Ticket.Instance) return Boolean;
+   procedure Usage is
+   begin
+      Put_Line ("Usage:" & Command_Name & " hostname port password");
+      Set_Exit_Status (Failure);
+   end Usage;
+begin
+   ESL.Trace.Mute (Every);
 
-private
-   package Ticket_Storage is new Ada.Containers.Ordered_Maps
-     (Key_Type     => ESL.Reply_Ticket.Instance,
-      Element_Type => Natural);
+   if Argument_Count < 3 then
+      Usage;
+      return;
+   end if;
 
-   protected type Synchronized_Storage is
-      procedure Add (Item : in ESL.Reply_Ticket.Instance);
-      function Contains (Object : in ESL.Reply_Ticket.Instance) return Boolean;
-      procedure Remove (Item : in ESL.Reply_Ticket.Instance);
-   private
-      Protected_List : Ticket_Storage.Map;
-   end Synchronized_Storage;
+   Client.Connect (Argument (1), Natural'Value (Argument (2)));
+   Client.Authenticate (Password => Argument (3));
 
-   type Instance is tagged limited
-      record
-         Storage : Synchronized_Storage;
-      end record;
+   Client.Send ("event plain all");
 
-end ESL.Reply_Ticket.List;
+   Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
+end Dump_Session;

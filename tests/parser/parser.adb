@@ -26,7 +26,9 @@ procedure Parser is
    use ESL;
    use ESL.Parsing_Utilities;
 
-   Client : ESL.Client.Instance;
+   Client : ESL.Client.Instance
+     (On_Connect_Handler => ESL.Client.Ignore_Event,
+      On_Disconnect_Handler => ESL.Client.Ignore_Event);
    Count  : Natural := 0;
 begin
 

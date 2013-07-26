@@ -15,44 +15,35 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded.Equal_Case_Insensitive;
-with Ada.Strings.Unbounded.Less_Case_Insensitive;
+with Ada.Calendar;
 
-package body ESL.Reply_Ticket is
+with ESL.UUID;
+with ESL.Packet;
 
-   function "<" (Left, Right : Instance) return Boolean is
-      use Ada.Calendar;
-   begin
-      if Left.Timestamp = Right.Timestamp then
-         return Ada.Strings.Unbounded.Less_Case_Insensitive
-           (Left  => Left.Key,
-            Right => Right.Key);
-      else
-         return Left.Timestamp < Right.Timestamp;
-      end if;
-   end "<";
+package ESL.Job is
 
-   function "=" (Left, Right : Instance) return Boolean is
-      use Ada.Calendar;
-   begin
-      return (Ada.Strings.Unbounded.Equal_Case_Insensitive
-        (Left  => Left.Key,
-         Right => Right.Key) and Left.Timestamp = Right.Timestamp);
-   end "=";
+   type Instance is tagged private;
 
-   function Create (Item : in String) return Instance is
-      use Ada.Strings;
-      use Ada.Strings.Fixed;
-   begin
-      return (Timestamp => Ada.Calendar.Clock,
-              Key       => To_Unbounded_String (Trim (Source => Item,
-                                                      Side   => Both)));
-   end Create;
+   type Actions is (Unknown, Discard, Keep, Aborted, Ready);
 
-   function Image (Ticket : Instance) return String is
-   begin
-      return To_String (Ticket.Key);
-   end Image;
+   function "=" (Left, Right : in Instance) return Boolean;
 
-end ESL.Reply_Ticket;
+   function "<" (Left, Right : in Instance) return Boolean;
+
+   function Create (UUID      : in ESL.UUID.Instance;
+                    When_Done : in Actions) return Instance;
+
+   function Image (Job : Instance) return String;
+
+   procedure Set_Packet (Job    :    out Instance;
+                         Packet : in     ESL.Packet.Instance);
+private
+   type Instance is tagged
+      record
+         Timestamp : Ada.Calendar.Time   := Ada.Calendar.Clock;
+         UUID      : ESL.UUID.Instance   := ESL.UUID.Null_UUID;
+         Action    : Actions             := Discard;
+         Packet    : ESL.Packet.Instance := ESL.Packet.Empty_Packet;
+      end record;
+
+end ESL.Job;

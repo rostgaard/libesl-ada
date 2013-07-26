@@ -92,7 +92,13 @@ package body ESL.Trace is
 
    procedure Mute (Trace : in Kind) is
    begin
-      Muted (Trace) := True;
+      if Trace = Every then
+         for T in Kind'Range loop
+            Muted (T) := True;
+         end loop;
+      else
+         Muted (Trace) := True;
+      end if;
    end Mute;
 
    ---------------------------
@@ -110,7 +116,13 @@ package body ESL.Trace is
 
    procedure Unmute (Trace : in Kind) is
    begin
-      Muted (Trace) := False;
+      if Trace = Every then
+         for T in Kind'Range loop
+            Muted (T) := False;
+         end loop;
+      else
+         Muted (Trace) := False;
+      end if;
    end Unmute;
 
 end ESL.Trace;

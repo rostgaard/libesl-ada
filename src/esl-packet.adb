@@ -73,6 +73,18 @@ package body ESL.Packet is
       return Obj;
    end Create;
 
+   --------------------
+   --  Empty_Packet  --
+   --------------------
+
+   function Empty_Packet return Instance is
+   begin
+      return (Header   => Packet_Header.Empty_Header,
+              Raw_Body => Null_Unbounded_String,
+              JSON     => GNATCOLL.JSON.Create,
+              Payload  => Payload_Storage.Empty_Map);
+   end Empty_Packet;
+
    -----------------------
    --  Equivalent_Keys  --
    -----------------------

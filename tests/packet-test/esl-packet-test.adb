@@ -90,7 +90,7 @@ procedure ESL.Packet.Test is
                      New_Line;
                      raise;
                end;
-               Count := Count+1;
+               Count := Count + 1;
                Packet := ESL.Packet.Create;
             end loop;
 
@@ -117,7 +117,7 @@ procedure ESL.Packet.Test is
       end loop;
 
       Runtime := Ada.Calendar.Clock - Time;
-      Tmp := Duration (Float (Count))/Runtime;
+      Tmp := Duration (Float (Count)) / Runtime;
       Put_Line ("Processed" & Count'Img & " packages, with" &
                   File_Tests_Errors'Img & " errors in" &
                   Runtime'Img & " seconds (" & Tmp'Img & " pkts/s).");
@@ -137,9 +137,9 @@ procedure ESL.Packet.Test is
    end Test_Session;
 
 begin
-   -- ESL.Trace.Mute (Debug) := False;
-   --ESL.Trace.Mute (Information) := True;
-   --ESL.Trace.Mute (Error) := True;
+   --  ESL.Trace.Mute (Debug) := False;
+   --  ESL.Trace.Mute (Information) := True;
+   --  ESL.Trace.Mute (Error) := True;
    File_Tests;
 
 end ESL.Packet.Test;

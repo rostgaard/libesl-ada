@@ -28,7 +28,9 @@ procedure ESL.Client.Tasking.Start_Stop_Test is
    use ESL;
    use ESL.Trace;
 
-   Client : ESL.Client.Tasking.Instance;
+   Client : ESL.Client.Tasking.Instance
+     (On_Connect_Handler    => ESL.Client.Ignore_Event,
+      On_Disconnect_Handler => ESL.Client.Ignore_Event);
 
    procedure Usage;
 

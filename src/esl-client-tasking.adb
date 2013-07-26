@@ -35,6 +35,7 @@ package body ESL.Client.Tasking is
    begin
       Client.Synchonous_Operations.Send (Item  => Command);
       Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
+      Client.Job_Reply_Buffer.Discard (Reply.UUID);
    end Background_API;
 
    procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
@@ -124,27 +125,27 @@ package body ESL.Client.Tasking is
    --  Get_Line  --
    ----------------
 
---     overriding function Get_Line (Client : in Instance) return String is
---        pragma Unreferenced (Client);
---     begin
---        raise Program_Error with "Erronous usage. Only internal object " &
---          "may recieve";
---        return "";
---     end Get_Line;
+   overriding function Get_Line (Client : in Instance) return String is
+      pragma Unreferenced (Client);
+   begin
+      raise Program_Error with "Erronous usage. Only internal object " &
+        "may recieve";
+      return "";
+   end Get_Line;
 
    ---------------
    --  Receive  --
    ---------------
 
---     overriding function Receive (Client : in Instance;
---                                  Count  : in Natural) return String is
---        pragma Unreferenced (Client, Count);
---     begin
---        raise Program_Error with "Erronous usage. Only internal object " &
---          "may recieve";
---
---        return "";
---     end Receive;
+   overriding function Receive (Client : in Instance;
+                                Count  : in Natural) return String is
+      pragma Unreferenced (Client, Count);
+   begin
+      raise Program_Error with "Erronous usage. Only internal object " &
+        "may recieve";
+
+      return "";
+   end Receive;
 
    ----------------
    --  Shutdown  --
@@ -160,12 +161,12 @@ package body ESL.Client.Tasking is
    --  Skip_Until_Empty_Line  --
    -----------------------------
 
---     overriding  procedure Skip_Until_Empty_Line (Client : in Instance) is
---        pragma Unreferenced (Client);
---     begin
---        raise Program_Error with "Erronous usage. Only internal object " &
---          "may recieve";
---     end Skip_Until_Empty_Line;
+   overriding  procedure Skip_Until_Empty_Line (Client : in Instance) is
+      pragma Unreferenced (Client);
+   begin
+      raise Program_Error with "Erronous usage. Only internal object " &
+        "may recieve";
+   end Skip_Until_Empty_Line;
 
    ------------------------
    --  Sub_Event_Stream  --

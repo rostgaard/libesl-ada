@@ -15,27 +15,47 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Calendar;
-with Ada.Strings.Unbounded;
+with Ada.Calendar.Formatting;
 
-package ESL.Reply_Ticket is
-   use Ada.Strings.Unbounded;
+package body ESL.Job is
+   use ESL.UUID;
 
-   type Instance is tagged private;
+   function "<" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
+   begin
+      if Left.Timestamp = Right.Timestamp then
+         return Left.UUID < Right.UUID;
+      else
+         return Left.Timestamp < Right.Timestamp;
+      end if;
+   end "<";
 
-   function "=" (Left, Right : in Instance) return Boolean;
+   function "=" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
+   begin
+      return (Left.UUID = Right.UUID) and (Left.Timestamp = Right.Timestamp);
+   end "=";
 
-   function "<" (Left, Right : in Instance) return Boolean;
+   function Create (UUID      : in ESL.UUID.Instance;
+                    When_Done : in Actions) return Instance is
+   begin
+      return (Timestamp => Ada.Calendar.Clock,
+              Action    => When_Done,
+              UUID      => UUID,
+              Packet    => ESL.Packet.Empty_Packet);
+   end Create;
 
-   function Create (Item : in String) return Instance;
+   function Image (Job : Instance) return String is
+   begin
+      return
+        "Submitted: " & Ada.Calendar.Formatting.Image (Job.Timestamp) &
+        " UUID: "     & Job.UUID.Image &
+        " Action: "   & Job.Action'Img;
+   end Image;
 
-   function Image (Ticket : Instance) return String;
-
-private
-   type Instance is tagged
-      record
-         Timestamp : Ada.Calendar.Time := Ada.Calendar.Clock;
-         Key       : Unbounded_String;
-      end record;
-
-end ESL.Reply_Ticket;
+   procedure Set_Packet (Job    :    out Instance;
+                         Packet : in     ESL.Packet.Instance) is
+   begin
+      Job.Packet := Packet;
+   end Set_Packet;
+end ESL.Job;
