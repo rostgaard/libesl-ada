@@ -19,8 +19,8 @@ with "../shared";
 
 project Test is
    for Main use ("esl-client-tasking-channel_list_test",
-                 "esl-client-tasking-test",
-                 "esl-client-tasking-start_stop_test.adb");
+                 "esl-client-tasking-start_stop_test",
+                 "esl-client-tasking-test");
 
    for Source_Dirs use (".", "../../src/**");
    for Exec_Dir    use ".";
