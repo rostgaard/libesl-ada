@@ -15,9 +15,39 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with ESL.Trace;
 
 package body ESL.Client.Tasking.Test_Utilities is
+   use Ada.Calendar;
+
+   procedure Set_Connection_Parameters (New_Hostname : in String;
+                                        New_Port     : in Natural;
+                                        New_Password : in String) is
+   begin
+      Hostname := To_Unbounded_String (New_Hostname);
+      Port := New_Port;
+      Password := To_Unbounded_String (New_Password);
+   end Set_Connection_Parameters;
+
+   procedure Signal_Connect is
+      Context : constant String := Package_Name &
+        ".Signal_Connect";
+   begin
+      ESL.Trace.Information (Message => "Triggered",
+                             Context => Context);
+   end Signal_Connect;
+
+   procedure Signal_Disconnect is
+      Context : constant String := Package_Name &
+        ".Signal_Disconnect";
+   begin
+      delay 1.0;
+      ESL.Trace.Information (Message => "Triggered",
+                             Context => Context);
+      Client.Connect (Hostname => To_String (Hostname),
+                      Port     => Port);
+   end Signal_Disconnect;
 
    procedure Notify (Observer : access Heartbeat_Observer;
                      Packet   : in     ESL.Packet.Instance;

@@ -15,7 +15,7 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  Dumps the output from a FreeSWITCH ESL session to stdout.
+--  Dumps the output (all events) from a FreeSWITCH ESL session to stdout.
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
@@ -30,7 +30,9 @@ procedure Dump_Session is
    use ESL.Trace;
    use ESL.Parsing_Utilities;
 
-   Client : ESL.Client.Instance;
+   Client : ESL.Client.Instance
+     (On_Connect_Handler    => ESL.Client.Ignore_Event,
+      On_Disconnect_Handler => ESL.Client.Ignore_Event);
 
    procedure Usage;
 

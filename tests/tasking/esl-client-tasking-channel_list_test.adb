@@ -32,23 +32,29 @@ procedure ESL.Client.Tasking.Channel_List_Test is
    use ESL;
    use Client.Tasking.Test_Utilities;
 
-   Client : ESL.Client.Tasking.Instance;
+   Client : ESL.Client.Tasking.Instance
+     (On_Connect_Handler    => Signal_Connect'Access,
+      On_Disconnect_Handler => Signal_Disconnect'Access);
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream (Client => Client,
                                  Stream => ESL.Packet_Keys.RE_SCHEDULE));
+   pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
      (Observing => Event_Stream (Client => Client,
                                  Stream => ESL.Packet_Keys.HEARTBEAT));
+   pragma Unreferenced (Testobs2);
 
    CO : ESL.Channel.List.Observers.Create_Observer
      (Observing => Event_Stream (Client => Client,
                                  Stream => ESL.Packet_Keys.CHANNEL_CREATE));
+   pragma Unreferenced (CO);
 
    SO : ESL.Channel.List.Observers.State_Observer
      (Observing => Event_Stream (Client => Client,
                                  Stream => ESL.Packet_Keys.CHANNEL_STATE));
+   pragma Unreferenced (SO);
 
    procedure Usage;
 
@@ -78,7 +84,7 @@ begin
 
    loop
       if not Channel_List (Client).Empty then
-         Put (Esl.Client.Tasking.Channel_List (Client).Image);
+         Put (ESL.Client.Tasking.Channel_List (Client).Image);
       end if;
       delay 1.0;
    end loop;

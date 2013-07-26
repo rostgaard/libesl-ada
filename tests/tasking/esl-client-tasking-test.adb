@@ -32,23 +32,22 @@ procedure ESL.Client.Tasking.Test is
    use ESL.Trace;
    use Client.Tasking.Test_Utilities;
 
-   Client : ESL.Client.Tasking.Instance;
-
    Testobs1 : Re_Schedule_Observer
-     (Observing => Event_Stream (Client => Client,
-                                 Stream => ESL.Packet_Keys.RE_SCHEDULE));
+     (Observing => Event_Stream
+        (Client => Client.Tasking.Test_Utilities.Client,
+         Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
-     (Observing => Event_Stream (Client => Client,
-                                 Stream => ESL.Packet_Keys.HEARTBEAT));
+     (Observing => Event_Stream
+        (Client => Client.Tasking.Test_Utilities.Client,
+         Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
-   Command : ESL.Command.Call_Management.Instance :=
+   Command : constant ESL.Command.Call_Management.Instance :=
      ESL.Command.Call_Management.Originate
        (Call_URL         => "user/1001",
         Extension        => "5900");
-   pragma Unreferenced (Command);
 
    procedure Usage;
 
@@ -65,13 +64,18 @@ procedure ESL.Client.Tasking.Test is
    task body Tasking_Connect is
    begin
       accept Start;
-      Client.Connect (Argument (1), Natural'Value (Argument (2)));
+      Client.Tasking.Test_Utilities.Set_Connection_Parameters
+        (New_Hostname => Argument (1),
+         New_Port     => Natural'Value (Argument (2)),
+         New_Password => Argument (3));
+      Client.Tasking.Test_Utilities.Client.Connect
+          (Argument (1), Natural'Value (Argument (2)));
    end Tasking_Connect;
 
    Delay_Count : Natural := 0;
    Reply       : ESL.Reply.Instance := ESL.Reply.Null_Reply;
 begin
-   --  ESL.Trace.Mute (ESL.Trace.Debug) := False;
+   ESL.Trace.Unmute (ESL.Trace.Debug);
 
    if Argument_Count < 3 then
       Usage;
@@ -81,32 +85,33 @@ begin
 
    Tasking_Connect.Start;
 
-   while not Client.Connected loop
+   while not Client.Tasking.Test_Utilities.Client.Connected loop
       delay 1.0;
 
-      if Delay_Count = 3 then
+      if Delay_Count = 30 then
          raise Program_Error with
            "Test expected valid Freeswitch PBX - none found.";
       end if;
       Delay_Count := Delay_Count + 1;
    end loop;
 
-   Client.Authenticate (Password => Argument (3));
+   Client.Tasking.Test_Utilities.Client.Authenticate
+     (Password => Argument (3));
 
    Ada.Text_IO.Put_Line ("Sending");
 
-   Client.Background_API (Command => Command,
+   Client.Tasking.Test_Utilities.Client.Background_API (Command => Command,
                           Reply   => Reply);
 
    Ada.Text_IO.Put_Line (Reply.Image);
 
-   Send (Client, "event plain ALL");
+   Send (Client.Tasking.Test_Utilities.Client, "event plain ALL");
 
-   Send (Client, "api status");
-   Client.Send (String (Command.Serialize));
+   Send (Client.Tasking.Test_Utilities.Client, "api status");
+   Client.Tasking.Test_Utilities.Client.Send (String (Command.Serialize));
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
                           Context => "ESL.Client.Tasking.Test");
-
+      Shutdown (Client.Tasking.Test_Utilities.Client);
 end ESL.Client.Tasking.Test;
