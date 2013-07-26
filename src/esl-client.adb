@@ -129,6 +129,9 @@ package body ESL.Client is
       --  Pull down the connecting flag.
       Client.Connecting := False;
 
+      --  Signal the connected event listener.
+      Client.On_Connect_Handler.all;
+
    exception
       when E : GNAT.Sockets.Socket_Error =>
          --  Assert the state
@@ -152,9 +155,14 @@ package body ESL.Client is
    --  Create  --
    --------------
 
-   function Create return Reference is
+   function Create
+     (On_Connect_Handler    : in Connection_Event_Handler;
+      On_Disconnect_Handler : in Connection_Event_Handler)
+      return Reference is
    begin
-      return new Instance;
+      return new Instance
+        (On_Connect_Handler    => On_Connect_Handler,
+         On_Disconnect_Handler => On_Disconnect_Handler);
    end Create;
 
    ------------------
@@ -219,8 +227,6 @@ package body ESL.Client is
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Trace.Information
-        ("Initialize (instance) called for new client, creating selector");
       GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
 
@@ -256,35 +262,12 @@ package body ESL.Client is
    procedure Send (Client : in Instance;
                    Item   : in ESL.Command.Instance'Class) is
    begin
-      --  AMI.Response.Subscribe (Item);
-
       Client.Send (String (Item.Serialize));
    end Send;
 
    ------------
    --  Send  --
    ------------
-
-   --  procedure Send (Client : in Instance;
-   --                  Item   : in AMI.AMI_Packet) is
-   --  begin
-   --     Client.Send (String (Item));
-   --  end Send;
-
-   ------------
-   --  Send  --
-   ------------
-
-   --  function Send (Client : in Instance;
-   --                 Item   : in AMI.Packet.Action.Request)
-   --                 return AMI.Parser.Packet_Type is
-   --  begin
-   --     AMI.Response.Subscribe (Item);
-   --     Send (Client => Client,
-   --           Item   => String (Item.To_AMI_Packet));
-
-   --     return AMI.Response.Claim (Ticket => Item.Action_ID);
-   --  end Send;
 
    procedure Set_Log_Level (Obj   : in out Instance;
                             Level : in     Natural) is

@@ -15,39 +15,47 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-private with Ada.Containers.Ordered_Maps;
+with Ada.Calendar.Formatting;
 
-package ESL.Reply_Ticket.List is
+package body ESL.Job is
+   use ESL.UUID;
 
-   Package_Name : constant String := "ESL.Reply_Ticket.List";
+   function "<" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
+   begin
+      if Left.Timestamp = Right.Timestamp then
+         return Left.UUID < Right.UUID;
+      else
+         return Left.Timestamp < Right.Timestamp;
+      end if;
+   end "<";
 
-   type Instance is tagged limited private;
+   function "=" (Left, Right : Instance) return Boolean is
+      use Ada.Calendar;
+   begin
+      return (Left.UUID = Right.UUID) and (Left.Timestamp = Right.Timestamp);
+   end "=";
 
-   procedure Add (List   : in out Instance;
-                  Object : in     ESL.Reply_Ticket.Instance);
+   function Create (UUID      : in ESL.UUID.Instance;
+                    When_Done : in Actions) return Instance is
+   begin
+      return (Timestamp => Ada.Calendar.Clock,
+              Action    => When_Done,
+              UUID      => UUID,
+              Packet    => ESL.Packet.Empty_Packet);
+   end Create;
 
-   procedure Remove (List   : in out Instance;
-                     Object : in     ESL.Reply_Ticket.Instance);
+   function Image (Job : Instance) return String is
+   begin
+      return
+        "Submitted: " & Ada.Calendar.Formatting.Image (Job.Timestamp) &
+        " UUID: "     & Job.UUID.Image &
+        " Action: "   & Job.Action'Img;
+   end Image;
 
-   function Contains (List   : in Instance;
-                      Object : in ESL.Reply_Ticket.Instance) return Boolean;
-
-private
-   package Ticket_Storage is new Ada.Containers.Ordered_Maps
-     (Key_Type     => ESL.Reply_Ticket.Instance,
-      Element_Type => Natural);
-
-   protected type Synchronized_Storage is
-      procedure Add (Item : in ESL.Reply_Ticket.Instance);
-      function Contains (Object : in ESL.Reply_Ticket.Instance) return Boolean;
-      procedure Remove (Item : in ESL.Reply_Ticket.Instance);
-   private
-      Protected_List : Ticket_Storage.Map;
-   end Synchronized_Storage;
-
-   type Instance is tagged limited
-      record
-         Storage : Synchronized_Storage;
-      end record;
-
-end ESL.Reply_Ticket.List;
+   procedure Set_Packet (Job    :    out Instance;
+                         Packet : in     ESL.Packet.Instance) is
+   begin
+      Job.Packet := Packet;
+   end Set_Packet;
+end ESL.Job;

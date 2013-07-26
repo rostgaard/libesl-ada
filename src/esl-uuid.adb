@@ -15,12 +15,33 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded.Equal_Case_Insensitive;
+with Ada.Strings.Unbounded.Less_Case_Insensitive;
+
 package body ESL.UUID is
+
+   function "<" (Left, Right : in Instance) return Boolean is
+   begin
+      return Ada.Strings.Unbounded.Less_Case_Insensitive
+        (Left  => Left.Value,
+         Right => Right.Value);
+   end "<";
+
+   function "=" (Left, Right : in Instance) return Boolean is
+   begin
+      return Ada.Strings.Unbounded.Equal_Case_Insensitive
+        (Left  => Left.Value,
+         Right => Right.Value);
+   end "=";
 
    --  TODO: complete.
    function Create (Item : in String) return UUID.Instance is
+      use Ada.Strings;
+      use Ada.Strings.Fixed;
    begin
-      return Null_UUID;
+      return (Value => To_Unbounded_String (Trim (Source => Item,
+                                                  Side   => Both)));
    end Create;
 
    function Image (UUID : in Instance) return String is

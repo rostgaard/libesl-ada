@@ -47,6 +47,7 @@ package ESL.Packet is
 
    procedure Process_And_Add_Body (Obj      : in out Instance;
                                    Raw_Data : in     String);
+   --  Processes the raw data received and orders it into key/value fields.
 
    function Image (Obj : in Instance) return String;
 
@@ -61,6 +62,8 @@ package ESL.Packet is
    function Is_Response (Obj : in Instance) return Boolean;
 
    function Event (Obj : in Instance) return Packet_Keys.Inbound_Events;
+
+   function Empty_Packet return Instance;
 private
    use Ada.Strings.Unbounded;
    use Ada.Strings;

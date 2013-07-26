@@ -24,6 +24,10 @@ package ESL.UUID is
 
    function Image (UUID : in Instance) return String;
 
+   function "=" (Left, Right : in Instance) return Boolean;
+
+   function "<" (Left, Right : in Instance) return Boolean;
+
    Null_UUID : constant UUID.Instance;
 
 private

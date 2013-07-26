@@ -42,7 +42,9 @@ package ESL.Client is
    Ignore_Event : constant Connection_Event_Handler;
    --  Silently ignore connection state changes.
 
-   type Instance is tagged limited private;
+   type Instance (On_Connect_Handler    : Connection_Event_Handler;
+                  On_Disconnect_Handler : Connection_Event_Handler)
+     is tagged limited private;
    --  This is the actual client instance.
 
    procedure Connect (Client   : in out Instance;
@@ -124,9 +126,15 @@ private
 
    type Instance_Handle is new Natural range 1 .. 10;
 
-   function Create return Reference;
+   function Create
+     (On_Connect_Handler    : in Connection_Event_Handler;
+      On_Disconnect_Handler : in Connection_Event_Handler)
+      return Reference;
 
-   type Instance is new Ada.Finalization.Limited_Controlled with
+   type Instance
+     (On_Connect_Handler    : Connection_Event_Handler;
+      On_Disconnect_Handler : Connection_Event_Handler)
+        is new Ada.Finalization.Limited_Controlled with
       record
          Connecting            : Boolean := False;
          Initialized           : Boolean := False;
@@ -137,8 +145,6 @@ private
          Socket                : GNAT.Sockets.Socket_Type :=
            GNAT.Sockets.No_Socket;
          Channel               : GNAT.Sockets.Stream_Access := null;
-         On_Connect_Handler    : Connection_Event_Handler := Ignore_Event;
-         On_Disconnect_Handler : Connection_Event_Handler := Ignore_Event;
          Selector              : aliased GNAT.Sockets.Selector_Type;
          Sequence              : Natural := 0;
       end record;
