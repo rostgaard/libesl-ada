@@ -29,7 +29,7 @@ package body ESL.Channel is
    end Add_Variable;
 
    function Create return Instance is
-      Obj : Instance;
+      Obj : constant Instance := (others => <>);
    begin
       return Obj;
    end Create;
