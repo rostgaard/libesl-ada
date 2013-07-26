@@ -254,6 +254,7 @@ package body ESL.Job.List is
       use type Ada.Calendar.Time;
 
       Context  : constant String := Package_Name & ".Wait_For";
+      pragma Unreferenced (Context);
 
       Deadline : constant Ada.Calendar.Time := Ada.Calendar.Clock + Timeout;
    begin
