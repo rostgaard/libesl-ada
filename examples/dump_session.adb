@@ -1,3 +1,4 @@
+
 -------------------------------------------------------------------------------
 --                                                                           --
 --                     Copyright (C) 2012-, AdaHeads K/S                     --
@@ -54,5 +55,7 @@ begin
 
    Client.Send ("event plain all");
 
-   Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
+   loop
+      Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));
+   end loop;
 end Dump_Session;
