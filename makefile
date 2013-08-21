@@ -15,6 +15,7 @@
 
 LIBNAME=esl
 GPR_TARGET=lib/gnat/ 
+GNATMAKE=gnatmake
 GNATMAKE_TEST=gnatmake -P common
 include makefile.setup
 
@@ -73,5 +74,8 @@ esl-packet-test:
 parser:
 	mkdir -p build debug
 	${GNATMAKE_TEST} $@
+examples:
+	mkdir -p build debug
+	${GNATMAKE} -P examples/examples.gpr
 
-.PHONY: debug tests esl-client-tasking-test
+.PHONY: debug tests esl-client-tasking-test examples
