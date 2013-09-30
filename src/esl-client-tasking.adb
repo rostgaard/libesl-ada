@@ -77,12 +77,8 @@ package body ESL.Client.Tasking is
                Client    => ESL.Client.Reference (Client));
          end;
       elsif Packet.Is_Response then
-         ESL.Trace.Information (Message => "Pushing reply",
-                                Context => Context);
          Client.Synchonous_Operations.Push_Reply
            (Item => ESL.Reply.Create (Packet => Packet));
-         ESL.Trace.Information (Message => "Pushed reply",
-                                Context => Context);
       end if;
 
    exception
@@ -259,13 +255,18 @@ package body ESL.Client.Tasking is
             end;
          end loop;
       exception
-         when Ada.IO_Exceptions.End_Error =>
+         when Ada.IO_Exceptions.End_Error | GNAT.Sockets.Socket_Error =>
             Trace.Error (Context => Context,
-                             Message => "Reader operated on closed socket.");
-            Owner.Connected := False;
-         when Connection_Timeout =>
-            Trace.Error (Context => Context,
-                             Message => "Timeout reached.");
+                         Message => "Reader operated on closed socket.");
+         Owner.Connected := False;
+         Owner.Authenticated := False;
+         Owner.On_Disconnect_Handler.all;
+
+      when Connection_Timeout =>
+            Trace.Debug
+              (Context => Context,
+               Message =>
+               "Timeout reached while wating for a connection channel.");
       end Reader_Loop;
 
    begin
@@ -281,9 +282,11 @@ package body ESL.Client.Tasking is
       Trace.Debug (Context => Context,
                    Message => "Ending stream consumer.");
    exception
-      when others =>
+      when E : others =>
          Trace.Critical (Context => Context,
                          Message => "Unhandled Error!");
+         Trace.Critical (Context => Context,
+                         Message => Ada.Exceptions.Exception_Information (E));
    end Stream_Reader;
 
    -----------------------
@@ -296,7 +299,7 @@ package body ESL.Client.Tasking is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Push_Reply";
       begin
-         ESL.Trace.Information (Message => "Pushing",
+         ESL.Trace.Debug (Message => "Pushing",
                                 Context => Context);
          Next_Reply := Item;
       end Push_Reply;
@@ -313,8 +316,8 @@ package body ESL.Client.Tasking is
            ".Synchronized_IO.Send";
       begin
          Owner.Send (Item);
-         ESL.Trace.Information (Message => "Sent Item.",
-                                Context => Context);
+         ESL.Trace.Debug (Message => "Sent Item.",
+                          Context => Context);
       end Send;
 
    end Synchronized_IO;

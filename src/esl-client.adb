@@ -92,8 +92,8 @@ package body ESL.Client is
          Addr   => Addresses (Get_Host_By_Name (Hostname)),
          Port   => Port_Type (Port));
 
-      Socket  : Socket_Type;
-      Status  : GNAT.Sockets.Selector_Status;
+      Socket   : Socket_Type;
+      Status   : GNAT.Sockets.Selector_Status;
    begin
       Create_Socket (Socket);
       Client.Socket := Socket;
@@ -105,7 +105,7 @@ package body ESL.Client is
       Trace.Information ("Connecting to " &
                          Hostname & ":" &
                          Positive'Image (Port),
-                       Context);
+                         Context);
 
       Connect_Socket (Socket   => Client.Socket,
                       Server   => Address,
@@ -120,24 +120,25 @@ package body ESL.Client is
          Trace.Information ("Connected to " &
                               Hostname & ":" &
                               Positive'Image (Port)& ".", Context);
+
+         --  Signal the connected event listener.
+         Client.On_Connect_Handler.all;
       else
-         Trace.Information ("Could not connect to " &
-                              Hostname & ":" &
-                              Positive'Image (Port)& ".", Context);
+         Trace.Information ("Could not connect to " & Image (Address)
+                            & ".", Context);
       end if;
 
       --  Pull down the connecting flag.
       Client.Connecting := False;
 
-      --  Signal the connected event listener.
-      Client.On_Connect_Handler.all;
-
    exception
       when E : GNAT.Sockets.Socket_Error =>
+         --  Pull down the connecting flag.
+         Client.Connecting := False;
          --  Assert the state
          Client.Connected := False;
          Client.Authenticated := False;
-         Client.On_Disconnect_Handler.all;
+         --  Client.On_Disconnect_Handler.all;
          Trace.Error (Context => Context, Message =>
                         "Failed to connect: " & Exception_Message (E));
    end Connect;
@@ -241,6 +242,11 @@ package body ESL.Client is
       String'Read (Client.Channel, Buffer);
 
       return Buffer;
+   exception
+      when others =>
+         ESL.Trace.Error (Message => "Receive failed!.",
+                          Context => "ESL.Client.Receive");
+         raise;
    end Receive;
 
    ------------
@@ -253,6 +259,10 @@ package body ESL.Client is
       String'Write (Client.Channel, Item &
                       ASCII.CR & ASCII.LF &
                       ASCII.CR & ASCII.LF);
+   exception
+      when others =>
+         ESL.Trace.Error (Message => "Send failed!",
+                          Context => "ESL.Client.Send");
    end Send;
 
    ------------
