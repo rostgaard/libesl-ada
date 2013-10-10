@@ -29,6 +29,15 @@ package body ESL.Command.Call_Management is
       Obj.Options.Add (Option);
    end Add_Option;
 
+   function Hangup (UUID : in String) return Instance is
+      Obj : Instance;
+   begin
+      Obj.Set_Command ("api " & Call_Management_Strings.UUID_Kill);
+      Obj.Add_Component (UUID);
+
+      return Obj;
+   end Hangup;
+
    function Originate (Call_URL         : in String;
                         --  URL you are calling.
                         Extension        : in String;

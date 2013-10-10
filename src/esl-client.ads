@@ -55,9 +55,6 @@ package ESL.Client is
 
    function Image (Client : in Instance) return String;
 
-   procedure Authenticate (Client   : in out Instance;
-                           Password : in     String);
-
    procedure Set_Log_Level (Obj   : in out Instance;
                             Level : in     Natural);
    --  Corresponds to "log".
@@ -91,8 +88,8 @@ package ESL.Client is
    pragma Obsolescent
      (Send, "To be superseded by ""api"" and ""bgapi "" calls");
 
-   procedure API (Client  : in Instance;
-                  Command : in ESL.Command.Instance'Class);
+   procedure API (Client  : in out Instance;
+                  Command : in     ESL.Command.Instance'Class);
    --  Synchronously sends an API command.
 
    procedure Background_API (Client  : in     Instance;
@@ -140,6 +137,7 @@ private
          Initialized           : Boolean := False;
          Connected             : Boolean := False;
          Authenticated         : Boolean := False;
+         Shutdown              : Boolean := False;
          Channels              : Channel.List.Reference
            := new Channel.List.Instance;
          Socket                : GNAT.Sockets.Socket_Type :=

@@ -96,7 +96,10 @@ begin
    end loop;
 
    Client.Tasking.Test_Utilities.Client.Authenticate
-     (Password => Argument (3));
+     (Password => Argument (3), Reply => Reply);
+
+   Ada.Text_IO.Put_Line ("Got: " & Reply.Image);
+
 
    Ada.Text_IO.Put_Line ("Sending");
 

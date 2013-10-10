@@ -29,11 +29,35 @@ package body ESL.Client.Tasking is
    use ESL;
    use ESL.Reply;
 
+   procedure API (Client  : in out Instance;
+                  Command : in     ESL.Command.Instance'Class)
+   is
+   begin
+      raise Program_Error with "not implemented!";
+   end API;
+
+   --------------------
+   --  Authenticate  --
+   --------------------
+
+   procedure Authenticate (Client   : in out Instance;
+                           Password : in     String;
+                           Reply    : in out ESL.Reply.Instance) is
+      Command : constant Serialized_Command :=
+        "auth " & Serialized_Command (Password & ESL.End_Packet_String);
+   begin
+      Client.Synchonous_Operations.Send (Item  => Command);
+      ESL.Trace.Debug (Message => "Waiting for reply...",
+                       Context => Package_Name & ".Authenticate.");
+
+      Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
+   end Authenticate;
+
    procedure Background_API (Client  : in out Instance;
                              Command : in     ESL.Command.Instance'Class;
                              Reply   : in out ESL.Reply.Instance) is
    begin
-      Client.Synchonous_Operations.Send (Item  => Command);
+      Client.Synchonous_Operations.Send (Item  => Command.Serialize);
       Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
       Client.Job_Reply_Buffer.Discard (Reply.UUID);
    end Background_API;
@@ -67,16 +91,15 @@ package body ESL.Client.Tasking is
               ESL.Observer.Observables
                 (Client.Event_Observers (Packet.Event));
          begin
-
-            Trace.Debug (Context => Context,
-                         Message => Packet.Content_Type'Img);
-
             ESL.Observer.Notify_Observers
               (Observing => Observing,
                Packet    => Packet,
                Client    => ESL.Client.Reference (Client));
          end;
       elsif Packet.Is_Response then
+         Trace.Debug (Context => Context,
+                      Message => "Pushing response");
+
          Client.Synchonous_Operations.Push_Reply
            (Item => ESL.Reply.Create (Packet => Packet));
       end if;
@@ -240,16 +263,14 @@ package body ESL.Client.Tasking is
             Handler => Shutdown_Handler.Termination_Finalizer'Access);
 
          loop
-            Trace.Debug (Context => Context,
-                         Message => "Waiting for connection...");
             Owner.Wait_For_Connection (Timeout => 3.0);
-            Trace.Debug (Context => Context,
-                         Message => "Connection ok!");
 
             declare
                Packet : constant ESL.Packet.Instance :=
                  ESL.Parsing_Utilities.Read_Packet (Stream => Owner.Stream);
             begin
+               ESL.Trace.Debug (Message => "Got packet" & Packet.Image,
+                                Context => Context);
                Dispatch (Client => Owner,
                          Packet => Packet);
             end;
@@ -299,8 +320,8 @@ package body ESL.Client.Tasking is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Push_Reply";
       begin
-         ESL.Trace.Debug (Message => "Pushing",
-                                Context => Context);
+         ESL.Trace.Debug (Message => "Pushing reply:" & Item.Image,
+                          Context => Context);
          Next_Reply := Item;
       end Push_Reply;
 
@@ -311,13 +332,11 @@ package body ESL.Client.Tasking is
          Next_Reply := Null_Reply;
       end Pop_Reply;
 
-      procedure Send (Item  : in ESL.Command.Instance'Class) is
+      procedure Send (Item  : in Serialized_Command) is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Send";
       begin
-         Owner.Send (Item);
-         ESL.Trace.Debug (Message => "Sent Item.",
-                          Context => Context);
+         Owner.Send (String (Item));
       end Send;
 
    end Synchronized_IO;

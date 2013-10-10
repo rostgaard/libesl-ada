@@ -58,6 +58,8 @@ package ESL.Packet is
                    Key : in Packet_Keys.Event_Keys)
                    return Packet_Field.Instance;
 
+   function Header (Obj : in Instance) return ESL.Packet_Header.Instance;
+
    function Is_Event (Obj : in Instance) return Boolean;
    function Is_Response (Obj : in Instance) return Boolean;
 

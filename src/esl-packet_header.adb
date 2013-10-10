@@ -63,6 +63,16 @@ package body ESL.Packet_Header is
          raise;
    end Add_Header;
 
+   ----------------
+   --  Contains  --
+   ----------------
+
+   function Contains (Obj : in Instance;
+                      Key : in Packet_Keys.Header_Keys) return Boolean is
+   begin
+      return Obj.Fields.Contains (Key => Key);
+   end Contains;
+
    ----------------------
    --  Content_Length  --
    ----------------------
@@ -130,4 +140,12 @@ package body ESL.Packet_Header is
       end loop;
       return To_String (Buffer);
    end Image;
+
+   function Field (Obj : in Instance;
+                   Key : in Packet_Keys.Header_Keys)
+                   return Header_Field.Instance is
+   begin
+      return Obj.Fields.Element (Key => Key);
+   end Field;
+
 end ESL.Packet_Header;

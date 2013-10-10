@@ -38,9 +38,16 @@ package ESL.Packet_Header is
 
    function Content_Type (Obj : in Instance) return Content_Types;
 
+   function Contains (Obj : in Instance;
+                      Key : in Packet_Keys.Header_Keys) return Boolean;
+
    function Content_Length (Obj : in Instance) return Natural;
 
    function Empty (Obj : in Instance) return Boolean;
+
+   function Field (Obj : in Instance;
+                   Key : in Packet_Keys.Header_Keys)
+                   return Header_Field.Instance;
 
    Empty_Header : constant Instance;
 

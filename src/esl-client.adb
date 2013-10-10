@@ -38,24 +38,13 @@ package body ESL.Client is
    --  API  --
    -----------
 
-   procedure API (Client  : in Instance;
-                  Command : in ESL.Command.Instance'Class) is
+   procedure API (Client  : in out Instance;
+                  Command : in     ESL.Command.Instance'Class) is
    begin
       Client.Send (Known_Commands'Image (API) & " " &
                      String (Command.Serialize));
+      ESL.Trace.Debug ("sent!");
    end API;
-
-   --------------------
-   --  Authenticate  --
-   --------------------
-
-   procedure Authenticate (Client   : in out Instance;
-                           Password : in     String) is
-   begin
-
-      Client.Send ("auth " & Password & ESL.End_Packet_String);
-
-   end Authenticate;
 
    ----------------------
    --  Background_API  --
@@ -259,6 +248,8 @@ package body ESL.Client is
       String'Write (Client.Channel, Item &
                       ASCII.CR & ASCII.LF &
                       ASCII.CR & ASCII.LF);
+      ESL.Trace.Debug (Message => "Sent: " & Item,
+                       Context => "ESL.Client.Send");
    exception
       when others =>
          ESL.Trace.Error (Message => "Send failed!",
@@ -323,6 +314,7 @@ package body ESL.Client is
       loop
          exit when
            Client.Connected or
+           Client.Shutdown or
            Clock > Absolute_Timeout;
          delay 0.05;
 

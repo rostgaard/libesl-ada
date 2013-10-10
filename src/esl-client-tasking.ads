@@ -41,6 +41,13 @@ package ESL.Client.Tasking is
 
    procedure Shutdown (Client : in out Instance);
 
+   procedure Authenticate (Client   : in out Instance;
+                           Password : in     String;
+                           Reply    : in out ESL.Reply.Instance);
+
+   procedure API (Client  : in out Instance;
+                  Command : in     ESL.Command.Instance'Class);
+
    procedure Background_API (Client  : in out Instance;
                              Command : in     ESL.Command.Instance'Class;
                              Reply   : in out ESL.Reply.Instance);
@@ -80,7 +87,7 @@ private
 
    protected type Synchronized_IO
      (Owner : access Client.Tasking.Instance'Class) is
-      procedure Send (Item  : in ESL.Command.Instance'Class);
+      procedure Send (Item  : in Serialized_Command);
 
       procedure Push_Reply (Item : Reply.Instance);
 
@@ -91,7 +98,6 @@ private
 
    type Instance is new Client.Instance with
       record
-         Shutdown                : Boolean := False;
          Event_Observers         : access Client_Event_Listeners
            := new Client_Event_Listeners;
          Sub_Event_Observers     : access Client_Sub_Event_Listeners

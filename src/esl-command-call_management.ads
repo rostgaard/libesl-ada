@@ -74,6 +74,9 @@ package ESL.Command.Call_Management is
    return Instance;
    --  Originate a new Call using an extension.
 
+   function Hangup (UUID : in String) return Instance;
+   --  Hangup a call with the given UUID.
+
    package Dialplan_Application_Arguments is
      new Ada.Containers.Vectors (Index_Type   => Natural,
                                  Element_Type => Unbounded_String);

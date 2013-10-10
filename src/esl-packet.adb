@@ -36,7 +36,10 @@ package body ESL.Packet is
               Auth_Request | API_Response =>
             return False;
 
-         when Text_Event_Plain | Command_Reply =>
+         when Text_Event_Plain =>
+            return Obj.Payload.Contains (Key => Key);
+
+         when Command_Reply =>
             return Obj.Payload.Contains (Key => Key);
 
          when Text_Event_XML =>
@@ -160,11 +163,24 @@ package body ESL.Packet is
 
    end Field;
 
+   ------------------
+   --  Hash_Field  --
+   ------------------
+
    function Hash_Field (Item : in Packet_Keys.Event_Keys) return
      Ada.Containers.Hash_Type is
    begin
       return Packet_Keys.Event_Keys'Pos (Item);
    end Hash_Field;
+
+   -------------
+   -- Header  --
+   -------------
+
+   function Header (Obj : in Instance) return ESL.Packet_Header.Instance is
+   begin
+      return Obj.Header;
+   end Header;
 
    -------------
    --  Image  --

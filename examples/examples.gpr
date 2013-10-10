@@ -21,7 +21,7 @@ with "esl";
 with "gnatcoll";
 
 project Examples is
-   for Main use ("dump_session");
+   for Main use ("dump_session", "test_hangup");
 --   for Main use ("esl_job_list_test");
 
    for Source_Dirs use (".");

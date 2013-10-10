@@ -40,10 +40,11 @@ procedure Dump_Session is
    procedure Usage is
    begin
       Put_Line ("Usage:" & Command_Name & " hostname port password");
+      Put_Line ("Exiting...");
       Set_Exit_Status (Failure);
    end Usage;
 begin
-   ESL.Trace.Mute (Every);
+   ESL.Trace.Unmute (Every);
 
    if Argument_Count < 3 then
       Usage;

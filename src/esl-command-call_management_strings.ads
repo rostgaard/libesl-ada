@@ -17,4 +17,5 @@
 
 package ESL.Command.Call_Management_Strings is
    Originate : constant String := "originate";
+   UUID_Kill : constant String := "uuid_kill";
 end ESL.Command.Call_Management_Strings;

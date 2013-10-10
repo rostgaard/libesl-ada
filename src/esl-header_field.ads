@@ -42,6 +42,8 @@ package ESL.Header_Field is
 
    function Value (Obj : in Instance) return String;
 
+   function Decoded_Value (Obj : in Instance) return String;
+
 private
    type Instance is tagged
       record

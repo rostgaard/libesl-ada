@@ -15,12 +15,15 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with ESL.Trace;
 with ESL.Packet_Keys;
+with ESL.Packet_Content_Type;
 
 package body ESL.Reply is
 
    function Create (Packet : in ESL.Packet.Instance) return Instance is
       use ESL.Packet_Keys;
+      use ESL.Packet_Content_Type;
 
       Object : Reply.Instance := Null_Reply;
    begin
@@ -28,11 +31,28 @@ package body ESL.Reply is
          raise Constraint_Error with "Cannot create reply from event!";
       end if;
 
-      if Packet.Contains (Key => Reply_Text) then
+      ESL.Trace.Debug (Message => "Creating Reply from packet:" & Packet.Image,
+                       Context => "ESL.Reply.Create");
+
+      if Packet.Content_Type = API_Response then
+         declare
+            Reply_String : String renames Packet.Payload;
+         begin
+            ESL.Trace.Debug (Message => Reply_String,
+                             Context => "ESL.Reply.Create");
+            if Reply_String (Reply_String'First) = '+' then
+               Object.Response := OK;
+            elsif Reply_String (Reply_String'First) = '-' then
+               Object.Response := Error;
+            end if;
+         end;
+      elsif Packet.Header.Contains (Key => Reply_Text) then
          declare
             Reply_String : String renames
-              Packet.Field (Key => Reply_Text).Decoded_Value;
+              Packet.Header.Field (Key => Reply_Text).Value;
          begin
+            ESL.Trace.Debug (Message => Reply_String,
+                             Context => "ESL.Reply.Create");
             if Reply_String (Reply_String'First) = '+' then
                Object.Response := OK;
             elsif Reply_String (Reply_String'First) = '-' then
@@ -48,6 +68,13 @@ package body ESL.Reply is
          begin
             Object.UUID := ESL.UUID.Create (Item => UUID_String);
          end;
+      end if;
+
+      ESL.Trace.Debug (Message => "Created:" & Object.Image,
+                       Context => "ESL.Reply.Create");
+
+      if Object = Null_Reply then
+         raise Constraint_Error;
       end if;
 
       return Object;
