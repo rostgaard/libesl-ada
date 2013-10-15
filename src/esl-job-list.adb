@@ -36,6 +36,14 @@ package body ESL.Job.List is
       return List.Storage.Image;
    end Image;
 
+   procedure Notify (Observer : access Job_Observer;
+                     Packet   : in     ESL.Packet.Instance;
+                     Client   : in     ESL.Client.Reference) is
+      pragma Unreferenced (Client);
+   begin
+      Observer.Job_List.Push (Packet => Packet);
+   end Notify;
+
    procedure Pop (List : in out Instance;
                   UUID : in ESL.UUID.Instance;
                   Job  :    out ESL.Job.Instance) is
@@ -199,7 +207,6 @@ package body ESL.Job.List is
             end if;
 
          end if;
-
       end Push;
 
       function Reply_Ready (UUID : in ESL.UUID.Instance) return Boolean is

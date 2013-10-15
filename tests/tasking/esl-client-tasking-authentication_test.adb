@@ -20,7 +20,6 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions;
 
 with ESL.Client.Tasking;
-with ESL.Packet;
 with ESL.Packet_Keys;
 with ESL.Client.Tasking.Test_Utilities;
 
@@ -28,7 +27,7 @@ with ESL;
 with ESL.Trace;
 with ESL.Command.Call_Management;
 
-procedure ESL.Client.Tasking.Test is
+procedure ESL.Client.Tasking.Authentication_Test is
    use ESL;
    use ESL.Trace;
    use Client.Tasking.Test_Utilities;
@@ -81,9 +80,8 @@ procedure ESL.Client.Tasking.Test is
 
    Delay_Count : Natural := 0;
    Reply       : ESL.Reply.Instance := ESL.Reply.Null_Reply;
-   Packet      : ESL.Packet.Instance;
 begin
-   ESL.Trace.Unmute (ESL.Trace.Every);
+   ESL.Trace.Mute (ESL.Trace.Information);
 
    if Argument_Count < 3 then
       Usage;
@@ -103,7 +101,7 @@ begin
       Delay_Count := Delay_Count + 1;
    end loop;
 
-      Ada.Text_IO.Put ("Expecting Authentication_Failure Exception .. ");
+   Ada.Text_IO.Put ("Expecting Authentication_Failure Exception .. ");
    declare
    begin
       Client.Tasking.Test_Utilities.Client.Authenticate
@@ -116,7 +114,7 @@ begin
    end;
 
    --  Wait for the client to get back on its feet.
-   delay 2.0;
+   delay 3.0;
 
    declare
    begin
@@ -130,20 +128,5 @@ begin
          Set_Exit_Status (Failure);
    end;
 
-   Ada.Text_IO.Put ("Sending BG_API command, discarding - ");
-   Client.Tasking.Test_Utilities.Client.Background_API (Command => Command,
-                                                        Reply   => Reply);
-   Ada.Text_IO.Put_Line ("Got reply: " & Reply.Image);
-
-   Ada.Text_IO.Put_Line ("Shutting down..");
-
-   delay 2.0;
    Shutdown (Client.Tasking.Test_Utilities.Client);
-
-exception
-   when E : others =>
-      ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
-                       Context => "ESL.Client.Tasking.Test");
-      Set_Exit_Status (Failure);
-      Shutdown (Client.Tasking.Test_Utilities.Client);
-end ESL.Client.Tasking.Test;
+end ESL.Client.Tasking.Authentication_Test;

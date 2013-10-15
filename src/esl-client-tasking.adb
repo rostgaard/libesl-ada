@@ -41,25 +41,33 @@ package body ESL.Client.Tasking is
    --------------------
 
    procedure Authenticate (Client   : in out Instance;
-                           Password : in     String;
-                           Reply    : in out ESL.Reply.Instance) is
+                           Password : in     String) is
       Command : constant Serialized_Command :=
         "auth " & Serialized_Command (Password & ESL.End_Packet_String);
+      Reply : ESL.Reply.Instance;
    begin
       Client.Synchonous_Operations.Send (Item  => Command);
       ESL.Trace.Debug (Message => "Waiting for reply...",
                        Context => Package_Name & ".Authenticate.");
 
-      Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
+      Client.Synchonous_Operations.Pop_Reply (Item => Reply);
+
+      ESL.Trace.Debug (Message => "Got reply: " & Reply.Response'Img,
+                       Context => Package_Name & ".Authenticate.");
+
+      if Reply.Response = Error then
+         raise Authentication_Failure with
+           "Bad credentials.";
+      end if;
+
    end Authenticate;
 
    procedure Background_API (Client  : in out Instance;
                              Command : in     ESL.Command.Instance'Class;
                              Reply   : in out ESL.Reply.Instance) is
    begin
-      Client.Synchonous_Operations.Send (Item  => Command.Serialize);
+      Client.Synchonous_Operations.Send ("BGAPI " & Command.Serialize);
       Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
-      Client.Job_Reply_Buffer.Discard (Reply.UUID);
    end Background_API;
 
    procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
@@ -262,26 +270,28 @@ package body ESL.Client.Tasking is
            (T => Current_Task,
             Handler => Shutdown_Handler.Termination_Finalizer'Access);
 
-         loop
-            Owner.Wait_For_Connection (Timeout => 3.0);
+         Owner.Wait_For_Connection (Timeout => 3.0);
 
+         loop
             declare
                Packet : constant ESL.Packet.Instance :=
                  ESL.Parsing_Utilities.Read_Packet (Stream => Owner.Stream);
             begin
-               ESL.Trace.Debug (Message => "Got packet" & Packet.Image,
-                                Context => Context);
                Dispatch (Client => Owner,
                          Packet => Packet);
             end;
          end loop;
       exception
+         --  These are expected behaviour. If the recieve call fails, we
+         --  Expect the client to get back on its feet again or shut down.
          when Ada.IO_Exceptions.End_Error | GNAT.Sockets.Socket_Error =>
-            Trace.Error (Context => Context,
-                         Message => "Reader operated on closed socket.");
-         Owner.Connected := False;
-         Owner.Authenticated := False;
-         Owner.On_Disconnect_Handler.all;
+            Trace.Information
+              (Context => Context,
+               Message => "Reader operated on closed socket.");
+            Owner.Connected := False;
+            Owner.Authenticated := False;
+            Owner.On_Disconnect_Handler.all;
+            Owner.Wait_For_Connection (Timeout => 1.0);
 
       when Connection_Timeout =>
             Trace.Debug
@@ -332,6 +342,11 @@ package body ESL.Client.Tasking is
          Next_Reply := Null_Reply;
       end Pop_Reply;
 
+      entry Discard_Reply when Next_Reply /= Null_Reply is
+      begin
+         Next_Reply := Null_Reply;
+      end Discard_Reply;
+
       procedure Send (Item  : in Serialized_Command) is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Send";
@@ -340,5 +355,14 @@ package body ESL.Client.Tasking is
       end Send;
 
    end Synchronized_IO;
+
+   procedure Unmute_Event (Client : in out Instance;
+                           Event  : in     ESL.Packet_Keys.Inbound_Events) is
+      Request : constant Serialized_Command :=
+        Serialized_Command("event plain " & Event'Img);
+   begin
+      Client.Synchonous_Operations.Send (Item => Request);
+      Client.Synchonous_Operations.Discard_Reply;
+   end Unmute_Event;
 
 end ESL.Client.Tasking;

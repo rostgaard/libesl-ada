@@ -55,7 +55,7 @@ package ESL.Channel is
    --
 
    function Create return Instance;
-   --  Empty instance;
+   --  Empty object instance;
 
    function Image (Obj : in Instance) return String;
 

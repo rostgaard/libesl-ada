@@ -44,7 +44,8 @@ package ESL.Packet_Keys is
                            MESSAGE_QUERY,
                            MESSAGE_WAITING,
                            PLAYBACK_START,
-                           PLAYBACK_STOP);
+                           PLAYBACK_STOP,
+                           BACKGROUND_JOB);
 
    type Inbound_Sub_Events is (FIFO_INFO);
 
@@ -52,6 +53,7 @@ package ESL.Packet_Keys is
      (Unknown,
       Content_Type,
       Content_Length,
+      Job_UUID,
       Reply_Text);
 
    type Event_Keys is

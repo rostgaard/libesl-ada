@@ -19,12 +19,13 @@
 
 with ESL.Observer;
 with ESL.Packet_Keys;
-with ESL.Job.List;
 with ESL.Reply;
 
 package ESL.Client.Tasking is
 
    Package_Name : constant String  := "ESL.Client.Tasking";
+
+   Authentication_Failure : exception;
 
    type Instance is new Client.Instance with private;
    type Event_Streams is new ESL.Observer.Observables with null record;
@@ -35,6 +36,9 @@ package ESL.Client.Tasking is
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access;
 
+   procedure Unmute_Event (Client : in out Instance;
+                           Event  : in     ESL.Packet_Keys.Inbound_Events);
+
    function Sub_Event_Stream (Client : in Instance;
                               Stream : in ESL.Packet_Keys.Inbound_Sub_Events)
                               return Event_Streams_Access;
@@ -42,8 +46,7 @@ package ESL.Client.Tasking is
    procedure Shutdown (Client : in out Instance);
 
    procedure Authenticate (Client   : in out Instance;
-                           Password : in     String;
-                           Reply    : in out ESL.Reply.Instance);
+                           Password : in     String);
 
    procedure API (Client  : in out Instance;
                   Command : in     ESL.Command.Instance'Class);
@@ -91,6 +94,8 @@ private
 
       procedure Push_Reply (Item : Reply.Instance);
 
+      entry Discard_Reply;
+
       entry Pop_Reply (Item : out Reply.Instance);
    private
       Next_Reply : ESL.Reply.Instance := ESL.Reply.Null_Reply;
@@ -103,7 +108,6 @@ private
          Sub_Event_Observers     : access Client_Sub_Event_Listeners
            := new Client_Sub_Event_Listeners;
          Reader                  : Stream_Reader (Instance'Access);
-         Job_Reply_Buffer        : ESL.Job.List.Instance;
          Sending                 : Boolean := False;
          Synchonous_Operations   : Synchronized_IO (Instance'Access);
       end record;

@@ -17,6 +17,8 @@
 
 with ESL.UUID;
 with ESL.Packet;
+with ESL.Observer.Event_Observers;
+with ESL.Client;
 
 private with Ada.Containers.Ordered_Maps;
 
@@ -29,8 +31,11 @@ package ESL.Job.List is
 
    type Instance is tagged limited private;
 
-   procedure Push (List   : in out Instance;
-                   Packet : in ESL.Packet.Instance);
+   type Job_Observer is
+     new ESL.Observer.Event_Observers.Instance with
+      record
+         Job_List :  Instance;
+      end record;
 
    procedure Pop (List : in out Instance;
                   UUID : in     ESL.UUID.Instance;
@@ -54,6 +59,14 @@ package ESL.Job.List is
 
 private
    use ESL.UUID;
+
+   overriding
+   procedure Notify (Observer : access Job_Observer;
+                     Packet   : in     ESL.Packet.Instance;
+                     Client   : in     ESL.Client.Reference);
+
+   procedure Push (List   : in out Instance;
+                   Packet : in ESL.Packet.Instance);
 
    package Job_Storage is new Ada.Containers.Ordered_Maps
      (Key_Type     => ESL.UUID.Instance,

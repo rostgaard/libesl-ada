@@ -31,8 +31,8 @@ package body ESL.Reply is
          raise Constraint_Error with "Cannot create reply from event!";
       end if;
 
-      ESL.Trace.Debug (Message => "Creating Reply from packet:" & Packet.Image,
-                       Context => "ESL.Reply.Create");
+--        ESL.Trace.Debug (Message => "Creating Reply from packet:" & Packet.Image,
+--                         Context => "ESL.Reply.Create");
 
       if Packet.Content_Type = API_Response then
          declare
@@ -61,10 +61,10 @@ package body ESL.Reply is
          end;
       end if;
 
-      if Packet.Contains (Key => Job_UUID) then
+      if Packet.Header.Contains (Key => Job_UUID) then
          declare
             UUID_String : String renames
-              Packet.Field (Key => Job_UUID).Decoded_Value;
+              Packet.Header.Field (Key => Job_UUID).Value;
          begin
             Object.UUID := ESL.UUID.Create (Item => UUID_String);
          end;

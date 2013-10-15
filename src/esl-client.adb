@@ -220,6 +220,11 @@ package body ESL.Client is
       GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
 
+   function Is_Shutdown (Obj : in Instance) return Boolean is
+   begin
+      return Obj.Shutdown;
+   end Is_Shutdown;
+
    ---------------
    --  Receive  --
    ---------------

@@ -44,7 +44,7 @@ package ESL.Client is
 
    type Instance (On_Connect_Handler    : Connection_Event_Handler;
                   On_Disconnect_Handler : Connection_Event_Handler)
-     is tagged limited private;
+     is abstract tagged limited private;
    --  This is the actual client instance.
 
    procedure Connect (Client   : in out Instance;
@@ -114,6 +114,8 @@ package ESL.Client is
    function "=" (Left, Right : in Reference) return Boolean;
 
    function Channel_List (Obj : in Instance) return Channel.List.Reference;
+
+   function Is_Shutdown (Obj : in Instance) return Boolean;
 
 private
    use GNAT.Sockets;

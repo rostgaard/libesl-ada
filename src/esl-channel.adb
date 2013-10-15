@@ -22,11 +22,19 @@ with ESL.Trace;
 
 package body ESL.Channel is
 
+   --------------------
+   --  Add_Variable  --
+   --------------------
+
    procedure Add_Variable (Obj      : in out Instance;
                            Variable : in     Channel_Variable.Instance) is
    begin
       Obj.Variables.Add_Variable (Variable => Variable);
    end Add_Variable;
+
+   --------------
+   --  Create  --
+   --------------
 
    function Create return Instance is
       Obj : constant Instance := (others => <>);
