@@ -23,20 +23,19 @@ with ESL.Command.Call_Management_Strings;
 package body ESL.Command.Call_Management is
    use ESL.Command;
 
+   ------------------
+   --  Add_Option  --
+   ------------------
+
    procedure Add_Option (Obj    : in out Instance;
                          Option : in     ESL.Command.Option.Instance) is
    begin
       Obj.Options.Add (Option);
    end Add_Option;
 
-   function Hangup (UUID : in String) return Instance is
-      Obj : Instance;
-   begin
-      Obj.Set_Command (Call_Management_Strings.UUID_Kill);
-      Obj.Add_Component (UUID);
-
-      return Obj;
-   end Hangup;
+   -----------------
+   --  Originate  --
+   -----------------
 
    function Originate (Call_URL         : in String;
                         --  URL you are calling.
@@ -80,5 +79,80 @@ package body ESL.Command.Call_Management is
 
       return Obj;
    end Originate;
+
+   -------------------
+   --  UUID_Bridge  --
+   -------------------
+
+   function UUID_Bridge (UUID       : in ESL.UUID.Instance;
+                         UUID_Other : in ESL.UUID.Instance) return Instance is
+      Obj : Instance;
+   begin
+      Obj.Set_Command (Call_Management_Strings.UUID_Bridge);
+      Obj.Add_Component (UUID.Serialize);
+      Obj.Add_Component (UUID_Other.Serialize);
+
+      return Obj;
+   end UUID_Bridge;
+
+   -----------------
+   --  UUID_Kill  --
+   -----------------
+
+   function UUID_Kill (UUID : in String;
+                       Cause : in Hangup_Cause := -1) return Instance is
+      Obj : Instance;
+   begin
+      Obj.Set_Command (Call_Management_Strings.UUID_Kill);
+      Obj.Add_Component (UUID);
+
+      if Cause >= 0 then
+         Obj.Add_Component (Cause'Img);
+      end if;
+
+      return Obj;
+   end UUID_Kill;
+
+   -----------------
+   --  UUID_Park  --
+   -----------------
+
+   function UUID_Park (UUID : in String) return Instance is
+      Obj : Instance;
+   begin
+      Obj.Set_Command (Call_Management_Strings.UUID_Park);
+      Obj.Add_Component (UUID);
+
+      return Obj;
+   end UUID_Park;
+
+   ---------------------
+   --  UUID_Transfer  --
+   ---------------------
+
+   function UUID_Transfer (UUID        : in ESL.UUID.Instance;
+                           Destination : in String;
+                           Mode        : in Transfer_Modes := Undefined;
+                           Dialplan    : in String := "";
+                           Context     : in String := "") return Instance is
+   begin
+      return Obj : Instance do
+         Obj.Set_Command (Call_Management_Strings.UUID_Transfer);
+         Obj.Add_Component (UUID.Serialize);
+
+         if Mode /= Undefined then
+            Obj.Add_Component ("-" & Mode'Img);
+         end if;
+
+         Obj.Add_Component (Destination);
+
+         if Dialplan /= "" then
+            Obj.Add_Component (Dialplan);
+         elsif Context /= "" then
+            Obj.Add_Component (Context);
+         end if;
+
+      end return;
+   end UUID_Transfer;
 
 end ESL.Command.Call_Management;

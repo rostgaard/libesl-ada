@@ -15,38 +15,6 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Packet;
-with ESL.UUID;
-private with Ada.Strings.Unbounded;
-
-package ESL.Reply is
-
-   Package_Name : constant String := "ESL.Reply";
-
-   type Instance is tagged private;
-
-   type Responses is (Null_Response, Undefined, Error, Timeout, OK);
-
-   function Create (Packet : in ESL.Packet.Instance) return Reply.Instance;
-
-   function UUID (Reply : in Instance) return ESL.UUID.Instance;
-
-   function Response (Reply : in Instance) return Responses;
-
-   function Response_Body (Reply : in Instance) return String;
-
-   function Image (Reply : in Instance) return String;
-
-   Null_Reply : constant Reply.Instance;
-private
-   use Ada.Strings.Unbounded;
-
-   type Instance is tagged
-      record
-         UUID     : ESL.UUID.Instance;
-         Response : Unbounded_String;
-      end record;
-
-   Null_Reply : constant Reply.Instance := (UUID     => ESL.UUID.Null_UUID,
-                                            Response => Null_Unbounded_String);
-end ESL.Reply;
+package ESL.Command.Core_Strings is
+   Show : constant String := "show";
+end ESL.Command.Core_Strings;

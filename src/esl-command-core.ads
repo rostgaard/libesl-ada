@@ -18,15 +18,7 @@
 package ESL.Command.Core is
    use ESL;
 
-   type Instance is new Command.Instance with
-      record
-         Blocking : Boolean := True;
-      end record;
-   --  The blocking member determines if command should be sent with
-   --  "api" (blocking) or "bgapi" (non-blockin).
-
---     function Serialize (Obj : in Instance)
---                         return Serialized_Command;
+   type Instance is new Command.Instance with null record;
 
    procedure ACL (IP_Address : String;
                   List       : String) is null;
@@ -44,6 +36,8 @@ package ESL.Command.Core is
    procedure Purge_Alias is null;
    --  Usage: alias add <alias> <command> | del [<alias>|*]
 
-   procedure Background_API (Commmand : Command.Instance) is null;
+   function Show (Report : in String) return Instance;
+   --  Display various reports from the internal state of FreeSWITCH.
+   --  http://wiki.freeswitch.org/wiki/Mod_commands#show
 
 end ESL.Command.Core;

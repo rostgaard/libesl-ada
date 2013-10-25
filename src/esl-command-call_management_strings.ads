@@ -16,6 +16,9 @@
 -------------------------------------------------------------------------------
 
 package ESL.Command.Call_Management_Strings is
-   Originate : constant String := "originate";
-   UUID_Kill : constant String := "uuid_kill";
+   Originate     : constant String := "originate";
+   UUID_Bridge   : constant String := "uuid_bridge";
+   UUID_Kill     : constant String := "uuid_kill";
+   UUID_Park     : constant String := "uuid_park";
+   UUID_Transfer : constant String := "uuid_transfer";
 end ESL.Command.Call_Management_Strings;

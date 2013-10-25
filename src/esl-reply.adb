@@ -31,34 +31,11 @@ package body ESL.Reply is
          raise Constraint_Error with "Cannot create reply from event!";
       end if;
 
---        ESL.Trace.Debug (Message => "Creating Reply from packet:" & Packet.Image,
---                         Context => "ESL.Reply.Create");
-
       if Packet.Content_Type = API_Response then
-         declare
-            Reply_String : String renames Packet.Payload;
-         begin
-            ESL.Trace.Debug (Message => Reply_String,
-                             Context => "ESL.Reply.Create");
-            if Reply_String (Reply_String'First) = '+' then
-               Object.Response := OK;
-            elsif Reply_String (Reply_String'First) = '-' then
-               Object.Response := Error;
-            end if;
-         end;
-      elsif Packet.Header.Contains (Key => Reply_Text) then
-         declare
-            Reply_String : String renames
-              Packet.Header.Field (Key => Reply_Text).Value;
-         begin
-            ESL.Trace.Debug (Message => Reply_String,
-                             Context => "ESL.Reply.Create");
-            if Reply_String (Reply_String'First) = '+' then
-               Object.Response := OK;
-            elsif Reply_String (Reply_String'First) = '-' then
-               Object.Response := Error;
-            end if;
-         end;
+         Object.Response := To_Unbounded_String (Packet.Payload);
+      else
+         Object.Response := To_Unbounded_String
+           (Packet.Header.Field (Key => Reply_Text).Value);
       end if;
 
       if Packet.Header.Contains (Key => Job_UUID) then
@@ -82,13 +59,27 @@ package body ESL.Reply is
 
    function Image (Reply : in Instance) return String is
    begin
-      return Reply.Response'Img & " " & Reply.UUID.Image;
+      return To_String (Reply.Response) & " " & Reply.UUID.Image;
    end Image;
 
    function Response (Reply : in Instance) return Responses is
+      Response_String : String renames To_String (Reply.Response);
    begin
-      return Reply.Response;
+      if Response_String (Response_String'First) = '+' then
+         return OK;
+      elsif Response_String (Response_String'First) = '-' then
+         return Error;
+      elsif Response_String'Length = 0 then
+         return Null_Response;
+      end if;
+
+      return Undefined;
    end Response;
+
+   function Response_Body (Reply : in Instance) return String is
+   begin
+      return To_String (Source => Reply.Response);
+   end Response_Body;
 
    function UUID (Reply : in Instance) return ESL.UUID.Instance is
    begin

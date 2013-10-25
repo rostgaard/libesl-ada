@@ -18,11 +18,10 @@
 with Ada.Text_IO; use Ada.Text_IO;
 
 procedure ESL.Command.Call_Management.Test is
-   Command : ESL.Command.Call_Management.Instance :=
+   Command : constant ESL.Command.Call_Management.Instance :=
      Originate (Call_URL         => "user/1001",
                 Extension        => "5900");
 
 begin
    Put_Line ("""" & ESL.Command.Image (Command.Serialize) & """");
 end ESL.Command.Call_Management.Test;
-

@@ -49,7 +49,8 @@ package ESL.Client.Tasking is
                            Password : in     String);
 
    procedure API (Client  : in out Instance;
-                  Command : in     ESL.Command.Instance'Class);
+                  Command : in     ESL.Command.Instance'Class;
+                  Reply   : in out ESL.Reply.Instance);
 
    procedure Background_API (Client  : in out Instance;
                              Command : in     ESL.Command.Instance'Class;

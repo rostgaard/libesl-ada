@@ -22,7 +22,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
 
 with ESL.Parsing_Utilities;
-with ESL.Client;
+with ESL.Client.Tasking;
 with ESL.Trace;
 with ESL;
 
@@ -31,7 +31,7 @@ procedure Dump_Session is
    use ESL.Trace;
    use ESL.Parsing_Utilities;
 
-   Client : ESL.Client.Instance
+   Client : ESL.Client.Tasking.Instance
      (On_Connect_Handler    => ESL.Client.Ignore_Event,
       On_Disconnect_Handler => ESL.Client.Ignore_Event);
 
@@ -44,6 +44,8 @@ procedure Dump_Session is
       Set_Exit_Status (Failure);
    end Usage;
 begin
+   raise Program_Error with "Deprecated example!";
+
    ESL.Trace.Unmute (Every);
 
    if Argument_Count < 3 then

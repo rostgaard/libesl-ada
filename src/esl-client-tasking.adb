@@ -30,10 +30,11 @@ package body ESL.Client.Tasking is
    use ESL.Reply;
 
    procedure API (Client  : in out Instance;
-                  Command : in     ESL.Command.Instance'Class)
-   is
+                  Command : in     ESL.Command.Instance'Class;
+                  Reply   : in out ESL.Reply.Instance) is
    begin
-      raise Program_Error with "not implemented!";
+      Client.Synchonous_Operations.Send (Item => "API " & Command.Serialize);
+      Client.Synchonous_Operations.Pop_Reply (Item  => Reply);
    end API;
 
    --------------------
@@ -351,15 +352,22 @@ package body ESL.Client.Tasking is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Send";
       begin
+         Next_Reply := Null_Reply;
+         --  Clear the reply, so we
+         --  do not receive the previous reply by mistake.
          Owner.Send (String (Item));
       end Send;
 
    end Synchronized_IO;
 
+   --------------------
+   --  Unmute_Event  --
+   --------------------
+
    procedure Unmute_Event (Client : in out Instance;
                            Event  : in     ESL.Packet_Keys.Inbound_Events) is
       Request : constant Serialized_Command :=
-        Serialized_Command("event plain " & Event'Img);
+        Serialized_Command ("event plain " & Event'Img);
    begin
       Client.Synchonous_Operations.Send (Item => Request);
       Client.Synchonous_Operations.Discard_Reply;

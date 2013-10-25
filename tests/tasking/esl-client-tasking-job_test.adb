@@ -140,7 +140,7 @@ begin
    Shutdown (Client.Tasking.Test_Utilities.Client);
 
 exception
-   when E :others =>
+   when E : others =>
       Put_Line (Ada.Exceptions.Exception_Information (E));
 
 end ESL.Client.Tasking.Job_Test;

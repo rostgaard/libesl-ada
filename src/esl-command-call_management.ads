@@ -18,6 +18,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+with ESL.UUID;
 with ESL.Command.Option;
 with ESL.Command.Option_List;
 
@@ -73,9 +74,6 @@ package ESL.Command.Call_Management is
                        )
    return Instance;
    --  Originate a new Call using an extension.
-
-   function Hangup (UUID : in String) return Instance;
-   --  Hangup a call with the given UUID.
 
    package Dialplan_Application_Arguments is
      new Ada.Containers.Vectors (Index_Type   => Natural,
@@ -149,8 +147,8 @@ package ESL.Command.Call_Management is
    --  queued up to be played to the channel will be removed, whereas without
    --  the all flag only the currently playing file will be discontinued.
 
-   procedure UUID_Bridge (UUID       : in String;
-                          UUID_Other : in String) is null;
+   function UUID_Bridge (UUID       : in ESL.UUID.Instance;
+                         UUID_Other : in ESL.UUID.Instance) return Instance;
    --  Bridge two call legs together.
    --  Usage: uuid_bridge <uuid> <other_uuid>
    --  uuid_bridge needs atleast any one leg to be answered.
@@ -275,10 +273,10 @@ package ESL.Command.Call_Management is
                         Mode : in Hold_Modes := Hold) is null;
    --  Place a call on hold.
 
-   type Hangup_Cause is null record; --  TODO: <this
+   subtype Hangup_Cause is Integer;
 
-   procedure UUID_Kill (UUID  : in String;
-                        Cause : in Hangup_Cause) is null;
+   function UUID_Kill (UUID : in String;
+                       Cause : in Hangup_Cause := -1) return Instance;
    --  Reset a specific <uuid> channel.
    --  Usage: uuid_kill <uuid> [cause]
 
@@ -304,7 +302,7 @@ package ESL.Command.Call_Management is
    --  of new codecs
    --  Usage: uuid_media_reneg <uuid> <codec string>
 
-   procedure UUID_Park (UUID : in String) is null;
+   function UUID_Park (UUID : in String) return Instance;
    --  Park call
    --  Usage: uuid_park <uuid>
 
@@ -366,13 +364,13 @@ package ESL.Command.Call_Management is
    --  Usage:
    --  uuid_simplify <uuid>
 
-   type Transfer_Modes is (B_Leg, Both);
+   type Transfer_Modes is (Undefined, B_Leg, Both);
 
-   procedure UUID_Transfer (UUID        : in String;
+   function UUID_Transfer (UUID        : in ESL.UUID.Instance;
                             Destination : in String;
-                            Mode        : in Transfer_Modes;
+                            Mode        : in Transfer_Modes := Undefined;
                             Dialplan    : in String := "";
-                            Context     : in String := "") is null;
+                            Context     : in String := "") return Instance;
    --  Transfers an existing call to a specific extension within a <dialplan>
    --  and <context>. Dialplan may be "xml" or "directory".
    --  Usage:

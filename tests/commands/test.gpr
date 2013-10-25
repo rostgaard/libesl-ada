@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 --                                                                           --
---                     Copyright (C) 2012-, AdaHeads K/S                     --
+--                      Copyright (C) 2013-, AdaHeads K/S                    --
 --                                                                           --
 --  This is free software;  you can redistribute it and/or modify it         --
 --  under terms of the  GNU General Public License  as published by the      --
@@ -15,38 +15,16 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Packet;
-with ESL.UUID;
-private with Ada.Strings.Unbounded;
+with "../shared";
 
-package ESL.Reply is
+project Test is
+   for Main use ("esl-command-test");
 
-   Package_Name : constant String := "ESL.Reply";
+   for Source_Dirs use (".", "../../src/**");
+   for Exec_Dir    use ".";
+   for Object_Dir  use "../../build";
 
-   type Instance is tagged private;
-
-   type Responses is (Null_Response, Undefined, Error, Timeout, OK);
-
-   function Create (Packet : in ESL.Packet.Instance) return Reply.Instance;
-
-   function UUID (Reply : in Instance) return ESL.UUID.Instance;
-
-   function Response (Reply : in Instance) return Responses;
-
-   function Response_Body (Reply : in Instance) return String;
-
-   function Image (Reply : in Instance) return String;
-
-   Null_Reply : constant Reply.Instance;
-private
-   use Ada.Strings.Unbounded;
-
-   type Instance is tagged
-      record
-         UUID     : ESL.UUID.Instance;
-         Response : Unbounded_String;
-      end record;
-
-   Null_Reply : constant Reply.Instance := (UUID     => ESL.UUID.Null_UUID,
-                                            Response => Null_Unbounded_String);
-end ESL.Reply;
+   package Compiler renames Shared.Compiler;
+   package Naming   renames Shared.Naming;
+   package IDE      renames Shared.IDE;
+end Test;

@@ -18,7 +18,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 
 with ESL.Parsing_Utilities;
-with ESL.Client;
+with ESL.Client.Tasking;
 with ESL.Packet;
 with ESL;
 
@@ -26,7 +26,7 @@ procedure Parser is
    use ESL;
    use ESL.Parsing_Utilities;
 
-   Client : ESL.Client.Instance
+   Client : ESL.Client.Tasking.Instance
      (On_Connect_Handler => ESL.Client.Ignore_Event,
       On_Disconnect_Handler => ESL.Client.Ignore_Event);
    Count  : Natural := 0;

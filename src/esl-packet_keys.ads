@@ -30,6 +30,8 @@ package ESL.Packet_Keys is
                            CHANNEL_OUTGOING,
                            CHANNEL_ORIGINATE,
                            CHANNEL_BRIDGE,
+                           CHANNEL_PARK,
+                           CHANNEL_UNPARK,
                            CHANNEL_HANGUP,
                            CHANNEL_HANGUP_COMPLETE,
                            CHANNEL_UNBRIDGE,

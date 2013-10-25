@@ -15,7 +15,22 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed.Equal_Case_Insensitive;
+
+with ESL.Trace;
+
 package body ESL.Command is
+
+   -----------
+   --  "="  --
+   -----------
+
+   function "=" (Left, Right : in Serialized_Command) return Boolean is
+   begin
+      return Ada.Strings.Fixed.Equal_Case_Insensitive
+        (Left  => String (Left),
+         Right => String (Right));
+   end "=";
 
    ---------------------
    --  Add_Component  --
@@ -50,6 +65,18 @@ package body ESL.Command is
          end if;
       end loop;
 
+      case Obj.Show_As is
+         when Unspecified =>
+            null;
+         when XML =>
+            Append (Buffer, " as " & Obj.Show_As'Img);
+         when JSON =>
+            Append (Buffer, " as " & Obj.Show_As'Img);
+         when Delim =>
+            Append (Buffer, " as " & Obj.Show_As'Img & " ");
+            Append (Buffer, Obj.Delimiter);
+      end case;
+
       return Serialized_Command (To_String (Buffer));
    end Serialize;
 
@@ -63,4 +90,24 @@ package body ESL.Command is
       Obj.Command := To_Unbounded_String (Command);
    end Set_Command;
 
+   ------------------
+   --  Set_Format  --
+   ------------------
+
+   procedure Set_Format (Obj       :    out Instance;
+                         Format    : in     Data_Formats;
+                         Delimiter : in     String := "") is
+      Context : constant String := Package_Name & ".Set_Format";
+   begin
+      Obj.Show_As := Format;
+
+      if Format = Delim then
+         Obj.Delimiter := To_Unbounded_String (Delimiter);
+      elsif Format /= Delim and then Delimiter /= "" then
+         ESL.Trace.Information
+           (Message => "Ignoring delimiter on non-delimiter-requirering " &
+                       "data format.",
+           Context => Context);
+      end if;
+   end Set_Format;
 end ESL.Command;
