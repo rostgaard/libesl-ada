@@ -18,7 +18,9 @@
 with "../shared";
 
 project Test is
-   for Main use ("esl-client-tasking-channel_list_test",
+   for Main use ("esl-client-tasking-authentication_test",
+                 "esl-client-tasking-channel_list_test",
+                 "esl-client-tasking-job_test",
                  "esl-client-tasking-start_stop_test",
                  "esl-client-tasking-test");
 
