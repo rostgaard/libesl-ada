@@ -45,7 +45,7 @@ package body ESL.Client.Tasking.Test_Utilities is
       delay 1.0;
       ESL.Trace.Information (Message => "Triggered",
                              Context => Context);
-      Client.Connect (Hostname => To_String (Hostname),
+      Test_Client.Connect (Hostname => To_String (Hostname),
                       Port     => Port);
    end Signal_Disconnect;
 

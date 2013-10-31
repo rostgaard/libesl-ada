@@ -32,27 +32,23 @@ procedure ESL.Client.Tasking.Channel_List_Test is
    use ESL;
    use Client.Tasking.Test_Utilities;
 
-   Client : ESL.Client.Tasking.Instance
-     (On_Connect_Handler    => Signal_Connect'Access,
-      On_Disconnect_Handler => Signal_Disconnect'Access);
-
    Testobs1 : Re_Schedule_Observer
-     (Observing => Event_Stream (Client => Client,
+     (Observing => Event_Stream (Client => Test_Client,
                                  Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
-     (Observing => Event_Stream (Client => Client,
+     (Observing => Event_Stream (Client => Test_Client,
                                  Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
    CO : ESL.Channel.List.Observers.Create_Observer
-     (Observing => Event_Stream (Client => Client,
+     (Observing => Event_Stream (Client => Test_Client,
                                  Stream => ESL.Packet_Keys.CHANNEL_CREATE));
    pragma Unreferenced (CO);
 
    SO : ESL.Channel.List.Observers.State_Observer
-     (Observing => Event_Stream (Client => Client,
+     (Observing => Event_Stream (Client => Test_Client,
                                  Stream => ESL.Packet_Keys.CHANNEL_STATE));
    pragma Unreferenced (SO);
 
@@ -70,23 +66,24 @@ begin
 
    if Argument_Count < 3 then
       Usage;
+      ESL.Client.Tasking.Shutdown (Client => Test_Client);
       return;
    end if;
 
-   Connect (Client, Argument (1), Natural'Value (Argument (2)));
-   Authenticate (Client, Password => Argument (3));
+   Connect (Test_Client, Argument (1), Natural'Value (Argument (2)));
+   Authenticate (Test_Client, Password => Argument (3));
 
-   Send (Client, "event plain ALL" &
+   Send (Test_Client, "event plain ALL" &
            ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
-   Send (Client, "api status" &
+   Send (Test_Client, "api status" &
            ASCII.CR & ASCII.LF & ASCII.CR & ASCII.LF);
 
-   loop
-      if not Channel_List (Client).Empty then
-         Put (ESL.Client.Tasking.Channel_List (Client).Image);
-      end if;
-      delay 1.0;
-   end loop;
+   if not Channel_List (Test_Client).Empty then
+      Put (ESL.Client.Tasking.Channel_List (Test_Client).Image);
+   end if;
+   delay 1.0;
+
+   ESL.Client.Tasking.Shutdown (Client => Test_Client);
 
 end ESL.Client.Tasking.Channel_List_Test;

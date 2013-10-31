@@ -35,10 +35,10 @@ procedure ESL.Packet.Test is
 
    Tests     : constant array (Natural range <>) of access String :=
      (
-       new String'("test_cases/basic_session"),
+       new String'("../test_cases/basic_session"),
       --  new String'("test_cases/event_channel_hangup_complete"),
-      new String'("test_cases/call_session2"),
-      new String'("test_cases/session1.json")
+      new String'("../test_cases/call_session2")
+      -- new String'("test_cases/session1.json")
       --  new String'("test_cases/event_channel_destroy"),
       --  new String'("test_cases/event_channel_hangup"),
       --  new String'("test_cases/event_channel_state"),
@@ -74,11 +74,11 @@ procedure ESL.Packet.Test is
                begin
                   Packet := ESL.Parsing_Utilities.Read_Packet (Stream);
 
-                  if Packet.Is_Event then
-                     Put_Line (Packet.Event'Img);
-                  else
-                     Put_Line ("Skipping" & Packet.Content_Type'Img);
-                  end if;
+--                  if Packet.Is_Event then
+--                       Put_Line (Packet.Event'Img);
+--                    else
+--                       Put_Line ("Skipping" & Packet.Content_Type'Img);
+--                    end if;
 
                exception
                   when others =>

@@ -36,13 +36,13 @@ procedure ESL.Client.Tasking.Test is
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream
-        (Client => Client.Tasking.Test_Utilities.Client,
+        (Client => Test_Client,
          Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
      (Observing => Event_Stream
-        (Client => Client.Tasking.Test_Utilities.Client,
+        (Client => Test_Client,
          Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
@@ -70,9 +70,9 @@ procedure ESL.Client.Tasking.Test is
            (New_Hostname => Argument (1),
             New_Port     => Natural'Value (Argument (2)),
             New_Password => Argument (3));
-      while not Client.Tasking.Test_Utilities.Client.Is_Shutdown loop
-         if not Client.Tasking.Test_Utilities.Client.Connected then
-            Client.Tasking.Test_Utilities.Client.Connect
+      while not Test_Client.Is_Shutdown loop
+         if not Test_Client.Connected then
+            Test_Client.Connect
               (Argument (1), Natural'Value (Argument (2)));
          end if;
          delay 1.0;
@@ -81,19 +81,19 @@ procedure ESL.Client.Tasking.Test is
 
    Delay_Count : Natural := 0;
    Reply       : ESL.Reply.Instance := ESL.Reply.Null_Reply;
-   Packet      : ESL.Packet.Instance;
+   --  Packet      : ESL.Packet.Instance;
 begin
    ESL.Trace.Unmute (ESL.Trace.Every);
+   Tasking_Connect.Start;
 
    if Argument_Count < 3 then
       Usage;
-      Shutdown (Client.Tasking.Test_Utilities.Client);
+      Shutdown (Test_Client);
       return;
    end if;
 
-   Tasking_Connect.Start;
 
-   while not Client.Tasking.Test_Utilities.Client.Connected loop
+   while not Test_Client.Connected loop
       delay 1.0;
 
       if Delay_Count = 30 then
@@ -106,7 +106,7 @@ begin
       Ada.Text_IO.Put ("Expecting Authentication_Failure Exception .. ");
    declare
    begin
-      Client.Tasking.Test_Utilities.Client.Authenticate
+      Test_Client.Authenticate
         (Password => ASCII.EOT & ASCII.NUL);
       Put_Line ("Failed!");
    exception
@@ -121,7 +121,7 @@ begin
    declare
    begin
       Ada.Text_IO.Put ("Expecting authentication to succeed .. ");
-      Client.Tasking.Test_Utilities.Client.Authenticate
+      Test_Client.Authenticate
         (Password => Argument (3));
       Put_Line ("OK.");
    exception
@@ -131,19 +131,19 @@ begin
    end;
 
    Ada.Text_IO.Put ("Sending BG_API command, discarding - ");
-   Client.Tasking.Test_Utilities.Client.Background_API (Command => Command,
+   Test_Client.Background_API (Command => Command,
                                                         Reply   => Reply);
    Ada.Text_IO.Put_Line ("Got reply: " & Reply.Image);
 
    Ada.Text_IO.Put_Line ("Shutting down..");
 
    delay 2.0;
-   Shutdown (Client.Tasking.Test_Utilities.Client);
+   Shutdown (Test_Client);
 
 exception
    when E : others =>
       ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
                        Context => "ESL.Client.Tasking.Test");
       Set_Exit_Status (Failure);
-      Shutdown (Client.Tasking.Test_Utilities.Client);
+      Shutdown (Test_Client);
 end ESL.Client.Tasking.Test;

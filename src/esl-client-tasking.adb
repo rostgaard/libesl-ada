@@ -314,6 +314,9 @@ package body ESL.Client.Tasking is
       Trace.Debug (Context => Context,
                    Message => "Ending stream consumer.");
    exception
+      when E : Connection_Timeout =>
+         --  Regular shutdown.
+         null;
       when E : others =>
          Trace.Critical (Context => Context,
                          Message => "Unhandled Error!");

@@ -28,7 +28,7 @@ package ESL.Client.Tasking.Test_Utilities is
    procedure Signal_Disconnect;
    procedure Signal_Connect;
 
-   Client : ESL.Client.Tasking.Instance
+   Test_Client : ESL.Client.Tasking.Instance
      (On_Connect_Handler    => Signal_Connect'Access,
       On_Disconnect_Handler => Signal_Disconnect'Access);
 
