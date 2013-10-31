@@ -35,13 +35,13 @@ procedure ESL.Client.Tasking.Authentication_Test is
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream
-        (Client => Client.Tasking.Test_Utilities.Client,
+        (Client => Test_Client,
          Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
      (Observing => Event_Stream
-        (Client => Client.Tasking.Test_Utilities.Client,
+        (Client => Test_Client,
          Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
@@ -69,9 +69,9 @@ procedure ESL.Client.Tasking.Authentication_Test is
            (New_Hostname => Argument (1),
             New_Port     => Natural'Value (Argument (2)),
             New_Password => Argument (3));
-      while not Client.Tasking.Test_Utilities.Client.Is_Shutdown loop
-         if not Client.Tasking.Test_Utilities.Client.Connected then
-            Client.Tasking.Test_Utilities.Client.Connect
+      while not Test_Client.Is_Shutdown loop
+         if not Test_Client.Connected then
+            Test_Client.Connect
               (Argument (1), Natural'Value (Argument (2)));
          end if;
          delay 1.0;
@@ -81,20 +81,25 @@ procedure ESL.Client.Tasking.Authentication_Test is
    Delay_Count : Natural := 0;
    Reply       : ESL.Reply.Instance := ESL.Reply.Null_Reply;
 begin
-   ESL.Trace.Mute (ESL.Trace.Information);
+   Set_Exit_Status (Ada.Command_Line.Success);
 
-   if Argument_Count < 3 then
-      Usage;
-      Shutdown (Client.Tasking.Test_Utilities.Client);
-      return;
-   end if;
+   ESL.Trace.Mute (ESL.Trace.Information);
 
    Tasking_Connect.Start;
 
-   while not Client.Tasking.Test_Utilities.Client.Connected loop
+   if Argument_Count < 3 then
+      Usage;
+      Shutdown (Test_Client);
+      Set_Exit_Status (Failure);
+
+      return;
+   end if;
+
+   while not Test_Client.Connected loop
       delay 1.0;
 
       if Delay_Count = 30 then
+         Set_Exit_Status (Failure);
          raise Program_Error with
            "Test expected valid Freeswitch PBX - none found.";
       end if;
@@ -104,13 +109,13 @@ begin
    Ada.Text_IO.Put ("Expecting Authentication_Failure Exception .. ");
    declare
    begin
-      Client.Tasking.Test_Utilities.Client.Authenticate
+      Test_Client.Authenticate
         (Password => ASCII.EOT & ASCII.NUL);
       Put_Line ("Failed!");
+      Set_Exit_Status (Failure);
    exception
       when Authentication_Failure =>
          Ada.Text_IO.Put_Line ("OK.");
-         Set_Exit_Status (Failure);
    end;
 
    --  Wait for the client to get back on its feet.
@@ -119,7 +124,7 @@ begin
    declare
    begin
       Ada.Text_IO.Put ("Expecting authentication to succeed .. ");
-      Client.Tasking.Test_Utilities.Client.Authenticate
+      Test_Client.Authenticate
         (Password => Argument (3));
       Put_Line ("OK.");
    exception
@@ -128,5 +133,5 @@ begin
          Set_Exit_Status (Failure);
    end;
 
-   Shutdown (Client.Tasking.Test_Utilities.Client);
+   Shutdown (Test_Client);
 end ESL.Client.Tasking.Authentication_Test;

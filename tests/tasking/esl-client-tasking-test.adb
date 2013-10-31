@@ -103,36 +103,14 @@ begin
       Delay_Count := Delay_Count + 1;
    end loop;
 
-      Ada.Text_IO.Put ("Expecting Authentication_Failure Exception .. ");
-   declare
-   begin
-      Test_Client.Authenticate
-        (Password => ASCII.EOT & ASCII.NUL);
-      Put_Line ("Failed!");
-   exception
-      when Authentication_Failure =>
-         Ada.Text_IO.Put_Line ("OK.");
-         Set_Exit_Status (Failure);
-   end;
-
-   --  Wait for the client to get back on its feet.
-   delay 2.0;
-
-   declare
-   begin
-      Ada.Text_IO.Put ("Expecting authentication to succeed .. ");
-      Test_Client.Authenticate
-        (Password => Argument (3));
-      Put_Line ("OK.");
-   exception
-      when Authentication_Failure =>
-         Put_Line ("Failed.");
-         Set_Exit_Status (Failure);
-   end;
+   Ada.Text_IO.Put ("Expecting authentication to succeed .. ");
+   Test_Client.Authenticate
+     (Password => Argument (3));
+   Put_Line ("OK.");
 
    Ada.Text_IO.Put ("Sending BG_API command, discarding - ");
    Test_Client.Background_API (Command => Command,
-                                                        Reply   => Reply);
+                               Reply   => Reply);
    Ada.Text_IO.Put_Line ("Got reply: " & Reply.Image);
 
    Ada.Text_IO.Put_Line ("Shutting down..");
