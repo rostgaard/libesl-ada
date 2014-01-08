@@ -314,7 +314,7 @@ package body ESL.Client.Tasking is
       Trace.Debug (Context => Context,
                    Message => "Ending stream consumer.");
    exception
-      when E : Connection_Timeout =>
+      when Connection_Timeout =>
          --  Regular shutdown.
          null;
       when E : others =>
@@ -354,6 +354,8 @@ package body ESL.Client.Tasking is
       procedure Send (Item  : in Serialized_Command) is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Send";
+         pragma Unreferenced (Context);
+
       begin
          Next_Reply := Null_Reply;
          --  Clear the reply, so we

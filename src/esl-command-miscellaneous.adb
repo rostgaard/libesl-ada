@@ -15,17 +15,22 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-package ESL.Command.Call_Management_Strings is
-   --  Call Management strings.
+with ESL.Command.Call_Management_Strings;
 
-   Originate     : constant String := "originate";
-   UUID_Bridge   : constant String := "uuid_bridge";
-   UUID_Kill     : constant String := "uuid_kill";
-   UUID_Park     : constant String := "uuid_park";
-   UUID_Transfer : constant String := "uuid_transfer";
+package body ESL.Command.Miscellaneous is
+   function List_Users (Group   : in String := "";
+                        Domain  : in String := "";
+                        User    : in String := "";
+                        Context : in String := "") return Instance
+   is
+      Obj : Instance;
+   begin
+      Obj.Set_Command (Call_Management_Strings.List_Users);
+      Obj.Add_Component (Group);
+      Obj.Add_Component (Domain);
+      Obj.Add_Component (User);
+      Obj.Add_Component (Context);
 
-   -- Miscellaneous command strings.
-   List_Users    : constant String := "list_users";
-
-
-end ESL.Command.Call_Management_Strings;
+      return Obj;
+   end List_Users;
+end ESL.Command.Miscellaneous;
