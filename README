@@ -9,3 +9,15 @@ Usable with little testing done.
 Usage
 -----
 Check out test/esl-client-tasking-test.adb for an example on how to use the client.
+
+Questions
+---------
+
+Q: Why is GNATCOLL.JSON included in this library?
+A: To avoid writing up a JSON implementation by myself.
+
+Q: I'm getting error that gnatcoll-json.ads is provided by several projects!
+A: Your project depends on parts of GNATCOLL not indirectly provided by libesl.
+   Remove the "src/external" from the .gpr file and instead put 
+   with "gnatcoll";
+   in the header.
