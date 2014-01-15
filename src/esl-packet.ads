@@ -65,6 +65,8 @@ package ESL.Packet is
 
    function Event (Obj : in Instance) return Packet_Keys.Inbound_Events;
 
+   function Subevent (Obj : in Instance) return String;
+
    function Empty_Packet return Instance;
 private
    use Ada.Strings.Unbounded;

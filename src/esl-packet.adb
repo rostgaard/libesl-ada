@@ -279,9 +279,9 @@ package body ESL.Packet is
                           (Variable_String'Length + 1 .. Line'Last),
                         Context => Context);
 
-                     --  declare
+                     --declare
                      --  Variable : Packet_Variable.Instance := Parse_Line (
-                     --  begin
+                      --                                                    begin
                      --  Obj.Variables.Insert (Parse_Line
                      --  Obj.Channel.Add_Variable
                      --  (Variable => Parse_Line (Line
@@ -331,5 +331,14 @@ package body ESL.Packet is
    begin
       Obj.Header.Add_Header (Field => Field);
    end Push_Header;
+
+   ----------------
+   --  Subevent  --
+   ----------------
+
+   function Subevent (Obj : in Instance) return String is
+   begin
+      return Obj.Field (Event_Subclass).Decoded_Value;
+   end Subevent;
 
 end ESL.Packet;

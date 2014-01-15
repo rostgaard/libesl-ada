@@ -27,5 +27,4 @@ package ESL.Command.Call_Management_Strings is
    -- Miscellaneous command strings.
    List_Users    : constant String := "list_users";
 
-
 end ESL.Command.Call_Management_Strings;
