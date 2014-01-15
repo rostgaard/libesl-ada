@@ -18,7 +18,7 @@ library project ESL_Build is
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("BUILDTYPE", "Production");
 
-   Source_Options := ("src", "src/external");
+   Source_Options := ("src", "external");
    for Source_Dirs use Source_Options;
 
    case Build is
