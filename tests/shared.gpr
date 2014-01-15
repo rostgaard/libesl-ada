@@ -15,8 +15,6 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with "gnatcoll";
-
 abstract project Shared is
    for Source_Dirs use ();
 

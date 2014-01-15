@@ -23,7 +23,7 @@ find src tests -type f \( -name '*.ads' -o -name '*.adb' -o -name '*.gpr' \) \
   | LANG=C sort \
   > ${source_files}
 
-xargs egrep -l 'Copyright [(]C[)] 201[123]-, AdaHeads K/S' \
+xargs egrep -l 'Copyright [(]C[)] 201[1234]-, AdaHeads K/S' \
   < ${source_files} \
   | LANG=C sort \
   > ${files_with_copyright_notice}
