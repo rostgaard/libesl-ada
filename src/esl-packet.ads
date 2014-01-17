@@ -20,11 +20,13 @@ with Ada.Containers.Hashed_Maps;
 private with Ada.Strings.Unbounded;
 private with GNATCOLL.JSON;
 
+with ESL.Channel_Variable.List;
 with ESL.Packet_Field;
 with ESL.Packet_Header;
 with ESL.Header_Field;
 with ESL.Packet_Keys;
 with ESL.Packet_Content_Type;
+with ESL.UUID;
 
 package ESL.Packet is
    use ESL;
@@ -65,7 +67,12 @@ package ESL.Packet is
 
    function Event (Obj : in Instance) return Packet_Keys.Inbound_Events;
 
+   function UUID (Obj : in Instance) return ESL.UUID.Instance;
+
    function Subevent (Obj : in Instance) return String;
+
+   function Variables (Obj : in Instance)
+                       return Channel_Variable.List.Instance;
 
    function Empty_Packet return Instance;
 private
@@ -93,6 +100,7 @@ private
       Raw_Body       : Unbounded_String         := Null_Unbounded_String;
       JSON           : GNATCOLL.JSON.JSON_Value := GNATCOLL.JSON.Create;
       Payload        : Payload_Storage.Map      := Payload_Storage.Empty_Map;
+      Variables      : Channel_Variable.List.Instance;
    end record;
 
 end ESL.Packet;

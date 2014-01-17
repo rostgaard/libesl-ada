@@ -2,7 +2,7 @@ project Common is
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("BUILDTYPE", "Production");
 
-   Source_Options := ("src/**", "tests/**", "examples/**");
+   Source_Options := ("src/**", "tests/**", "examples/**", "external/");
    for Source_Dirs use Source_Options;
 
    for Exec_Dir use ".";

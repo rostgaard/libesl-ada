@@ -45,17 +45,6 @@ package body ESL.Channel_Variable.List is
    --  Create  --
    --------------
 
-   function Create (Packet : in ESL.Packet.Instance) return Instance is
-      pragma Unreferenced (Packet);
-   begin
-      --  TODO: Create the map.
-      return (Storage => Variable_Storage.Empty_Map);
-   end Create;
-
-   --------------
-   --  Create  --
-   --------------
-
    function Create return Instance is
    begin
       return (Storage => Variable_Storage.Empty_Map);

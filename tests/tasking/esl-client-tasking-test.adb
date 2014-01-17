@@ -36,13 +36,13 @@ procedure ESL.Client.Tasking.Test is
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream
-        (Client => Test_Client,
+        (Client => Test_Client'Access,
          Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
      (Observing => Event_Stream
-        (Client => Test_Client,
+        (Client => Test_Client'Access,
          Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 

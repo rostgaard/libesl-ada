@@ -28,11 +28,13 @@ package ESL.Client.Tasking is
    Authentication_Failure : exception;
 
    type Instance is new Client.Instance with private;
+   type Reference is access all Instance;
+
    type Event_Streams is new ESL.Observer.Observables with null record;
 
    type Event_Streams_Access is access all Event_Streams;
 
-   function Event_Stream (Client : in Instance;
+   function Event_Stream (Client : in Reference;
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access;
 
@@ -78,8 +80,6 @@ private
 
    Recheck_Connection_Delay : constant Duration := 2.0;
    --  How long we should wait between connection polling.
-
-   type Reference is access all Instance;
 
    task type Stream_Reader (Owner : access Client.Tasking.Instance'Class);
 

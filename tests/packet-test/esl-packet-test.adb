@@ -20,7 +20,7 @@ with Ada.Calendar;
 with Ada.Text_IO;
 with Ada.Streams.Stream_IO;
 
---  with ESL.Trace;
+with ESL.Trace;
 with ESL.Parsing_Utilities;
 with ESL.Packet;
 
@@ -137,7 +137,7 @@ procedure ESL.Packet.Test is
    end Test_Session;
 
 begin
-   --  ESL.Trace.Mute (Debug) := False;
+   ESL.Trace.Unmute (ESL.Trace.Debug);
    --  ESL.Trace.Mute (Information) := True;
    --  ESL.Trace.Mute (Error) := True;
    File_Tests;

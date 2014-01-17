@@ -18,8 +18,6 @@
 with Ada.Containers.Hashed_Maps;
 private with Ada.Strings.Unbounded.Hash;
 
-with ESL.Packet;
-
 package ESL.Channel_Variable.List is
 
    type Instance is tagged private;
@@ -27,8 +25,6 @@ package ESL.Channel_Variable.List is
    type Reference is access all Instance;
 
    Not_Found : exception;
-
-   function Create (Packet : in ESL.Packet.Instance) return Instance;
 
    function Create return Instance;
 

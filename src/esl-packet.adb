@@ -82,10 +82,11 @@ package body ESL.Packet is
 
    function Empty_Packet return Instance is
    begin
-      return (Header   => Packet_Header.Empty_Header,
-              Raw_Body => Null_Unbounded_String,
-              JSON     => GNATCOLL.JSON.Create,
-              Payload  => Payload_Storage.Empty_Map);
+      return (Header    => Packet_Header.Empty_Header,
+              Raw_Body  => Null_Unbounded_String,
+              JSON      => GNATCOLL.JSON.Create,
+              Payload   => Payload_Storage.Empty_Map,
+              Variables => Channel_Variable.List.Create);
    end Empty_Packet;
 
    -----------------------
@@ -227,6 +228,10 @@ package body ESL.Packet is
         Obj.Header.Content_Type = Command_Reply;
    end Is_Response;
 
+   ---------------
+   --  Payload  --
+   ---------------
+
    function Payload (Obj : in Instance) return String is
    begin
       return To_String (Obj.Raw_Body);
@@ -274,18 +279,20 @@ package body ESL.Packet is
                begin
                   if Line'Length > Variable_String'Length and then
                     Line (Variable_String'Range) = Variable_String then
-                     ESL.Trace.Debug
-                       (Message => "Found variable " & Line
-                          (Variable_String'Length + 1 .. Line'Last),
-                        Context => Context);
-
-                     --declare
-                     --  Variable : Packet_Variable.Instance := Parse_Line (
-                      --                                                    begin
-                     --  Obj.Variables.Insert (Parse_Line
-                     --  Obj.Channel.Add_Variable
-                     --  (Variable => Parse_Line (Line
-                     --   (Variable_String'Length + 1 .. Line'Last)));
+                     declare
+                        Variable_Line : String renames  Line
+                          (Variable_String'Length + 1 .. Line'Last);
+                        Variable : constant Channel_Variable.Instance :=
+                          Parse_Line (Variable_Line);
+                     begin
+                        Obj.Variables.Add_Variable (Variable);
+                        ESL.Trace.Debug
+                          (Message => "Found variable " & Variable_Line,
+                           Context => Context);
+                        ESL.Trace.Debug
+                          (Message => "Cast variable " & Variable.Image,
+                           Context => Context);
+                     end;
                   else
 
                      Field := Parse_Line (Item => Line);
@@ -340,5 +347,24 @@ package body ESL.Packet is
    begin
       return Obj.Field (Event_Subclass).Decoded_Value;
    end Subevent;
+
+   ------------
+   --  UUID  --
+   ------------
+
+   function UUID (Obj : in Instance) return ESL.UUID.Instance is
+   begin
+      return ESL.UUID.Create (Obj.Field (Unique_ID).Value);
+   end UUID;
+
+   -----------------
+   --  Variables  --
+   -----------------
+
+   function Variables (Obj : in Instance)
+                       return Channel_Variable.List.Instance is
+   begin
+      return Obj.Variables;
+   end Variables;
 
 end ESL.Packet;

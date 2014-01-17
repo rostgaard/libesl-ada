@@ -130,7 +130,7 @@ package body ESL.Client.Tasking is
    --  Event_Stream  --
    --------------------
 
-   function Event_Stream (Client : in Instance;
+   function Event_Stream (Client : in Reference;
                           Stream : in ESL.Packet_Keys.Inbound_Events)
                           return Event_Streams_Access is
    begin
@@ -147,6 +147,10 @@ package body ESL.Client.Tasking is
    begin
       Obj.Shutdown := True;
       ESL.Client.Instance (Obj).Finalize; --  Call the parent finalization.
+   exception
+      when E : others =>
+         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
    end Finalize;
 
    ----------------

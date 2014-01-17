@@ -51,7 +51,7 @@ package body ESL.Channel is
    begin
       return (Name      => Value (Packet.Field (Key => Unique_ID).Value),
               State     => Value (Packet.Field (Key => Channel_State).Value),
-              Variables => Channel_Variable.List.Create (Packet => Packet));
+              Variables => Channel_Variable.List.Create);
    exception
       when Unknown_State =>
          ESL.Trace.Error (Message => "Unknown_State:",

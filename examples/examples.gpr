@@ -18,7 +18,6 @@
 
 --with "../common";
 with "esl";
-with "gnatcoll";
 
 project Examples is
    for Main use ("dump_session", "test_hangup");
