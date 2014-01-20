@@ -66,6 +66,11 @@ package body ESL.Channel.List is
          return Storage.Element (Key => Key);
       end Get;
 
+      function Has (Key : in Channel_Key) return Boolean is
+      begin
+         return Storage.Contains (Key);
+      end Has;
+
       function Image return String is
          use Channel_Storage;
          Buffer : Unbounded_String;
@@ -124,6 +129,12 @@ package body ESL.Channel.List is
    begin
       return Obj.Channel_List.Get (Key => Key);
    end Get;
+
+   function Has (Obj : in Instance;
+                 Key : in Channel_Key) return Boolean is
+   begin
+      return Obj.Channel_List.Has (Key);
+   end Has;
 
    function Image (Obj : in Instance) return String is
    begin

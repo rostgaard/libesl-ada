@@ -40,6 +40,9 @@ package ESL.Channel.List is
                  Key : in Channel_Key) return Channel.Instance;
    --  Use the keys from ESL.Channel_Variable.Keys, or arbitrary string.
 
+   function Has (Obj : in Instance;
+                 Key : in Channel_Key) return Boolean;
+
    function Empty (Obj : in Instance) return Boolean;
 
 private
@@ -66,6 +69,7 @@ private
                               New_State : in     ESL.Channel.States);
       function Empty return Boolean;
       function Get (Key : in Channel_Key) return Channel.Instance;
+      function Has (Key : in Channel_Key) return Boolean;
       function Image return String;
       procedure Insert (Channel : in ESL.Channel.Instance);
    private
