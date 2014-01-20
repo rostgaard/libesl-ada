@@ -34,6 +34,10 @@ package ESL.Channel_Variable.List is
                  Key : in String) return String;
    --  Use the keys from ESL.Channel_Variable.Keys, or arbitrary string.
 
+   function Get (Obj     : in Instance;
+                 Key     : in String;
+                 Default : in String) return String;
+
    procedure Add_Variable (Obj      : in out Instance;
                            Variable : in     Channel_Variable.Instance);
 

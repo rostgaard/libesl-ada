@@ -75,6 +75,19 @@ package body ESL.Channel_Variable.List is
       end if;
    end Get;
 
+   -----------
+   --  Get  --
+   -----------
+   function Get (Obj     : in Instance;
+                 Key     : in String;
+                 Default : in String) return String is
+   begin
+      return Obj.Get (Key);
+   exception
+      when Not_Found =>
+         return Default;
+   end Get;
+
    -------------
    --  Image  --
    -------------
