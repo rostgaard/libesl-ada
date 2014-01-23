@@ -36,13 +36,13 @@ procedure ESL.Client.Tasking.Job_Test is
 
    Testobs1 : Re_Schedule_Observer
      (Observing => Event_Stream
-        (Client => Test_Client,
+        (Client => Test_Client'Access,
          Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
      (Observing => Event_Stream
-        (Client => Test_Client,
+        (Client => Test_Client'Access,
          Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
@@ -84,7 +84,7 @@ procedure ESL.Client.Tasking.Job_Test is
    Job            : ESL.Job.Instance;
    BGAPI_Observer : ESL.Job.List.Job_Observer
      (Observing => Event_Stream
-        (Client => Test_Client,
+        (Client => Test_Client'Access,
          Stream => ESL.Packet_Keys.BACKGROUND_JOB));
 
 begin

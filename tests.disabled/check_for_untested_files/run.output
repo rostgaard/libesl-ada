@@ -1,0 +1,9 @@
+Untested units:
+> esl-channel-list-observers
+> esl-channel_variable_keys
+> esl-client-tasking
+> esl-command-miscellaneous
+> esl-core_command
+> esl-event
+> esl-packet_listener
+> esl-reply

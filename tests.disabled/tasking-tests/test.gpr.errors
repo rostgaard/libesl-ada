@@ -1,0 +1,10 @@
+gnatbind -x /home/krc/Projects/libesl/build/esl-client-tasking-authentication_test.ali
+gnatlink /home/krc/Projects/libesl/build/esl-client-tasking-authentication_test.ali -o /home/krc/Projects/libesl/tests/tasking/esl-client-tasking-authentication_test
+gnatbind -x /home/krc/Projects/libesl/build/esl-client-tasking-channel_list_test.ali
+gnatlink /home/krc/Projects/libesl/build/esl-client-tasking-channel_list_test.ali -o /home/krc/Projects/libesl/tests/tasking/esl-client-tasking-channel_list_test
+gnatbind -x /home/krc/Projects/libesl/build/esl-client-tasking-job_test.ali
+gnatlink /home/krc/Projects/libesl/build/esl-client-tasking-job_test.ali -o /home/krc/Projects/libesl/tests/tasking/esl-client-tasking-job_test
+gnatbind -x /home/krc/Projects/libesl/build/esl-client-tasking-start_stop_test.ali
+gnatlink /home/krc/Projects/libesl/build/esl-client-tasking-start_stop_test.ali -o /home/krc/Projects/libesl/tests/tasking/esl-client-tasking-start_stop_test
+gnatbind -x /home/krc/Projects/libesl/build/esl-client-tasking-test.ali
+gnatlink /home/krc/Projects/libesl/build/esl-client-tasking-test.ali -o /home/krc/Projects/libesl/tests/tasking/esl-client-tasking-test

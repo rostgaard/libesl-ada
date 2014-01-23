@@ -1,0 +1,4 @@
+INFORMATION: ESL.Client.Connect: Connecting to raspberrypi: 8021
+DEBUG: ESL.Client.Tasking.Instance(test_client.reader_0000000000DADAB0): Timeout reached while wating for a connection channel.
+DEBUG: ESL.Client.Tasking.Instance(test_client.reader_0000000000DADAB0): Timeout reached while wating for a connection channel.
+DEBUG: ESL.Client.Tasking.Instance(test_client.reader_0000000000DADAB0): Timeout reached while wating for a connection channel.

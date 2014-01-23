@@ -33,22 +33,22 @@ procedure ESL.Client.Tasking.Channel_List_Test is
    use Client.Tasking.Test_Utilities;
 
    Testobs1 : Re_Schedule_Observer
-     (Observing => Event_Stream (Client => Test_Client,
+     (Observing => Event_Stream (Client => Test_Client'Access,
                                  Stream => ESL.Packet_Keys.RE_SCHEDULE));
    pragma Unreferenced (Testobs1);
 
    Testobs2 : Heartbeat_Observer
-     (Observing => Event_Stream (Client => Test_Client,
+     (Observing => Event_Stream (Client => Test_Client'Access,
                                  Stream => ESL.Packet_Keys.HEARTBEAT));
    pragma Unreferenced (Testobs2);
 
    CO : ESL.Channel.List.Observers.Create_Observer
-     (Observing => Event_Stream (Client => Test_Client,
+     (Observing => Event_Stream (Client => Test_Client'Access,
                                  Stream => ESL.Packet_Keys.CHANNEL_CREATE));
    pragma Unreferenced (CO);
 
    SO : ESL.Channel.List.Observers.State_Observer
-     (Observing => Event_Stream (Client => Test_Client,
+     (Observing => Event_Stream (Client => Test_Client'Access,
                                  Stream => ESL.Packet_Keys.CHANNEL_STATE));
    pragma Unreferenced (SO);
 
