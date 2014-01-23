@@ -53,7 +53,7 @@ install: all
 	install --directory        $(DESTDIR)$(PREFIX)/lib/gnat
 	install esl.gpr.dist       $(DESTDIR)$(PREFIX)/lib/gnat/esl.gpr
 
-tests: all
+tests:
 	@./tests/build
 	@./tests/run
 
