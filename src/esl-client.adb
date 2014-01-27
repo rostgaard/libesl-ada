@@ -57,90 +57,6 @@ package body ESL.Client is
                      String (Command.Serialize));
    end Background_API;
 
-   --------------------
-   --  Channel_List  --
-   --------------------
-
-   function Channel_List (Obj : in Instance) return Channel.List.Reference is
-   begin
-      return Obj.Channels;
-   end Channel_List;
-
-   ---------------
-   --  Connect  --
-   ---------------
-
-   procedure Connect (Client   : in out Instance;
-                      Hostname : in     String;
-                      Port     : in     Natural) is
-      use Ada.Exceptions;
-
-      Context : constant String := Package_Name & ".Connect";
-      Address : constant Sock_Addr_Type :=
-        (Family => GNAT.Sockets.Family_Inet,
-         Addr   => Addresses (Get_Host_By_Name (Hostname)),
-         Port   => Port_Type (Port));
-
-      Socket   : Socket_Type;
-      Status   : GNAT.Sockets.Selector_Status;
-   begin
-      Create_Socket (Socket);
-      Client.Socket := Socket;
-
-      Client.Connected := False;
-      Client.Connecting := True;
-      Client.Authenticated := False;
-
-      Trace.Information ("Connecting to " &
-                         Hostname & ":" &
-                         Positive'Image (Port),
-                         Context);
-
-      Connect_Socket (Socket   => Client.Socket,
-                      Server   => Address,
-                      Timeout  => GNAT.Sockets.Forever,
-                      Selector => Client.Selector'Access,
-                      Status   => Status);
-
-      if Status = Completed then
-         Client.Channel := Stream (Client.Socket);
-         Client.Connected := True;
-
-         Trace.Information ("Connected to " &
-                              Hostname & ":" &
-                              Positive'Image (Port)& ".", Context);
-
-         --  Signal the connected event listener.
-         Client.On_Connect_Handler.all;
-      else
-         Trace.Information ("Could not connect to " & Image (Address)
-                            & ".", Context);
-      end if;
-
-      --  Pull down the connecting flag.
-      Client.Connecting := False;
-
-   exception
-      when E : GNAT.Sockets.Socket_Error =>
-         --  Pull down the connecting flag.
-         Client.Connecting := False;
-         --  Assert the state
-         Client.Connected := False;
-         Client.Authenticated := False;
-         --  Client.On_Disconnect_Handler.all;
-         Trace.Error (Context => Context, Message =>
-                        "Failed to connect: " & Exception_Message (E));
-   end Connect;
-
-   -----------------
-   --  Connected  --
-   -----------------
-
-   function Connected (Client : in Instance) return Boolean is
-   begin
-      return Client.Connected;
-   end Connected;
-
    --------------
    --  Create  --
    --------------
@@ -162,12 +78,18 @@ package body ESL.Client is
    procedure Disconnect (Client : in out Instance) is
       Context : constant String := Package_Name & ".Disconnect";
    begin
-      if Client.Connecting then
+      ESL.Trace.Error (Message => Client.State'Img,
+                          Context => Context);
+      if Client.Current_State = Connecting then
          Abort_Selector (Client.Selector);
-      elsif Client.Connected then
+      elsif Client.Socket /= No_Socket then
          Shutdown_Socket (Client.Socket);
       end if;
    exception
+      when Event : Socket_Error =>
+         ESL.Trace.Error (Message => "Socket error: " &
+                            Ada.Exceptions.Exception_Message (Event) & ".",
+                          Context => Context);
       when Program_Error =>
          ESL.Trace.Error (Message => "Tried to abort a closed selector!",
                           Context => Context);
@@ -183,9 +105,12 @@ package body ESL.Client is
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
+      ESL.Trace.Error (Message => "Finalizaing!",
+                       Context => Context);
+
       Obj.Disconnect;
       GNAT.Sockets.Close_Selector (Obj.Selector);
-
+      Obj.Current_State := Finalized;
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -219,11 +144,6 @@ package body ESL.Client is
    begin
       GNAT.Sockets.Create_Selector (Obj.Selector);
    end Initialize;
-
-   function Is_Shutdown (Obj : in Instance) return Boolean is
-   begin
-      return Obj.Shutdown;
-   end Is_Shutdown;
 
    ---------------
    --  Receive  --
@@ -286,6 +206,17 @@ package body ESL.Client is
       end if;
    end Set_Log_Level;
 
+   -------------------------
+   --  Signal_Disconnect  --
+   -------------------------
+
+   procedure Signal_Disconnect (Obj : in Instance) is
+      Context : constant String := Package_Name & ".Signal_Disconnect";
+   begin
+      ESL.Trace.Information (Message => "Signaled!",
+                             Context => Context);
+   end Signal_Disconnect;
+
    -----------------------------
    --  Skip_Until_Empty_Line  --
    -----------------------------
@@ -296,6 +227,19 @@ package body ESL.Client is
          null;
       end loop;
    end Skip_Until_Empty_Line;
+
+   -------------
+   --  State  --
+   -------------
+
+   function State (Client : in Instance) return States is
+   begin
+      return Client.Current_State;
+   end State;
+
+   --------------
+   --  Stream  --
+   --------------
 
    function Stream (Obj : in Instance)
                        return Ada.Streams.Stream_IO.Stream_Access is
@@ -312,20 +256,22 @@ package body ESL.Client is
       use Ada.Calendar;
       Absolute_Timeout : constant Time := Clock + Timeout;
    begin
-      if Client.Connected then
-         return;
-      end if;
+      case Client.Current_State is
+         when Connected =>
+            return;
+         when Disconnected .. Finalized =>
+            raise Not_Connected;
+         when Created .. Connecting =>
+            null;
+      end case;
 
+      while Client.Current_State = Connecting or
+        Clock > Absolute_Timeout
       loop
-         exit when
-           Client.Connected or
-           Client.Shutdown or
-           Clock > Absolute_Timeout;
          delay 0.05;
-
       end loop;
 
-      if not Client.Connected then
+      if Client.Current_State /= Connected then
          raise Connection_Timeout;
       end if;
    end Wait_For_Connection;

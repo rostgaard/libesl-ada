@@ -49,12 +49,12 @@ package body ESL.Client.Tasking is
    begin
       Client.Synchonous_Operations.Send (Item  => Command);
       ESL.Trace.Debug (Message => "Waiting for reply...",
-                       Context => Package_Name & ".Authenticate.");
+                       Context => Package_Name & ".Authenticate");
 
       Client.Synchonous_Operations.Pop_Reply (Item => Reply);
 
       ESL.Trace.Debug (Message => "Got reply: " & Reply.Response'Img,
-                       Context => Package_Name & ".Authenticate.");
+                       Context => Package_Name & ".Authenticate");
 
       if Reply.Response = Error then
          raise Authentication_Failure with
@@ -85,6 +85,70 @@ package body ESL.Client.Tasking is
    --  Last-breath handler for our internal task. Doesn't serve any other
    --  purpose other than keeping an eye on whether our internal task
    --  behaves inappropriately
+
+   ---------------
+   --  Connect  --
+   ---------------
+
+   procedure Connect (Client   : in Reference;
+                      Hostname : in String;
+                      Port     : in Natural) is
+      use Ada.Exceptions;
+
+      Context : constant String := Package_Name & ".Connect";
+      Address : constant Sock_Addr_Type :=
+        (Family => GNAT.Sockets.Family_Inet,
+         Addr   => Addresses (Get_Host_By_Name (Hostname)),
+         Port   => Port_Type (Port));
+
+      Socket   : Socket_Type;
+      Status   : GNAT.Sockets.Selector_Status;
+   begin
+      Create_Socket (Socket);
+      Client.Socket := Socket;
+
+      Client.Current_State := Connecting;
+      Client.Authenticated := False;
+
+      Trace.Information ("Connecting to " &
+                         Hostname & ":" &
+                         Positive'Image (Port),
+                         Context);
+
+      Connect_Socket (Socket   => Client.Socket,
+                      Server   => Address,
+                      Timeout  => GNAT.Sockets.Forever,
+                      Selector => Client.Selector'Access,
+                      Status   => Status);
+
+      if Status = Completed then
+         Client.Channel := Stream (Client.Socket);
+         Client.Current_State := Connected;
+         Client.Reader := new Stream_Reader (Client);
+
+         Trace.Information ("Connected to " &
+                              Hostname & ":" &
+                              Positive'Image (Port)& ".", Context);
+
+         --  Signal the connected event listener.
+         Client.On_Connect_Handler.all;
+      else
+         Trace.Information ("Could not connect to " & Image (Address)
+                            & ".", Context);
+         Client.Current_State := Disconnected;
+      end if;
+
+   exception
+      when E : GNAT.Sockets.Socket_Error =>
+         --  Pull down the connecting flag.
+         --  Assert the state
+         Client.Current_State := Disconnected;
+         Client.Authenticated := False;
+         --  Client.On_Disconnect_Handler.all;
+         Trace.Error (Context => Context, Message =>
+                        "Failed to connect: " & Exception_Message (E));
+   end Connect;
+
 
    ----------------
    --  Dispatch  --
@@ -137,15 +201,23 @@ package body ESL.Client.Tasking is
       return Client.Event_Observers (Stream)'Access;
    end Event_Stream;
 
+   procedure Initialize (Obj : in out Instance) is
+   begin
+      Create_Selector (obj.Selector);
+
+      ESL.Trace.Error (Message => "init!",
+                       Context => "Initialize");
+   end Initialize;
+
    ----------------
    --  Finalize  --
    ----------------
 
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
-      pragma Unreferenced (Context);
    begin
-      Obj.Shutdown := True;
+      ESL.Trace.Error (Message => "Finalizaing!",
+                       Context => Context);
       ESL.Client.Instance (Obj).Finalize; --  Call the parent finalization.
    exception
       when E : others =>
@@ -185,7 +257,7 @@ package body ESL.Client.Tasking is
 
    procedure Shutdown (Client : in out Instance) is
    begin
-      Client.Shutdown  := True;
+      Client.Current_State := Finalizing;
       Client.Disconnect;
    end Shutdown;
 
@@ -270,11 +342,9 @@ package body ESL.Client.Tasking is
 
       procedure Reader_Loop is
       begin
-
-         Ada.Task_Termination.Set_Specific_Handler
-           (T => Current_Task,
-            Handler => Shutdown_Handler.Termination_Finalizer'Access);
-
+         Trace.Information
+           (Context => Context,
+            Message => "Waiting");
          Owner.Wait_For_Connection (Timeout => 3.0);
 
          loop
@@ -293,30 +363,39 @@ package body ESL.Client.Tasking is
             Trace.Information
               (Context => Context,
                Message => "Reader operated on closed socket.");
-            Owner.Connected := False;
-            Owner.Authenticated := False;
-            Owner.On_Disconnect_Handler.all;
-            Owner.Wait_For_Connection (Timeout => 1.0);
+            Owner.Signal_Disconnect;
 
-      when Connection_Timeout =>
-            Trace.Debug
+         when Connection_Timeout =>
+            Trace.Error
               (Context => Context,
                Message =>
                "Timeout reached while wating for a connection channel.");
+
+         when others =>
+            Trace.Error
+              (Context => Context,
+               Message =>
+               "Not connected!");
       end Reader_Loop;
 
    begin
-      Trace.Debug (Context => Context,
+      Ada.Task_Termination.Set_Specific_Handler
+        (T => Current_Task,
+         Handler => Shutdown_Handler.Termination_Finalizer'Access);
+
+      Trace.Information (Context => Context,
                          Message => "Starting stream consumer.");
 
-      while not Owner.Shutdown loop
+      while Owner.Current_State not in Finalizing .. Finalized loop
          delay until Next_Attempt;
          Next_Attempt := Next_Attempt + Recheck_Connection_Delay;
+         Trace.Information (Context => Context,
+                         Message => "stream consumer.");
          Reader_Loop;
       end loop;
 
-      Trace.Debug (Context => Context,
-                   Message => "Ending stream consumer.");
+      Trace.Information (Context => Context,
+                         Message => "Ending stream consumer.");
    exception
       when Connection_Timeout =>
          --  Regular shutdown.

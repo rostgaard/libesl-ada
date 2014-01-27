@@ -30,6 +30,10 @@ package ESL.Client.Tasking is
    type Instance is new Client.Instance with private;
    type Reference is access all Instance;
 
+   procedure Connect (Client   : in Reference;
+                      Hostname : in String;
+                      Port     : in Natural);
+
    type Event_Streams is new ESL.Observer.Observables with null record;
 
    type Event_Streams_Access is access all Event_Streams;
@@ -78,10 +82,11 @@ private
 --       (Element_Type => ESL.Job.Instance);
 --     --  TODO: Make synchronized.
 
-   Recheck_Connection_Delay : constant Duration := 2.0;
+   Recheck_Connection_Delay : constant Duration := 1.0;
    --  How long we should wait between connection polling.
 
-   task type Stream_Reader (Owner : access Client.Tasking.Instance'Class);
+   task type Stream_Reader (Owner : Client.Tasking.Reference);
+   type Stream_Reader_Reference is access Stream_Reader;
 
    type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
      of aliased Event_Streams;
@@ -90,7 +95,7 @@ private
      (ESL.Packet_Keys.Inbound_Sub_Events) of aliased Event_Streams;
 
    protected type Synchronized_IO
-     (Owner : access Client.Tasking.Instance'Class) is
+     (Owner : access Client.Tasking.Instance) is
       procedure Send (Item  : in Serialized_Command);
 
       procedure Push_Reply (Item : Reply.Instance);
@@ -108,10 +113,13 @@ private
            := new Client_Event_Listeners;
          Sub_Event_Observers     : access Client_Sub_Event_Listeners
            := new Client_Sub_Event_Listeners;
-         Reader                  : Stream_Reader (Instance'Access);
+--         Reader                  : Stream_Reader (Instance'Access);
+         Reader                  : Stream_Reader_Reference;
          Sending                 : Boolean := False;
          Synchonous_Operations   : Synchronized_IO (Instance'Access);
       end record;
+
+   overriding procedure Initialize (Obj : in out Instance);
 
    overriding procedure Finalize (Obj : in out Instance);
 

@@ -36,6 +36,10 @@ package ESL.Client is
 
    type Event_Formats is (Plain, XML, JSON);
 
+   type States is (Created, Connecting,
+                   Connected, Disconnected,
+                   Finalizing, Finalized);
+
    type Connection_Event_Handler is not null access procedure;
    --  Parameterless procedure to execute when connection state changes.
 
@@ -46,10 +50,6 @@ package ESL.Client is
                   On_Disconnect_Handler : Connection_Event_Handler)
      is abstract tagged limited private;
    --  This is the actual client instance.
-
-   procedure Connect (Client   : in out Instance;
-                      Hostname : in     String;
-                      Port     : in     Natural);
 
    procedure Disconnect (Client : in out Instance);
 
@@ -95,10 +95,11 @@ package ESL.Client is
    procedure Background_API (Client  : in     Instance;
                              Command : in     ESL.Command.Instance'Class);
    --  Asynchronously sends an API command. A reply is still returned, but
-   --  only for the purpose of comfirming that the command was sent.
+   --  only for the purpose of comfirming that the command was sent and
+   --  returning a UUID ticket for mapping reply events to the action.
 
-   function Connected (Client : in Instance) return Boolean;
-   --  Returns the last known connection state.
+   function State (Client : in Instance) return States;
+   --  Returns the current state of the client.
 
    procedure Wait_For_Connection (Client  : in Instance;
                                   Timeout : in     Duration := 3.0);
@@ -113,9 +114,7 @@ package ESL.Client is
 
    function "=" (Left, Right : in Reference) return Boolean;
 
-   function Channel_List (Obj : in Instance) return Channel.List.Reference;
-
-   function Is_Shutdown (Obj : in Instance) return Boolean;
+   procedure Signal_Disconnect (Obj : in Instance);
 
 private
    use GNAT.Sockets;
@@ -135,13 +134,8 @@ private
       On_Disconnect_Handler : Connection_Event_Handler)
         is new Ada.Finalization.Limited_Controlled with
       record
-         Connecting            : Boolean := False;
-         Initialized           : Boolean := False;
-         Connected             : Boolean := False;
+         Current_State         : States  := Created;
          Authenticated         : Boolean := False;
-         Shutdown              : Boolean := False;
-         Channels              : Channel.List.Reference
-           := new Channel.List.Instance;
          Socket                : GNAT.Sockets.Socket_Type :=
            GNAT.Sockets.No_Socket;
          Channel               : GNAT.Sockets.Stream_Access := null;

@@ -97,4 +97,4 @@ examples:
 	mkdir -p build debug
 	${GNATMAKE} -P examples/examples.gpr
 
-.PHONY: debug tests esl-client-tasking-test examples
+.PHONY: debug tests esl-client-tasking-test examples tester
