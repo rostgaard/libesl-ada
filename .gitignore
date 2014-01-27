@@ -1,6 +1,9 @@
-# Build directories:
+# Build and other transient directories
 build/
 debug/
+external_libs/
+downloads/
+xml_results/
 
 # Do not track build objects.
 build*/*

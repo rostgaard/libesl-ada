@@ -17,6 +17,8 @@ LIBNAME=esl
 GPR_TARGET=lib/gnat/ 
 GNATMAKE=gnatmake
 GNATMAKE_TEST=gnatmake -P common
+AHVEN_XML_DIR=xml_results
+
 include makefile.setup
 
 all: ${LIBNAME}
@@ -37,7 +39,9 @@ clean: tests_clean
 	BUILDTYPE=Debug gnatclean -P esl_build
 
 distclean: clean
-	rm esl
+	-rm -rf downloads
+	-rm -rf external_libs
+	-rm -rf xml_results
 
 uninstall:
 	rm -rf $(PREFIX)/esl
@@ -53,6 +57,20 @@ install: all
 	install --directory        $(DESTDIR)$(PREFIX)/lib/gnat
 	install esl.gpr.dist       $(DESTDIR)$(PREFIX)/lib/gnat/esl.gpr
 
+downloads/ahven-2.3:
+	-mkdir downloads
+	(cd downloads && wget "http://downloads.sourceforge.net/project/ahven/ahven/Ahven%202.3/ahven-2.3.tar.gz")
+	(cd downloads && tar xzf ahven-2.3.tar.gz)
+
+external_libs/lib/ahven: downloads/ahven-2.3
+	PREFIX=$(PWD)/external_libs make -C downloads/ahven-2.3 install_lib
+
+tester: external_libs/lib/ahven
+	${GNATMAKE} -P test tester
+
+xml_tests: tester
+	@-mkdir ${AHVEN_XML_DIR}
+	./tester -q -x -d ${AHVEN_XML_DIR} > /dev/null
 tests:
 	@./tests/build
 	@./tests/run

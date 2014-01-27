@@ -1,6 +1,7 @@
+
 -------------------------------------------------------------------------------
 --                                                                           --
---                      Copyright (C) 2012-, AdaHeads K/S                    --
+--                     Copyright (C) 2012-, AdaHeads K/S                     --
 --                                                                           --
 --  This is free software;  you can redistribute it and/or modify it         --
 --  under terms of the  GNU General Public License  as published by the      --
@@ -15,25 +16,26 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-abstract project Shared is
-   for Source_Dirs use ();
+--  This test case tests if various commands gets serialized correctly.
 
-   package Compiler is
-      for Default_Switches ("Ada") use ("-fstack-check",
-                                        "-gnata",
-                                        "-gnatf",
-                                        "-gnato13",
-                                        "-gnatwa",
-                                        "-gnaty3abcdefhiklmnoprstux",
-                                        "-Wall",
-                                        "-O2",
-                                        "-gnat2012");
-   end Compiler;
+with Ahven.Framework;
 
-   package IDE is
-      for Compiler_Command ("ada") use "gnatmake";
-   end IDE;
+package ESL.Command.Test is
 
-   package Naming is
-   end Naming;
-end Shared;
+   Package_Name : constant String := "ESL.Command.Test";
+
+   type Instance is new Ahven.Framework.Test_Case with null record;
+   procedure Initialize (T : in out Instance);
+   procedure Set_Up (T : in out Instance);
+
+private
+   procedure Originate_Test;
+   --  Tests a basic orgination request.
+
+   procedure Show_Calls_Test;
+   --  Tests a basic show calls command.
+
+   procedure Show_Calls_Test_As_XML;
+   --  Tests a basic show calls command appending "as xml".
+
+end ESL.Command.Test;

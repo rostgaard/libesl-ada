@@ -1,0 +1,26 @@
+Content-Length: 737
+Content-Type: text/event-plain
+
+Event-Name: HEARTBEAT
+Core-UUID: 7056f5cc-a40c-11e2-8330-01f8a887ec26
+FreeSWITCH-Hostname: X301
+FreeSWITCH-Switchname: X301
+FreeSWITCH-IPv4: 127.0.0.1
+FreeSWITCH-IPv6: %3A%3A1
+Event-Date-Local: 2013-04-13%2010%3A00%3A11
+Event-Date-GMT: Sat,%2013%20Apr%202013%2008%3A00%3A11%20GMT
+Event-Date-Timestamp: 1365840011003130
+Event-Calling-File: switch_core.c
+Event-Calling-Function: send_heartbeat
+Event-Calling-Line-Number: 68
+Event-Sequence: 661
+Event-Info: System%20Ready
+Up-Time: 0%20years,%200%20days,%200%20hours,%2026%20minutes,%2040%20seconds,%20434%20milliseconds,%2056%20microseconds
+FreeSWITCH-Version: 1.2.8
+Uptime-msec: 1600434
+Session-Count: 0
+Max-Sessions: 1000
+Session-Per-Sec: 30
+Session-Since-Startup: 0
+Idle-CPU: 99.000000
+

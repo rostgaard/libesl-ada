@@ -1,0 +1,26 @@
+Content_length: 826
+
+Event-Name: CHANNEL_STATE
+Core-UUID: 75ff8ccc-a8d1-11e2-a95b-3f7857bb23f7
+FreeSWITCH-Hostname: T400s
+FreeSWITCH-Switchname: T400s
+FreeSWITCH-IPv4: 192.168.2.169
+FreeSWITCH-IPv6: %3A%3A1
+Event-Date-Local: 2013-04-19%2011%3A15%3A30
+Event-Date-GMT: Fri,%2019%20Apr%202013%2009%3A15%3A30%20GMT
+Event-Date-Timestamp: 1366362930282687
+Event-Calling-File: switch_channel.c
+Event-Calling-Function: switch_channel_perform_set_running_state
+Event-Calling-Line-Number: 2023
+Event-Sequence: 754
+Channel-State: CS_REPORTING
+Channel-Call-State: HANGUP
+Channel-State-Number: 11
+Channel-Name: sofia/internal/sip%3A1000%40192.168.2.167%3A39810
+Unique-ID: 9d6eec12-a8d1-11e2-a9b2-3f7857bb23f7
+Call-Direction: outbound
+Presence-Call-Direction: outbound
+Channel-HIT-Dialplan: false
+Answer-State: hangup
+Channel-Presence-ID: 1000%40192.168.2.169
+

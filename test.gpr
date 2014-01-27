@@ -1,8 +1,11 @@
-project Common is
+with "common.gpr";
+with "./external_libs/lib/gnat/ahven.gpr";
+
+project Test is
    type Build_Type is ("Debug", "Production");
    Build : Build_Type := External ("BUILDTYPE", "Production");
 
-   Source_Options := ("src/**", "examples/**", "external/");
+   Source_Options := ("tests/**");
    for Source_Dirs use Source_Options;
 
    for Exec_Dir use ".";
@@ -46,5 +49,5 @@ project Common is
 
       end case;
    end Compiler;
-end Common;
+end Test;
 

@@ -1,6 +1,7 @@
+
 -------------------------------------------------------------------------------
 --                                                                           --
---                      Copyright (C) 2013-, AdaHeads K/S                    --
+--                     Copyright (C) 2012-, AdaHeads K/S                     --
 --                                                                           --
 --  This is free software;  you can redistribute it and/or modify it         --
 --  under terms of the  GNU General Public License  as published by the      --
@@ -15,16 +16,33 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with "../shared";
+--  This test case tests if various commands gets serialized correctly.
 
-project Test is
-   for Main use ("esl-command-test");
+with Ahven.Framework;
 
-   for Source_Dirs use (".", "../../src/**");
-   for Exec_Dir    use ".";
-   for Object_Dir  use "../../build";
+package ESL.Job.List.Test is
 
-   package Compiler renames Shared.Compiler;
-   package Naming   renames Shared.Naming;
-   package IDE      renames Shared.IDE;
-end Test;
+   Package_Name : constant String := "ESL.Job.List.Test";
+
+   type Instance is new Ahven.Framework.Test_Case with null record;
+   procedure Initialize (T : in out Instance);
+   procedure Set_Up (T : in out Instance);
+
+private
+   procedure Resubscribe_Test;
+   --  Expected behaviour is that we do not want to be able to resubscribe
+   --  more than one task to one job. Should raise an exception.
+
+   procedure Early_Pop;
+   --  Trying to pop a job from the queue is a contradition. The status can
+   --  be polled with Reply_Ready prior to calling Pop.
+
+   procedure Timeout_Test_No_Reply;
+   --  When no reply is received within the given duration, a timeout
+   --  exception is expected.
+
+   procedure Timeout_Test_Reply;
+   --  When a reply is filled into the shared buffer, no timeout is
+   --  expected.
+
+end ESL.Job.List.Test;

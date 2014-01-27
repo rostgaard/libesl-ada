@@ -16,40 +16,37 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
---  This test case tests if various commands gets serialized correctly.
-
 with Ada.Assertions;
-with Ada.Command_Line;
-with Ada.Text_IO;
 
 with ESL.Trace;
 with ESL.Command.Core;
 with ESL.Command.Call_Management;
 
-procedure ESL.Command.Test is
+package body ESL.Command.Test is
    use Ada.Assertions;
-   use Ada.Text_IO;
-   use ESL.Trace;
 
-   procedure Originate_Test;
-   --  Tests a basic orgination request.
+   procedure Set_Up (T : in out Instance) is
+   begin
+      ESL.Trace.Unmute (ESL.Trace.Every);
+   end Set_Up;
 
-   procedure Run_Test (Name : in String;
-                       Test : not null access procedure);
-   --  Runs the test. Should be moved to a "Test_Utilites package".
+   procedure Initialize (T : in out Instance) is
+   begin
+      Set_Name (T, Package_Name);
 
-      procedure Show_Calls_Test;
-   --  Tests a basic show calls command.
-
-   procedure Show_Calls_Test_As_XML;
-   --  Tests a basic show calls command appending "as xml".
+      Ahven.Framework.Add_Test_Routine
+        (T, Originate_Test'Access, "Originate_Test");
+      Ahven.Framework.Add_Test_Routine
+        (T, Show_Calls_Test'Access, "Show_Calls_Test");
+      Ahven.Framework.Add_Test_Routine
+        (T, Show_Calls_Test_As_XML'Access, "Show_Calls_Test_As_XML");
+   end Initialize;
 
    ----------------------
    --  Originate_Test  --
    ----------------------
 
    procedure Originate_Test is
-
       Command : constant ESL.Command.Call_Management.Instance :=
         ESL.Command.Call_Management.Originate
           (Call_URL         => "user/1001",
@@ -57,34 +54,15 @@ procedure ESL.Command.Test is
       Expected : constant String := "originate user/1001 5900 xml default";
    begin
       if Command.Serialize /= Serialized_Command (Expected) then
-         raise Assertion_Error with
-         String (Command.Serialize) & " /= " & Expected;
+         Ahven.Fail (String (Command.Serialize) & " /= " & Expected);
       end if;
    end Originate_Test;
-
-   ----------------
-   --  Run_Test  --
-   ----------------
-
-   procedure Run_Test (Name : in String;
-                       Test : not null access procedure) is
-   begin
-      Put (Name & " - ");
-      Test.all;
-      Put_Line ("success");
-   exception
-      when others =>
-         Put_Line ("failure");
-         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-         raise;
-   end Run_Test;
 
    -----------------------
    --  Show_Calls_Test  --
    -----------------------
 
    procedure Show_Calls_Test is
-
       Report   : constant String := "calls";
       Command  : constant ESL.Command.Core.Instance :=
         ESL.Command.Core.Show (Report => Report);
@@ -100,7 +78,6 @@ procedure ESL.Command.Test is
    ------------------------------
 
    procedure Show_Calls_Test_As_XML is
-
       Report   : constant String := "calls";
       Command  : ESL.Command.Core.Instance :=
         ESL.Command.Core.Show (Report => Report);
@@ -111,18 +88,5 @@ procedure ESL.Command.Test is
          raise Assertion_Error;
       end if;
    end Show_Calls_Test_As_XML;
-
-begin
-
-   ESL.Trace.Unmute (Every);
-
-   Run_Test (Name => "Creating show call command",
-             Test => Show_Calls_Test'Access);
-
-   Run_Test (Name => "Creating show call command (as xml)",
-             Test => Show_Calls_Test_As_XML'Access);
-
-   Run_Test (Name => "Creating originate command",
-             Test => Originate_Test'Access);
 
 end ESL.Command.Test;
