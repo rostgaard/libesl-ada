@@ -29,6 +29,11 @@ package body ESL.Client.Tasking is
    use ESL;
    use ESL.Reply;
 
+   task type Dispatchers (Owner : access Client.Tasking.Instance) is
+      entry Queue_For_Dispatching (Packet : ESL.Packet.Instance);
+   end Dispatchers;
+   --  Dispatcher task that frees up the other contexts.
+
    procedure API (Client  : in out Instance;
                   Command : in     ESL.Command.Instance'Class;
                   Reply   : in out ESL.Reply.Instance) is
@@ -86,6 +91,16 @@ package body ESL.Client.Tasking is
    --  purpose other than keeping an eye on whether our internal task
    --  behaves inappropriately
 
+   --------------------
+   --  Change_State  --
+   --------------------
+
+   procedure Change_State (Client    : access Instance;
+                           New_State : in     States) is
+   begin
+      Client.Current_State := New_State;
+   end Change_State;
+
    ---------------
    --  Connect  --
    ---------------
@@ -123,7 +138,7 @@ package body ESL.Client.Tasking is
 
       if Status = Completed then
          Client.Channel := Stream (Client.Socket);
-      Client.Change_State (New_State => Connected);
+         Client.Change_State (New_State => Connected);
          Client.Reader := new Stream_Reader (Reference (Client));
 
          Trace.Information ("Connected to " &
@@ -148,16 +163,6 @@ package body ESL.Client.Tasking is
          Trace.Error (Context => Context, Message =>
                       "Failed to connect: " & Exception_Message (E));
    end Connect;
-
-   --------------------
-   --  Change_State  --
-   --------------------
-
-   procedure Change_State (Client    : access Instance;
-                           New_State : in     States) is
-   begin
-      Client.Current_State := New_State;
-   end Change_State;
 
    ------------------
    --  Disconnect  --
@@ -214,6 +219,36 @@ package body ESL.Client.Tasking is
    ----------------
    --  Dispatch  --
    ----------------
+
+   task body Dispatchers is
+      use Ada.Task_Identification;
+
+      Context : constant String :=
+        Package_Name & ".Dispatchers(" & Image (Current_Task) & ")";
+
+      Current_Packet : ESL.Packet.Instance;
+   begin
+      Trace.Information
+        (Context => Context,
+         Message => "Starting.");
+
+      while Owner.State = Connected loop
+         select
+            accept Queue_For_Dispatching (Packet : ESL.Packet.Instance) do
+               Current_Packet := Packet;
+               --  Clone the packet to let caller get on with its work.
+            end Queue_For_Dispatching;
+         or
+            terminate;
+         end select;
+
+         Dispatch (Owner, Current_Packet);
+      end loop;
+      Trace.Information
+        (Context => Context,
+         Message => "Stopping.");
+
+   end Dispatchers;
 
    procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
                        Packet : in ESL.Packet.Instance) is
@@ -406,6 +441,7 @@ package body ESL.Client.Tasking is
       procedure Reader_Loop;
 
       Next_Attempt    : Time := Current_Time;
+      Dispatcher      : Dispatchers (Owner); --  Pass the reference on.
 
       procedure Reader_Loop is
       begin
@@ -419,8 +455,7 @@ package body ESL.Client.Tasking is
                Packet : constant ESL.Packet.Instance :=
                  ESL.Parsing_Utilities.Read_Packet (Stream => Owner.Stream);
             begin
-               Dispatch (Client => Owner,
-                         Packet => Packet);
+               Dispatcher.Queue_For_Dispatching (Packet => Packet);
             end;
          end loop;
       exception
