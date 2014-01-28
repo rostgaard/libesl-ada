@@ -71,33 +71,6 @@ package body ESL.Client is
          On_Disconnect_Handler => On_Disconnect_Handler);
    end Create;
 
-   ------------------
-   --  Disconnect  --
-   ------------------
-
-   procedure Disconnect (Client : in out Instance) is
-      Context : constant String := Package_Name & ".Disconnect";
-   begin
-      ESL.Trace.Error (Message => Client.State'Img,
-                          Context => Context);
-      if Client.Current_State = Connecting then
-         Abort_Selector (Client.Selector);
-      elsif Client.Socket /= No_Socket then
-         Shutdown_Socket (Client.Socket);
-      end if;
-   exception
-      when Event : Socket_Error =>
-         ESL.Trace.Error (Message => "Socket error: " &
-                            Ada.Exceptions.Exception_Message (Event) & ".",
-                          Context => Context);
-      when Program_Error =>
-         ESL.Trace.Error (Message => "Tried to abort a closed selector!",
-                          Context => Context);
-      when E : others =>
-         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
-                          Context => Context);
-   end Disconnect;
-
    ----------------
    --  Finalize  --
    ----------------
@@ -105,12 +78,9 @@ package body ESL.Client is
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
-      ESL.Trace.Error (Message => "Finalizaing!",
+      ESL.Trace.Debug (Message => "Entry state: " & Obj.State'Img,
                        Context => Context);
 
-      Obj.Disconnect;
-      GNAT.Sockets.Close_Selector (Obj.Selector);
-      Obj.Current_State := Finalized;
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -259,7 +229,7 @@ package body ESL.Client is
       case Client.Current_State is
          when Connected =>
             return;
-         when Disconnected .. Finalized =>
+         when Disconnecting .. Finalized =>
             raise Not_Connected;
          when Created .. Connecting =>
             null;

@@ -90,9 +90,9 @@ package body ESL.Client.Tasking is
    --  Connect  --
    ---------------
 
-   procedure Connect (Client   : in Reference;
-                      Hostname : in String;
-                      Port     : in Natural) is
+   procedure Connect (Client   : access Instance;
+                      Hostname : in     String;
+                      Port     : in     Natural) is
       use Ada.Exceptions;
 
       Context : constant String := Package_Name & ".Connect";
@@ -107,12 +107,12 @@ package body ESL.Client.Tasking is
       Create_Socket (Socket);
       Client.Socket := Socket;
 
-      Client.Current_State := Connecting;
+      Client.Change_State (New_State => Connecting);
       Client.Authenticated := False;
 
       Trace.Information ("Connecting to " &
-                         Hostname & ":" &
-                         Positive'Image (Port),
+                           Hostname & ":" &
+                           Positive'Image (Port),
                          Context);
 
       Connect_Socket (Socket   => Client.Socket,
@@ -123,8 +123,8 @@ package body ESL.Client.Tasking is
 
       if Status = Completed then
          Client.Channel := Stream (Client.Socket);
-         Client.Current_State := Connected;
-         Client.Reader := new Stream_Reader (Client);
+      Client.Change_State (New_State => Connected);
+         Client.Reader := new Stream_Reader (Reference (Client));
 
          Trace.Information ("Connected to " &
                               Hostname & ":" &
@@ -146,9 +146,70 @@ package body ESL.Client.Tasking is
          Client.Authenticated := False;
          --  Client.On_Disconnect_Handler.all;
          Trace.Error (Context => Context, Message =>
-                        "Failed to connect: " & Exception_Message (E));
+                      "Failed to connect: " & Exception_Message (E));
    end Connect;
 
+   --------------------
+   --  Change_State  --
+   --------------------
+
+   procedure Change_State (Client    : access Instance;
+                           New_State : in     States) is
+   begin
+      Client.Current_State := New_State;
+   end Change_State;
+
+   ------------------
+   --  Disconnect  --
+   ------------------
+
+   procedure Disconnect (Client : in out Instance) is
+      use Ada.Calendar;
+
+      Context : constant String := Package_Name & ".Disconnect";
+      Timeout : constant Time   := Clock + 3.0;
+   begin
+      ESL.Trace.Debug (Message => "Entry state: " & Client.State'Img,
+                       Context => Context);
+
+      Client.Change_State (New_State => Disconnecting);
+
+      case Client.State is
+         when Connecting =>
+            Abort_Selector (Client.Selector);
+         when Created =>
+            null;
+         when others =>
+            if Client.Socket /= No_Socket then
+               Shutdown_Socket (Client.Socket);
+            end if;
+      end case;
+
+      while Client.Reader /= null loop
+         exit when Clock > Timeout;
+         delay 0.01;
+      end loop;
+
+      --  At this point, try a hard abort!
+      if Client.Reader /= null then
+         abort Client.Reader.all;
+      end if;
+
+      Client.Change_State (New_State => Disconnected);
+      ESL.Trace.Debug (Message => "Exit state: " & Client.State'Img,
+                       Context => Context);
+   exception
+      when Event : Socket_Error =>
+         ESL.Trace.Error (Message => "Socket error: " &
+                            Ada.Exceptions.Exception_Message (Event) & ".",
+                          Context => Context);
+      when Program_Error =>
+         ESL.Trace.Error (Message => "Tried to abort a closed selector!",
+                          Context => Context);
+      when E : others =>
+         ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
+                          Context => Context);
+   end Disconnect;
 
    ----------------
    --  Dispatch  --
@@ -180,7 +241,7 @@ package body ESL.Client.Tasking is
    exception
       when E : others =>
          ESL.Trace.Error (Message => "Dispatch Failed with" &
-                          Ada.Exceptions.Exception_Information (E),
+                            Ada.Exceptions.Exception_Information (E),
                           Context => Context);
          ESL.Trace.Error (Message => "Packet dump follows=====>",
                           Context => Context);
@@ -203,7 +264,7 @@ package body ESL.Client.Tasking is
 
    procedure Initialize (Obj : in out Instance) is
    begin
-      Create_Selector (obj.Selector);
+      Create_Selector (Obj.Selector);
 
       ESL.Trace.Error (Message => "init!",
                        Context => "Initialize");
@@ -216,9 +277,15 @@ package body ESL.Client.Tasking is
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
-      ESL.Trace.Error (Message => "Finalizaing!",
+      ESL.Trace.Debug (Message => "Entry state: " & Obj.State'Img,
                        Context => Context);
-      ESL.Client.Instance (Obj).Finalize; --  Call the parent finalization.
+
+      Obj.Disconnect;
+      GNAT.Sockets.Close_Selector (Obj.Selector);
+      Obj.Current_State := Finalized;
+
+      ESL.Trace.Debug (Message => "Exit state: " & Obj.State'Img,
+                       Context => Context);
    exception
       when E : others =>
          ESL.Trace.Error (Message => Ada.Exceptions.Exception_Information (E),
@@ -257,8 +324,8 @@ package body ESL.Client.Tasking is
 
    procedure Shutdown (Client : in out Instance) is
    begin
-      Client.Current_State := Finalizing;
       Client.Disconnect;
+      Client.Current_State := Finalizing;
    end Shutdown;
 
    -----------------------------
@@ -357,8 +424,8 @@ package body ESL.Client.Tasking is
             end;
          end loop;
       exception
-         --  These are expected behaviour. If the recieve call fails, we
-         --  Expect the client to get back on its feet again or shut down.
+            --  These are expected behaviour. If the recieve call fails, we
+            --  Expect the client to get back on its feet again or shut down.
          when Ada.IO_Exceptions.End_Error | GNAT.Sockets.Socket_Error =>
             Trace.Information
               (Context => Context,
@@ -386,16 +453,18 @@ package body ESL.Client.Tasking is
       Trace.Information (Context => Context,
                          Message => "Starting stream consumer.");
 
-      while Owner.Current_State not in Finalizing .. Finalized loop
+      while Owner.Current_State = Connected loop
          delay until Next_Attempt;
          Next_Attempt := Next_Attempt + Recheck_Connection_Delay;
          Trace.Information (Context => Context,
-                         Message => "stream consumer.");
+                            Message => "stream consumer." & Owner.State'Img);
          Reader_Loop;
       end loop;
 
       Trace.Information (Context => Context,
                          Message => "Ending stream consumer.");
+
+      Owner.Reader := null;
    exception
       when Connection_Timeout =>
          --  Regular shutdown.

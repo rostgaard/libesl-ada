@@ -30,9 +30,11 @@ package ESL.Client.Tasking is
    type Instance is new Client.Instance with private;
    type Reference is access all Instance;
 
-   procedure Connect (Client   : in Reference;
-                      Hostname : in String;
-                      Port     : in Natural);
+   procedure Connect (Client   : access Instance;
+                      Hostname : in     String;
+                      Port     : in     Natural);
+
+   procedure Disconnect (Client : in out Instance);
 
    type Event_Streams is new ESL.Observer.Observables with null record;
 
@@ -62,6 +64,9 @@ package ESL.Client.Tasking is
                              Command : in     ESL.Command.Instance'Class;
                              Reply   : in out ESL.Reply.Instance);
 
+   procedure Change_State (Client    : access Instance;
+                           New_State : in     States);
+
    overriding function Receive (Client : in Instance;
                                 Count  : in Natural) return String;
    pragma Obsolescent (Receive, "Illegal usage of Receive, " &
@@ -87,6 +92,10 @@ private
 
    task type Stream_Reader (Owner : Client.Tasking.Reference);
    type Stream_Reader_Reference is access Stream_Reader;
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Object => Stream_Reader,
+      Name   => Stream_Reader_Reference);
 
    type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
      of aliased Event_Streams;
@@ -114,7 +123,7 @@ private
          Sub_Event_Observers     : access Client_Sub_Event_Listeners
            := new Client_Sub_Event_Listeners;
 --         Reader                  : Stream_Reader (Instance'Access);
-         Reader                  : Stream_Reader_Reference;
+         Reader                  : Stream_Reader_Reference := null;
          Sending                 : Boolean := False;
          Synchonous_Operations   : Synchronized_IO (Instance'Access);
       end record;

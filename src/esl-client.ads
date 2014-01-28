@@ -36,8 +36,9 @@ package ESL.Client is
 
    type Event_Formats is (Plain, XML, JSON);
 
-   type States is (Created, Connecting,
-                   Connected, Disconnected,
+   type States is (Created,
+                   Connecting, Connected,
+                   Disconnecting, Disconnected,
                    Finalizing, Finalized);
 
    type Connection_Event_Handler is not null access procedure;
@@ -50,8 +51,6 @@ package ESL.Client is
                   On_Disconnect_Handler : Connection_Event_Handler)
      is abstract tagged limited private;
    --  This is the actual client instance.
-
-   procedure Disconnect (Client : in out Instance);
 
    function Image (Client : in Instance) return String;
 
