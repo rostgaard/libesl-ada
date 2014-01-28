@@ -33,25 +33,18 @@ package body ESL.Packet_Header is
    begin
 
       if Field = Empty_Line or Field.Key = Unknown then
-         ESL.Trace.Debug (Context => Context,
-                          Message => "Skipping empty line");
+         --  Skip empty lines.
          return;
+
+      --  Set special fields.
       elsif Field.Key = Content_Type then
          Obj.Content_Type := Value (Field.Value);
-
-         ESL.Trace.Debug
-           (Context => Context,
-            Message => "Setting content_type: " & Obj.Content_Type'Img);
 
       elsif Field.Key = Content_Length then
          Obj.Content_Length := Natural'Value (Field.Value);
 
-         ESL.Trace.Debug
-           (Context => Context,
-            Message => "Setting content_length: " & Obj.Content_Length'Img);
+      --  Add the rest of the headers.
       else
-         ESL.Trace.Debug (Context => Context,
-                       Message => "Adding " & Field.Image);
          Obj.Fields.Insert (Key      => Field.Key,
                             New_Item => Field);
       end if;

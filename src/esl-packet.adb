@@ -253,16 +253,17 @@ package body ESL.Packet is
 
       Obj.Raw_Body := To_Unbounded_String (Raw_Data);
 
-      if
-        Obj.Header.Content_Type = API_Response or
-        Obj.Header.Content_Type = Text_Disconnect_Notice
-      then
-         ESL.Trace.Information (Message => "Skipping package of type " &
-                                  Image (Obj.Header.Content_Type),
-                                Context => Context);
+      if Obj.Header.Content_Type = API_Response then
+         --  We do not process further on the response body when encountering
+         --  an API response as these do not have a unified format.
+         return;
+      elsif Obj.Header.Content_Type = Text_Disconnect_Notice then
+         --  The disconnect notices merely contain a cleartext information
+         --  about going to ClueCon, so we ignore these as well.
          return;
       elsif Obj.Header.Content_Type = Text_Event_JSON then
          Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
+         --  JSON fields can be easily
          return;
       end if;
 
@@ -286,20 +287,10 @@ package body ESL.Packet is
                           Parse_Line (Variable_Line);
                      begin
                         Obj.Variables.Add_Variable (Variable);
-                        ESL.Trace.Debug
-                          (Message => "Found variable " & Variable_Line,
-                           Context => Context);
-                        ESL.Trace.Debug
-                          (Message => "Cast variable " & Variable.Image,
-                           Context => Context);
                      end;
                   else
 
                      Field := Parse_Line (Item => Line);
-                     ESL.Trace.Debug
-                       (Message => "Processing line: " &
-                          URL_Utilities.Decode (Field.Value),
-                        Context => Context);
 
                      if Field = Empty_Line then
                         if Obj.Contains (Key => Content_Length) then

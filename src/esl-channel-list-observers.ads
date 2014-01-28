@@ -39,7 +39,10 @@ package ESL.Channel.List.Observers is
 --  CHANNEL_UNBRIDGE
 
    type State_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+     new ESL.Observer.Event_Observers.Instance with
+      record
+         Channel_List : ESL.Channel.List.Reference;
+      end record;
 
    overriding
    procedure Notify (Observer : access State_Observer;
@@ -47,7 +50,10 @@ package ESL.Channel.List.Observers is
                      Client   : in     ESL.Client.Reference);
 
    type Answer_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+     new ESL.Observer.Event_Observers.Instance with
+      record
+         Channel_List : ESL.Channel.List.Reference;
+      end record;
 
    overriding
    procedure Notify (Observer : access Answer_Observer;
@@ -55,7 +61,10 @@ package ESL.Channel.List.Observers is
                      Client   : in     ESL.Client.Reference);
 
    type Create_Observer is
-     new ESL.Observer.Event_Observers.Instance with null record;
+     new ESL.Observer.Event_Observers.Instance with
+      record
+         Channel_List : ESL.Channel.List.Reference;
+      end record;
 
    overriding
    procedure Notify (Observer : access Create_Observer;

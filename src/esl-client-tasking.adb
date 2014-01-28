@@ -216,9 +216,9 @@ package body ESL.Client.Tasking is
                           Context => Context);
    end Disconnect;
 
-   ----------------
-   --  Dispatch  --
-   ----------------
+   -------------------
+   --  Dispatchers  --
+   -------------------
 
    task body Dispatchers is
       use Ada.Task_Identification;
@@ -228,7 +228,11 @@ package body ESL.Client.Tasking is
 
       Current_Packet : ESL.Packet.Instance;
    begin
-      Trace.Information
+      Ada.Task_Termination.Set_Specific_Handler
+        (T => Current_Task,
+         Handler => Shutdown_Handler.Termination_Finalizer'Access);
+
+      Trace.Debug
         (Context => Context,
          Message => "Starting.");
 
@@ -242,13 +246,17 @@ package body ESL.Client.Tasking is
             terminate;
          end select;
 
-         Dispatch (Owner, Current_Packet);
+         Owner.Dispatch (Current_Packet);
       end loop;
-      Trace.Information
+      Trace.Debug
         (Context => Context,
          Message => "Stopping.");
 
    end Dispatchers;
+
+   ----------------
+   --  Dispatch  --
+   ----------------
 
    procedure Dispatch (Client : access ESL.Client.Tasking.Instance'Class;
                        Packet : in ESL.Packet.Instance) is
@@ -297,14 +305,6 @@ package body ESL.Client.Tasking is
       return Client.Event_Observers (Stream)'Access;
    end Event_Stream;
 
-   procedure Initialize (Obj : in out Instance) is
-   begin
-      Create_Selector (Obj.Selector);
-
-      ESL.Trace.Error (Message => "init!",
-                       Context => "Initialize");
-   end Initialize;
-
    ----------------
    --  Finalize  --
    ----------------
@@ -338,6 +338,18 @@ package body ESL.Client.Tasking is
         "may recieve";
       return "";
    end Get_Line;
+
+   ------------------
+   --  Initialize  --
+   ------------------
+
+   procedure Initialize (Obj : in out Instance) is
+   begin
+      Create_Selector (Obj.Selector);
+
+      ESL.Trace.Error (Message => "init!",
+                       Context => "Initialize");
+   end Initialize;
 
    ---------------
    --  Receive  --
@@ -437,25 +449,28 @@ package body ESL.Client.Tasking is
       Context : constant String :=
         Package_Name & ".Instance(" & Image (Current_Task) & ")";
 
+      type Disp_Index is mod 8;
+      Current : Disp_Index := Disp_Index'First;
+
       function Current_Time return Time renames Clock;
       procedure Reader_Loop;
 
       Next_Attempt    : Time := Current_Time;
-      Dispatcher      : Dispatchers (Owner); --  Pass the reference on.
+      Dispatcher      : array (Disp_Index) of Dispatchers (Owner);
+      --  Pass the reference on.
 
       procedure Reader_Loop is
       begin
-         Trace.Information
-           (Context => Context,
-            Message => "Waiting");
-         Owner.Wait_For_Connection (Timeout => 3.0);
+         Owner.Wait_For_Connection (Timeout => 2.0);
 
          loop
             declare
                Packet : constant ESL.Packet.Instance :=
                  ESL.Parsing_Utilities.Read_Packet (Stream => Owner.Stream);
             begin
-               Dispatcher.Queue_For_Dispatching (Packet => Packet);
+               Dispatcher (Current)
+                 .Queue_For_Dispatching (Packet => Packet);
+               Current := Disp_Index'Succ (Current);
             end;
          end loop;
       exception
@@ -521,7 +536,7 @@ package body ESL.Client.Tasking is
          Context : constant String := Package_Name &
            ".Synchronized_IO.Push_Reply";
       begin
-         ESL.Trace.Debug (Message => "Pushing reply:" & Item.Image,
+         ESL.Trace.Debug (Message => "Pushing reply:" & Item.Response'Img,
                           Context => Context);
          Next_Reply := Item;
       end Push_Reply;

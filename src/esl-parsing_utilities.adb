@@ -186,6 +186,8 @@ package body ESL.Parsing_Utilities is
 
       use ESL.Header_Field;
 
+      Context : constant String := "Read_Packet";
+
       function Receive (Count  : in Natural) return String;
 
       function Receive (Count  : in Natural) return String is
@@ -204,9 +206,6 @@ package body ESL.Parsing_Utilities is
       loop
          Field := Parse_Line (Get_Line (Stream => Stream));
 
-         ESL.Trace.Debug (Message => Field.Image,
-                          Context => "Get_Packet");
-
          Packet.Push_Header (Field);
 
          exit when Field = Empty_Line;
@@ -224,6 +223,10 @@ package body ESL.Parsing_Utilities is
                Packet.Process_And_Add_Body (Buffer);
             end;
          end if;
+
+         ESL.Trace.Debug
+           (Message => "Got Packet" & Packet.Header.Content_Type'Img,
+            Context => Context);
 
          return Packet;
       end;

@@ -25,12 +25,12 @@ package body ESL.Channel.List.Observers is
                      Packet   : in     ESL.Packet.Instance;
                      Client   : in     ESL.Client.Reference) is
       Context : constant String := Package_Name & "Nofity (State_Observer)";
-      pragma Unreferenced (Observer);
+      pragma Unreferenced (Client);
 
    begin
 
       --  TODO: FIX
-      Client.Channel_List.Change_State
+      Observer.Channel_List.Change_State
         (Key       =>
            Value (Packet.Field (Key => ESL.Packet_Keys.Unique_ID).Value),
          New_State =>
@@ -53,8 +53,8 @@ package body ESL.Channel.List.Observers is
 
    procedure Notify (Observer : access Create_Observer;
                      Packet   : in     ESL.Packet.Instance;
-                    Client   : in     ESL.Client.Reference) is
-      pragma Unreferenced (Observer);
+                     Client   : in     ESL.Client.Reference) is
+      pragma Unreferenced (Client);
 
       Context : constant String := Package_Name & "Nofity (Create_Observer)";
       C       : constant Channel.Instance := Channel.Create (Packet => Packet);
@@ -63,13 +63,13 @@ package body ESL.Channel.List.Observers is
       ESL.Trace.Information (Message => "Triggered",
                              Context => Context);
       --  TODO: FIX
-      if Client.Channel_List = null then
+      if Observer.Channel_List = null then
          ESL.Trace.Information (Message => "null-list detected!",
                                 Context => Context);
       else
          ESL.Trace.Information (Message => "inserting",
                                 Context => Context);
-         Client.Channel_List.Insert (C);
+         Observer.Channel_List.Insert (C);
       end if;
    exception
       when others =>
