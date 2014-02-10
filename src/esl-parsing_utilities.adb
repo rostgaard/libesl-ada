@@ -75,9 +75,6 @@ package body ESL.Parsing_Utilities is
          Pattern => ESL.Packet_Field.Seperator);
 
    begin
-      ESL.Trace.Debug (Message => Item,
-                       Context => Context);
-
       if Item'Length = 0 then
          return Channel_Variable.Empty_Line;
       end if;
@@ -134,7 +131,7 @@ package body ESL.Parsing_Utilities is
                        Item (Item'First + Seperator_Index + 1 .. Item'Last));
    exception
       when Constraint_Error =>
-         ESL.Trace.Information (Message => "Unknown line """ & Item & """",
+         ESL.Trace.Debug (Message => "Unknown line """ & Item & """",
                                 Context => Context);
          return Unknown_Line;
    end Parse_Line;
