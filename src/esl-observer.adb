@@ -38,9 +38,9 @@ package body ESL.Observer is
    begin
 
       if Observer = null then
-         ESL.Trace.Information (Message => "None cared about event " &
-                                  Packet.Event'Img,
-                                Context => Context);
+         ESL.Trace.Debug (Message => "None subscribed to event " &
+                            Packet.Event'Img & " - consider muting.",
+                          Context => Context);
       end if;
 
       while Observer /= null loop
