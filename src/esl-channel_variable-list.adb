@@ -30,10 +30,6 @@ package body ESL.Channel_Variable.List is
 
       Obj.Storage.Insert (Key      => Variable.Name,
                             New_Item => Variable);
-      ESL.Trace.Debug
-        (Message => "Adding variable: " & Channel_Variable.Image (Variable),
-         Context => Context);
-
    exception
       when others =>
          ESL.Trace.Error (Context => Context,
