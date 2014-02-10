@@ -20,6 +20,8 @@ private with Ada.Strings.Unbounded.Hash;
 
 package ESL.Channel_Variable.List is
 
+   Package_Name : constant String := "ESL.Channel_Variable.List";
+
    type Instance is tagged private;
 
    type Reference is access all Instance;
