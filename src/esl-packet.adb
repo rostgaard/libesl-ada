@@ -15,8 +15,6 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with URL_Utilities;
-
 with ESL.Trace;
 with ESL.Parsing_Utilities;
 
@@ -336,7 +334,11 @@ package body ESL.Packet is
 
    function Subevent (Obj : in Instance) return String is
    begin
-      return Obj.Field (Event_Subclass).Decoded_Value;
+      if Obj.Contains (Event_Subclass) then
+         return Obj.Field (Event_Subclass).Decoded_Value;
+      else
+         return "";
+      end if;
    end Subevent;
 
    ------------
@@ -345,7 +347,11 @@ package body ESL.Packet is
 
    function UUID (Obj : in Instance) return ESL.UUID.Instance is
    begin
-      return ESL.UUID.Create (Obj.Field (Unique_ID).Value);
+      if Obj.Contains (Unique_ID) then
+         return ESL.UUID.Create (Obj.Field (Unique_ID).Value);
+      else
+         return ESL.UUID.Null_UUID;
+      end if;
    end UUID;
 
    -----------------

@@ -23,7 +23,7 @@ package ESL.Trace is
 
    All_Debug_Information : constant Debug_Threshold_Levels;
 
-   type Kind is (Debug, Information, Error, Warning, Critical, Every);
+   type Kind is (Debug, Information, Error, Warning, Critical, Fixme, Every);
 
    procedure Mute (Trace : in Kind);
 
@@ -33,6 +33,9 @@ package ESL.Trace is
                      Context : in String := "";
                      Level   : in Debug_Threshold_Levels :=
                       Debug_Threshold_Levels'Last);
+
+   procedure Fixme (Message : in String;
+                    Context : in String := "");
 
    procedure Error (Message : in String;
                     Context : in String := "");

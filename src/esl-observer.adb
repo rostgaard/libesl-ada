@@ -36,7 +36,6 @@ package body ESL.Observer is
 
       Observer : Observer_Access := Observing.Observer_List;
    begin
-
       if Observer = null then
          ESL.Trace.Debug (Message => "None subscribed to event " &
                             Packet.Event'Img & " - consider muting.",

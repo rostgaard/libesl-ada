@@ -36,6 +36,8 @@ package ESL.Packet_Keys is
                            CHANNEL_HANGUP_COMPLETE,
                            CHANNEL_UNBRIDGE,
                            CHANNEL_DESTROY,
+                           MEDIA_BUG_START,
+                           MEDIA_BUG_STOP,
                            RELOADXML,
                            SHUTDOWN,
                            MODULE_UNLOAD,

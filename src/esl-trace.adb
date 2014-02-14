@@ -69,6 +69,22 @@ package body ESL.Trace is
       end if;
    end Error;
 
+   -------------
+   --  Fixme  --
+   -------------
+
+   procedure Fixme (Message : in String;
+                    Context : in String := "") is
+   begin
+      if not (Muted (Fixme) or Muted (Every)) then
+         if Context /= "" then
+            Put_Line (Kind'Image (Fixme) & ": " & Context & ": " & Message);
+         else
+            Put_Line (Kind'Image (Fixme) & ": " & Message);
+         end if;
+      end if;
+   end Fixme;
+
    -------------------
    --  Information  --
    -------------------
