@@ -53,7 +53,7 @@ install: all
 	install --target-directory=$(DESTDIR)$(PREFIX)/esl              lib/*
 	install --directory        $(DESTDIR)$(PREFIX)/include/esl
 	install --target-directory=$(DESTDIR)$(PREFIX)/include/esl      src/*.ad[sb]
-	-install --target-directory=$(DESTDIR)$(PREFIX)/include/esl      src/*/*.ad[sb]
+	install --target-directory=$(DESTDIR)$(PREFIX)/include/esl      external/*.ad[sb]
 	install --directory        $(DESTDIR)$(PREFIX)/lib/gnat
 	install esl.gpr.dist       $(DESTDIR)$(PREFIX)/lib/gnat/esl.gpr
 
