@@ -49,6 +49,8 @@ package ESL.Packet_Keys is
                            MESSAGE_WAITING,
                            PLAYBACK_START,
                            PLAYBACK_STOP,
+                           RECORD_START,
+                           RECORD_STOP,
                            BACKGROUND_JOB);
 
    type Inbound_Sub_Events is (FIFO_INFO);
