@@ -42,6 +42,7 @@ package ESL.Packet_Keys is
                            SHUTDOWN,
                            MODULE_UNLOAD,
                            CUSTOM,
+                           TRAP,
                            PRESENCE_IN,
                            CHANNEL_PROGRESS,
                            CALL_UPDATE,
@@ -51,6 +52,8 @@ package ESL.Packet_Keys is
                            PLAYBACK_STOP,
                            RECORD_START,
                            RECORD_STOP,
+                           PUBLISH,
+                           UNPUBLISH,
                            BACKGROUND_JOB);
 
    type Inbound_Sub_Events is (FIFO_INFO);
