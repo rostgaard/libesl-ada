@@ -19,6 +19,7 @@ package ESL.Command.Call_Management_Strings is
    --  Call Management strings.
 
    Originate     : constant String := "originate";
+   UUID_Break    : constant String := "uuid_break";
    UUID_Bridge   : constant String := "uuid_bridge";
    UUID_Kill     : constant String := "uuid_kill";
    UUID_Park     : constant String := "uuid_park";
@@ -26,5 +27,6 @@ package ESL.Command.Call_Management_Strings is
 
    -- Miscellaneous command strings.
    List_Users    : constant String := "list_users";
+   Flag_All      : constant String := "all";
 
 end ESL.Command.Call_Management_Strings;

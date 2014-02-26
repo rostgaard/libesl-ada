@@ -80,6 +80,56 @@ package body ESL.Command.Call_Management is
       return Obj;
    end Originate;
 
+   -----------------
+   --  Serialize  --
+   -----------------
+
+   function Serialize (Obj : in Instance)
+                       return Serialized_Command is
+      use Command_Component_Storage;
+      Buffer : Unbounded_String := Obj.Command & " ";
+   begin
+      Append (Buffer, Obj.Options.Serialize);
+
+      for C in Obj.Command_Components.Iterate loop
+         Append (Buffer, Element (C));
+
+         if C /= Obj.Command_Components.Last then
+            Append (Buffer, " ");
+         end if;
+      end loop;
+
+      case Obj.Show_As is
+         when Unspecified =>
+            null;
+         when XML =>
+            Append (Buffer, " as " & Obj.Show_As'Img);
+         when JSON =>
+            Append (Buffer, " as " & Obj.Show_As'Img);
+         when Delim =>
+            Append (Buffer, " as " & Obj.Show_As'Img & " ");
+            Append (Buffer, Obj.Delimiter);
+      end case;
+
+      return  To_String (Buffer);
+   end Serialize;
+
+   ------------------
+   --  UUID_Break  --
+   ------------------
+
+   function UUID_Break (UUID     : in ESL.UUID.Instance;
+                        Flag_All : in Boolean := False) return Instance is
+   begin
+      return Obj : Instance do
+         Obj.Set_Command (Call_Management_Strings.UUID_Break);
+         Obj.Add_Component (UUID.Serialize);
+         if Flag_All then
+            Obj.Add_Component (Call_Management_Strings.Flag_All);
+         end if;
+      end return;
+   end UUID_Break;
+
    -------------------
    --  UUID_Bridge  --
    -------------------

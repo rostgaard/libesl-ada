@@ -32,6 +32,10 @@ package ESL.Command.Call_Management is
                          Option : in     ESL.Command.Option.Instance);
    --  Adds an option to a given command.
 
+   overriding
+   function Serialize (Obj : in Instance)
+                       return Serialized_Command;
+
    procedure Break is null;
    --  Deprecated. See uuid_break.
 
@@ -136,8 +140,8 @@ package ESL.Command.Call_Management is
    --  Usage: uuid_audio <uuid> [start [read|write] [mute|level <level>]|stop]
    procedure UUID_Audio_Stop (UUID  : in String) is null;
 
-   procedure UUID_Break (UUID     : in String;
-                         Flag_All : in Boolean) is null;
+   function UUID_Break (UUID     : in ESL.UUID.Instance;
+                        Flag_All : in Boolean := False) return Instance;
    --  Break out of media being sent to a channel. For example, if an audio
    --  file is being played to a channel, issuing uuid_break will discontinue
    --  the media and the call will move on in the dialplan, script, or
