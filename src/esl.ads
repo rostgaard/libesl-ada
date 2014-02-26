@@ -18,7 +18,7 @@
 package ESL is
    pragma Pure;
 
-   type Serialized_Command is new String;
+   subtype Serialized_Command is String;
 
    End_Line_String   : constant String := ASCII.CR & ASCII.LF;
    End_Packet_String : constant String := End_Line_String & End_Line_String;
