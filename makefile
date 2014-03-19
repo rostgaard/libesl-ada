@@ -71,9 +71,8 @@ tester: external_libs/lib/ahven
 xml_tests: tester
 	@-mkdir ${AHVEN_XML_DIR}
 	./tester -q -x -d ${AHVEN_XML_DIR} > /dev/null
-tests:
-	@./tests/build
-	@./tests/run
+
+tests: xml_tests
 
 tests_clean:
 	@-rm esl-client-tasking-test esl-packet_content_type-test esl-packet-test parser
