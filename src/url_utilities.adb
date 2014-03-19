@@ -17,7 +17,7 @@
 
 with Ada.Characters.Handling;
 
-with Hex_Utilites;
+with Hex_Utilities;
 
 package body URL_Utilities is
    subtype Escape_Code is String (1 .. 2);
@@ -57,7 +57,7 @@ package body URL_Utilities is
 
    function Code (C : Character) return Escape_Code is
    begin
-      return Hex_Utilites.Hex (Character'Pos (C));
+      return Hex_Utilities.Hex (Character'Pos (C));
    end Code;
 
    Hex_Escape : constant ASCII_7_Set :=  Build_Hex_Escape;
@@ -87,7 +87,7 @@ package body URL_Utilities is
            and then Ada.Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
          then
             Res (K) := Character'Val
-              (Hex_Utilites.Hex_Value (Str (I + 1 .. I + 2)));
+              (Hex_Utilities.Hex_Value (Str (I + 1 .. I + 2)));
             I := I + 2;
 
          elsif Str (I) = '+' then

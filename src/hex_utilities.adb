@@ -19,7 +19,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings;
 with Ada.Integer_Text_IO;
 
-package body Hex_Utilites is
+package body Hex_Utilities is
    ---------
    -- Hex --
    ---------
@@ -98,4 +98,4 @@ package body Hex_Utilites is
 
       return R;
    end Hex_Value;
-end Hex_Utilites;
+end Hex_Utilities;

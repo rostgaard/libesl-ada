@@ -17,7 +17,7 @@
 
 --  This file originates from AWS.Utils.
 
-package Hex_Utilites is
+package Hex_Utilities is
 
    function Hex (V : Natural; Width : Natural := 0) return String;
    --  Returns the hexadecimal string representation of the decimal
@@ -28,4 +28,4 @@ package Hex_Utilites is
    --  Returns the value for the hexadecimal number Hex. Raises
    --  Constraint_Error is Hex is not an hexadecimal number.
 
-end Hex_Utilites;
+end Hex_Utilities;
