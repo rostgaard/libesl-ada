@@ -221,10 +221,6 @@ package body ESL.Parsing_Utilities is
             end;
          end if;
 
-         ESL.Trace.Debug
-           (Message => "Got Packet" & Packet.Header.Content_Type'Img,
-            Context => Context);
-
          return Packet;
       end;
    end Read_Packet;

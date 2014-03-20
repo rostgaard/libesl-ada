@@ -15,6 +15,8 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
+--  Parsing utilities for reading in packets directly from a stream.
+
 with Ada.Streams;
 
 with ESL.Packet;
