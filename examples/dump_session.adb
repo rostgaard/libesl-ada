@@ -22,20 +22,35 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
 
 with ESL.Parsing_Utilities;
-with ESL.Client.Tasking;
+with ESL.Basic_Client;
 with ESL.Trace;
+with ESL.Packet;
+with ESL.Packet_Content_Type;
 with ESL;
 
 procedure Dump_Session is
    use ESL;
+   use ESL.Basic_Client;
    use ESL.Trace;
    use ESL.Parsing_Utilities;
 
-   Client : ESL.Client.Tasking.Instance
-     (On_Connect_Handler    => ESL.Client.Ignore_Event,
-      On_Disconnect_Handler => ESL.Client.Ignore_Event);
+   procedure Handle_Authentication;
+
+   Client : ESL.Basic_Client.Instance;
 
    procedure Usage;
+
+   procedure Handle_Authentication is
+      use ESL.Packet_Content_Type;
+      Current_Packet : ESL.Packet.Instance := ESL.Packet.Empty_Packet;
+   begin
+      --  Skip until the auth request.
+      while Current_Packet.Content_Type /= Auth_Request loop
+         Current_Packet := ESL.Parsing_Utilities.Read_Packet (Client.Stream);
+      end loop;
+
+      Client.Authenticate (Password => Argument (3));
+   end Handle_Authentication;
 
    procedure Usage is
    begin
@@ -44,8 +59,6 @@ procedure Dump_Session is
       Set_Exit_Status (Failure);
    end Usage;
 begin
-   raise Program_Error with "Deprecated example!";
-
    ESL.Trace.Unmute (Every);
 
    if Argument_Count < 3 then
@@ -54,9 +67,10 @@ begin
    end if;
 
    Client.Connect (Argument (1), Natural'Value (Argument (2)));
-   Client.Authenticate (Password => Argument (3));
+   Handle_Authentication;
 
-   Client.Send ("event plain all");
+   Client.Unmute_Event (Format => Plain,
+                        Event  => "all");
 
    loop
       Put_Line (ESL.Parsing_Utilities.Get_Line (Stream => Client.Stream));

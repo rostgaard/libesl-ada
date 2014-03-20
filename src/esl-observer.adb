@@ -29,9 +29,8 @@ package body ESL.Observer is
       Register (Observer.Observing, Observer'Access);
    end Initialize;
 
-   procedure Notify_Observers (Observing : in out Observables;
-                               Packet    : in     ESL.Packet.Instance;
-                               Client    : in     ESL.Client.Reference) is
+   procedure Notify_Observers (Observing : in out Observables'Class;
+                               Packet    : in     ESL.Packet.Instance) is
       Context : constant String := Package_Name & ".Notify_Observers";
 
       Observer : Observer_Access := Observing.Observer_List;
@@ -44,8 +43,7 @@ package body ESL.Observer is
 
       while Observer /= null loop
          Notify (Observer => Observer,
-                 Packet   => Packet,
-                 Client   => Client);
+                 Packet   => Packet);
          Observer := Observer.Next;
       end loop;
    end Notify_Observers;

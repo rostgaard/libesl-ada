@@ -16,7 +16,6 @@
 -------------------------------------------------------------------------------
 
 with ESL.Packet;
-with ESL.Client;
 
 private with Ada.Finalization;
 
@@ -27,16 +26,14 @@ package ESL.Observer is
    type Observables is
      abstract tagged limited private;
 
-   procedure Notify_Observers (Observing : in out Observables;
-                               Packet    : in     ESL.Packet.Instance;
-                               Client    : in     ESL.Client.Reference);
+   procedure Notify_Observers (Observing : in out Observables'Class;
+                               Packet    : in     ESL.Packet.Instance);
 
    type Observers (Observing : access Observables'Class) is
      abstract tagged limited private;
 
    procedure Notify (Observer : access Observers;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference) is abstract;
+                     Packet   : in     ESL.Packet.Instance) is abstract;
 
 private
    use Ada.Finalization;

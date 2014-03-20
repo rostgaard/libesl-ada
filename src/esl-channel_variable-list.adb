@@ -67,7 +67,7 @@ package body ESL.Channel_Variable.List is
          return To_String
            (Obj.Storage.Element (To_Unbounded_String (Key)).Value);
       else
-         raise Not_Found;
+         raise Not_Found with "Key : " & Key;
       end if;
    end Get;
 

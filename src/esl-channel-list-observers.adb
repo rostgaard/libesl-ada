@@ -22,11 +22,8 @@ package body ESL.Channel.List.Observers is
    use ESL.Trace;
 
    procedure Notify (Observer : access State_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference) is
+                     Packet   : in     ESL.Packet.Instance) is
       Context : constant String := Package_Name & "Nofity (State_Observer)";
-      pragma Unreferenced (Client);
-
    begin
 
       --  TODO: FIX
@@ -41,20 +38,17 @@ package body ESL.Channel.List.Observers is
    end Notify;
 
    procedure Notify (Observer : access Answer_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference) is
+                     Packet   : in     ESL.Packet.Instance) is
       Context : constant String := Package_Name & "Nofity (Answer_Observer)";
 
-      pragma Unreferenced (Observer, Packet, Client);
+      pragma Unreferenced (Observer, Packet);
    begin
       ESL.Trace.Debug (Message => "Triggered",
                        Context => Context);
    end Notify;
 
    procedure Notify (Observer : access Create_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference) is
-      pragma Unreferenced (Client);
+                     Packet   : in     ESL.Packet.Instance) is
 
       Context : constant String := Package_Name & "Nofity (Create_Observer)";
       C       : constant Channel.Instance := Channel.Create (Packet => Packet);

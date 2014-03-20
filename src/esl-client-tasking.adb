@@ -270,8 +270,7 @@ package body ESL.Client.Tasking is
          begin
             ESL.Observer.Notify_Observers
               (Observing => Observing,
-               Packet    => Packet,
-               Client    => ESL.Client.Reference (Client));
+               Packet    => Packet);
          end;
       elsif Packet.Is_Response then
          Trace.Debug (Context => Context,
@@ -288,7 +287,7 @@ package body ESL.Client.Tasking is
                           Context => Context);
          ESL.Trace.Error (Message => "Packet dump follows=====>",
                           Context => Context);
-         ESL.Trace.Error (Message => Packet.Payload,
+         ESL.Trace.Error (Message => Packet.Raw_Payload,
                           Context => Context);
          ESL.Trace.Error (Message => "<======Packet dump End",
                           Context => Context);

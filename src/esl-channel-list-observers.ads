@@ -46,8 +46,7 @@ package ESL.Channel.List.Observers is
 
    overriding
    procedure Notify (Observer : access State_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+                     Packet   : in     ESL.Packet.Instance);
 
    type Answer_Observer is
      new ESL.Observer.Event_Observers.Instance with
@@ -57,8 +56,7 @@ package ESL.Channel.List.Observers is
 
    overriding
    procedure Notify (Observer : access Answer_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+                     Packet   : in     ESL.Packet.Instance);
 
    type Create_Observer is
      new ESL.Observer.Event_Observers.Instance with
@@ -68,6 +66,5 @@ package ESL.Channel.List.Observers is
 
    overriding
    procedure Notify (Observer : access Create_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference);
+                     Packet   : in     ESL.Packet.Instance);
 end ESL.Channel.List.Observers;

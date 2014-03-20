@@ -37,9 +37,7 @@ package body ESL.Job.List is
    end Image;
 
    procedure Notify (Observer : access Job_Observer;
-                     Packet   : in     ESL.Packet.Instance;
-                     Client   : in     ESL.Client.Reference) is
-      pragma Unreferenced (Client);
+                     Packet   : in     ESL.Packet.Instance) is
    begin
       Observer.Job_List.Push (Packet => Packet);
    end Notify;

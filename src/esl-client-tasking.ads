@@ -36,7 +36,7 @@ package ESL.Client.Tasking is
 
    procedure Disconnect (Client : in out Instance);
 
-   type Event_Streams is new ESL.Observer.Observables with null record;
+   type Event_Streams is new ESL.Observer.Observables with private;
 
    type Event_Streams_Access is access all Event_Streams;
 
@@ -80,7 +80,12 @@ package ESL.Client.Tasking is
                          "Program_Error will be raise at run-time.");
    --  Disables Receiving calls as we are now handling it internally.
 
+   type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
+     of aliased Event_Streams;
+
 private
+   type Event_Streams is new ESL.Observer.Observables with null record;
+
 --   use ESL.Job;
 
 --     package Packet_Storage is new Ada.Containers.Ordered_Sets
@@ -96,9 +101,6 @@ private
    procedure Free is new Ada.Unchecked_Deallocation
      (Object => Stream_Reader,
       Name   => Stream_Reader_Reference);
-
-   type Client_Event_Listeners is array (ESL.Packet_Keys.Inbound_Events)
-     of aliased Event_Streams;
 
    type Client_Sub_Event_Listeners is array
      (ESL.Packet_Keys.Inbound_Sub_Events) of aliased Event_Streams;
