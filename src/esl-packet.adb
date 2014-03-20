@@ -44,8 +44,7 @@ package body ESL.Packet is
             raise Program_Error with "Not implemented";
 
          when Text_Event_JSON =>
-            return Obj.JSON.Has_Field
-              (Field => String_Key (Key).all);
+            raise Program_Error with "Not implemented";
       end case;
 
    end Contains;
@@ -82,7 +81,6 @@ package body ESL.Packet is
    begin
       return (Header    => Packet_Header.Empty_Header,
               Raw_Body  => Null_Unbounded_String,
-              JSON      => GNATCOLL.JSON.Create,
               Payload   => Payload_Storage.Empty_Map,
               Variables => Channel_Variable.List.Create);
    end Empty_Packet;
@@ -157,7 +155,7 @@ package body ESL.Packet is
             raise Program_Error with "Not implemented";
 
          when Text_Event_JSON =>
-            return Create (Key, Obj.JSON.Get (Field => String_Key (Key).all));
+            raise Program_Error with "Not implemented";
       end case;
 
    end Field;
@@ -187,19 +185,11 @@ package body ESL.Packet is
 
    function Image (Obj : in Instance) return String is
    begin
-      if Obj.Header.Content_Type = Text_Event_JSON then
-         return "Content_Type:" & Image (Obj.Header.Content_Type) &
-           ASCII.LF & ASCII.LF &
-           "Headers:" & ASCII.LF &
-           Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
-           Obj.JSON.Write;
-      end if;
-
       return "Content_Type:" & Image (Obj.Header.Content_Type) &
         ASCII.LF & ASCII.LF &
         "Headers:" & ASCII.LF &
         Packet_Header.Image (Obj.Header) & ASCII.LF & ASCII.LF &
-        "Payload:" & ASCII.LF & Image (Obj.Payload);
+        "Payload:" & ASCII.LF & Obj.Raw_Payload;
    end Image;
 
    function Image (List : Payload_Storage.Map) return String is
@@ -230,10 +220,10 @@ package body ESL.Packet is
    --  Payload  --
    ---------------
 
-   function Payload (Obj : in Instance) return String is
+   function Raw_Payload (Obj : in Instance) return String is
    begin
       return To_String (Obj.Raw_Body);
-   end Payload;
+   end Raw_Payload;
 
    ----------------------------
    --  Process_And_Add_Body  --
@@ -259,10 +249,9 @@ package body ESL.Packet is
          --  The disconnect notices merely contain a cleartext information
          --  about going to ClueCon, so we ignore these as well.
          return;
-      elsif Obj.Header.Content_Type = Text_Event_JSON then
-         Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
+--        elsif Obj.Header.Content_Type = Text_Event_JSON then
+--           Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
          --  JSON fields can be easily
-         return;
       end if;
 
       for I in Raw_Data'Range loop

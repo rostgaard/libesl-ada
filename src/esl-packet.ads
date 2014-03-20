@@ -18,7 +18,6 @@
 with Ada.Containers.Hashed_Maps;
 --  with Ada.Finalization;
 private with Ada.Strings.Unbounded;
-private with GNATCOLL.JSON;
 
 with ESL.Channel_Variable.List;
 with ESL.Packet_Field;
@@ -40,7 +39,7 @@ package ESL.Packet is
    procedure Push_Header (Obj   :    out Instance;
                           Field : in     Header_Field.Instance);
 
-   function Payload (Obj : in Instance) return String;
+   function Raw_Payload (Obj : in Instance) return String;
 
    function Create return Instance;
 
@@ -98,7 +97,6 @@ private
    type Instance is tagged record
       Header         : Packet_Header.Instance   := Packet_Header.Empty_Header;
       Raw_Body       : Unbounded_String         := Null_Unbounded_String;
-      JSON           : GNATCOLL.JSON.JSON_Value := GNATCOLL.JSON.Create;
       Payload        : Payload_Storage.Map      := Payload_Storage.Empty_Map;
       Variables      : Channel_Variable.List.Instance;
    end record;
