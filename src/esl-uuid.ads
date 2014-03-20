@@ -18,6 +18,7 @@
 private with Ada.Strings.Unbounded;
 
 package ESL.UUID is
+
    type Instance is tagged private;
 
    function Create (Item : in String) return UUID.Instance;
