@@ -17,7 +17,7 @@
 
 with Ada.Strings.Fixed; use Ada.Strings.Fixed; -- For Index
 with Ada.Strings.Maps;
-
+with Ada.IO_Exceptions;
 with ESL.Trace;
 
 package body ESL.Parsing_Utilities is
@@ -57,6 +57,11 @@ package body ESL.Parsing_Utilities is
       end loop;
 
       return Buffer (Buffer'First .. Buffer'First + Offset - 1);
+   exception
+      when ADA.IO_EXCEPTIONS.END_ERROR =>
+         raise Disconnected with "Current buffer: " &
+           Buffer (Buffer'First .. Buffer'First + Offset - 1);
+
    end Get_Line;
 
    ------------------

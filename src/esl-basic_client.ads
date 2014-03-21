@@ -123,7 +123,7 @@ package ESL.Basic_Client is
    function Stream (Obj : in Instance)
                     return Ada.Streams.Stream_IO.Stream_Access;
 
-   procedure Signal_Disconnect (Obj : in Instance);
+   procedure Signal_Disconnect (Obj : out Instance);
 
    procedure Authenticate (Client   : in out Instance;
                            Password : in     String);

@@ -312,9 +312,10 @@ package body ESL.Basic_Client is
    --  Signal_Disconnect  --
    -------------------------
 
-   procedure Signal_Disconnect (Obj : in Instance) is
+   procedure Signal_Disconnect (Obj : out Instance) is
       Context : constant String := Package_Name & ".Signal_Disconnect";
    begin
+      Obj.Change_State (New_State => Disconnected);
       ESL.Trace.Information (Message => "Signaled!",
                              Context => Context);
    end Signal_Disconnect;
