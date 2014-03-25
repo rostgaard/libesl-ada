@@ -330,6 +330,15 @@ package body ESL.Packet is
       end if;
    end Subevent;
 
+   function Other_Leg (Obj : in Instance) return ESL.UUID.Instance is
+   begin
+      if Obj.Contains (Other_Leg_Unique_ID) then
+         return ESL.UUID.Create (Obj.Field (Other_Leg_Unique_ID).Value);
+      else
+         return ESL.UUID.Null_UUID;
+      end if;
+   end Other_Leg;
+
    ------------
    --  UUID  --
    ------------

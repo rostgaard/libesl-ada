@@ -68,6 +68,8 @@ package ESL.Packet is
 
    function UUID (Obj : in Instance) return ESL.UUID.Instance;
 
+   function Other_Leg (Obj : in Instance) return ESL.UUID.Instance;
+
    function Subevent (Obj : in Instance) return String;
 
    function Variables (Obj : in Instance)
