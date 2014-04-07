@@ -195,12 +195,15 @@ package body ESL.Packet is
    function Image (List : Payload_Storage.Map) return String is
       use Payload_Storage;
       Buffer : Unbounded_String;
+      C      : Cursor := List.First;
    begin
-      for C in List.Iterate loop
+      while C /= No_Element loop
          Append (Buffer, Element (C).Key'Img);
          Append (Buffer, ": ");
          Append (Buffer, Element (C).Value);
          Append (Buffer, ASCII.LF);
+
+         Next (C);
       end loop;
       return To_String (Buffer);
    end Image;
@@ -216,14 +219,14 @@ package body ESL.Packet is
         Obj.Header.Content_Type = Command_Reply;
    end Is_Response;
 
-   ---------------
-   --  Payload  --
-   ---------------
-
-   function Raw_Payload (Obj : in Instance) return String is
+   function Other_Leg (Obj : in Instance) return ESL.UUID.Instance is
    begin
-      return To_String (Obj.Raw_Body);
-   end Raw_Payload;
+      if Obj.Contains (Other_Leg_Unique_ID) then
+         return ESL.UUID.Create (Obj.Field (Other_Leg_Unique_ID).Value);
+      else
+         return ESL.UUID.Null_UUID;
+      end if;
+   end Other_Leg;
 
    ----------------------------
    --  Process_And_Add_Body  --
@@ -232,8 +235,6 @@ package body ESL.Packet is
    procedure Process_And_Add_Body (Obj      : in out Instance;
                                    Raw_Data : in     String) is
       use Parsing_Utilities;
-
-      Context    : constant String := Package_Name & ".Process_And_Add_Body";
 
       Linebuffer : String (Raw_Data'Range) := (others => ASCII.NUL);
       Position   : Natural := Raw_Data'First;
@@ -249,9 +250,6 @@ package body ESL.Packet is
          --  The disconnect notices merely contain a cleartext information
          --  about going to ClueCon, so we ignore these as well.
          return;
---        elsif Obj.Header.Content_Type = Text_Event_JSON then
---           Obj.JSON := GNATCOLL.JSON.Read (Raw_Data, "json.errors");
-         --  JSON fields can be easily
       end if;
 
       for I in Raw_Data'Range loop
@@ -317,6 +315,15 @@ package body ESL.Packet is
       Obj.Header.Add_Header (Field => Field);
    end Push_Header;
 
+   ---------------
+   --  Payload  --
+   ---------------
+
+   function Raw_Payload (Obj : in Instance) return String is
+   begin
+      return To_String (Obj.Raw_Body);
+   end Raw_Payload;
+
    ----------------
    --  Subevent  --
    ----------------
@@ -329,15 +336,6 @@ package body ESL.Packet is
          return "";
       end if;
    end Subevent;
-
-   function Other_Leg (Obj : in Instance) return ESL.UUID.Instance is
-   begin
-      if Obj.Contains (Other_Leg_Unique_ID) then
-         return ESL.UUID.Create (Obj.Field (Other_Leg_Unique_ID).Value);
-      else
-         return ESL.UUID.Null_UUID;
-      end if;
-   end Other_Leg;
 
    ------------
    --  UUID  --

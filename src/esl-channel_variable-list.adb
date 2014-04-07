@@ -91,11 +91,15 @@ package body ESL.Channel_Variable.List is
    function Image (Obj : in Instance) return String is
       use Variable_Storage;
       Buffer : Unbounded_String;
+      C      : Cursor := Obj.Storage.First;
    begin
-      for C in Obj.Storage.Iterate loop
+      while C /= No_Element loop
          Append (Buffer, Element (C).Image);
          Append (Buffer, ASCII.LF);
+
+         Next (C);
       end loop;
+
       return To_String (Buffer);
    end Image;
 

@@ -33,12 +33,23 @@ package body ESL.Command.Option_List is
          return "";
       end if;
 
-      for C in Obj.Options.Iterate loop
-         Append (Buffer, To_Unbounded_String (String (Element (C).Serialize)));
-         if C /= Obj.Options.Last then
-            Append (Buffer, Option_Separator);
-         end if;
-      end loop;
+      declare
+         C : Cursor := Obj.Options.First;
+      begin
+         while C /= No_Element loop
+            Append (Buffer,
+                    To_Unbounded_String (String (Element (C).Serialize)));
+
+            if C = Obj.Options.Last then
+               exit;
+            else
+               Append (Buffer, Option_Separator);
+            end if;
+
+            Next (C);
+         end loop;
+      end;
+
       return Serialized_Command ("{" & To_String (Buffer) & "}");
    end Serialize;
 

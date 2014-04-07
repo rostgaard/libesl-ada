@@ -15,9 +15,8 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed.Equal_Case_Insensitive;
-
-with ESL.Trace;
+with ESL.Case_Insensitive_Equal,
+     ESL.Trace;
 
 package body ESL.Command is
 
@@ -27,9 +26,8 @@ package body ESL.Command is
 
    function "=" (Left, Right : in Serialized_Command) return Boolean is
    begin
-      return Ada.Strings.Fixed.Equal_Case_Insensitive
-        (Left  => String (Left),
-         Right => String (Right));
+      return Case_Insensitive_Equal (Left  => String (Left),
+                                     Right => String (Right));
    end "=";
 
    ---------------------
@@ -56,13 +54,18 @@ package body ESL.Command is
                        return Serialized_Command is
       use Command_Component_Storage;
       Buffer : Unbounded_String := Obj.Command & " ";
+      C      : Cursor := Obj.Command_Components.First;
    begin
-      for C in Obj.Command_Components.Iterate loop
+      while C /= No_Element loop
          Append (Buffer, Element (C));
 
-         if C /= Obj.Command_Components.Last then
+         if C = Obj.Command_Components.Last then
+            exit;
+         else
             Append (Buffer, " ");
          end if;
+
+         Next (C);
       end loop;
 
       case Obj.Show_As is
