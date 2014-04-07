@@ -135,12 +135,15 @@ package body ESL.Packet_Header is
       use Header_Storage;
 
       Buffer : Unbounded_String;
+      C      : Cursor := Item.Fields.First;
    begin
-      for C in Item.Fields.Iterate loop
+      while C/= No_Element loop
          Append (Buffer, (Key (C)'Img));
          Append (Buffer, ": ");
          Append (Buffer, Element (C).Value);
          Append (Buffer, ASCII.LF);
+
+         Next (C);
       end loop;
       return To_String (Buffer);
    end Image;
