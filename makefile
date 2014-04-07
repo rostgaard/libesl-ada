@@ -25,14 +25,8 @@ all: ${LIBNAME}
 
 esl: esl_build
 
-${LIBNAME}_build:
-	-mkdir -p lib
-	-mkdir -p build debug
-	-gnatmake -P esl_build && touch esl
-
-debug:
-	mkdir -p debug
-	BUILDTYPE=Debug gnatmake -P esl_build
+${LIBNAME}_build: fix-whitespace
+	-gnatmake -p -P esl_build && touch esl
 
 clean: tests_clean
 	gnatclean -P esl_build
@@ -95,5 +89,8 @@ parser:
 examples:
 	mkdir -p build debug
 	${GNATMAKE} -P examples/examples.gpr
+
+fix-whitespace:
+	@find src tests -name '*.ad?' | xargs --no-run-if-empty egrep -l '	| $$' | grep -v '^b[~]' | xargs --no-run-if-empty perl -i -lpe 's|	|        |g; s| +$$||g'
 
 .PHONY: debug tests esl-client-tasking-test examples tester
