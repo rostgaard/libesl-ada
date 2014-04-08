@@ -1,15 +1,13 @@
-# Build and other transient directories
-build/
-debug/
-external_libs/
-downloads/
-xml_results/
+# Transient directories
+/external_libs/
+/downloads/
+/xml_results/
 
 # Do not track build objects.
-build*/*
-!build*/.gitignore
-lib/
-esl
+/build/
+/lib/
+/esl
+/tester
 
 # Do not track emacs temporary and backup files
 \#*#
@@ -25,4 +23,5 @@ esl
 TODO
 
 # Local files @sparre
-test_and_push_to_master
+/to_master
+
