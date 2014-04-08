@@ -62,7 +62,7 @@ tester: fix-whitespace esl_build external_libs/lib/ahven
 	${GNATMAKE} -p -P test tester
 
 xml_tests: tester
-	@-mkdir ${AHVEN_XML_DIR}
+	@mkdir -p ${AHVEN_XML_DIR}
 	./tester -q -x -d ${AHVEN_XML_DIR} > /dev/null
 
 tests: xml_tests
@@ -92,4 +92,4 @@ examples:
 fix-whitespace:
 	@find . -name '*.ad?' | xargs --no-run-if-empty egrep -l '	| $$' | grep -v '^b[~]' | xargs --no-run-if-empty perl -i -lpe 's|	|        |g; s| +$$||g'
 
-.PHONY: debug tests esl-client-tasking-test examples tester
+.PHONY: debug tests esl-client-tasking-test examples tester xml_tests
