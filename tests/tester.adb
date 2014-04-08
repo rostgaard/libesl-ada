@@ -1,7 +1,7 @@
 with Ahven.Text_Runner;
 with Ahven.Framework;
 
-with ESL.Client.Test;
+--  with ESL.Client.Test;
 with ESL.Command.Test;
 with ESL.Job.List.Test;
 

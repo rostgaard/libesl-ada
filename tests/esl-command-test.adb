@@ -25,11 +25,7 @@ with ESL.Command.Call_Management;
 package body ESL.Command.Test is
    use Ada.Assertions;
 
-   procedure Set_Up (T : in out Instance) is
-   begin
-      ESL.Trace.Unmute (ESL.Trace.Every);
-   end Set_Up;
-
+   overriding
    procedure Initialize (T : in out Instance) is
    begin
       Set_Name (T, Package_Name);
@@ -57,6 +53,13 @@ package body ESL.Command.Test is
          Ahven.Fail (String (Command.Serialize) & " /= " & Expected);
       end if;
    end Originate_Test;
+
+   overriding
+   procedure Set_Up (T : in out Instance) is
+      pragma Unreferenced (T);
+   begin
+      ESL.Trace.Unmute (ESL.Trace.Every);
+   end Set_Up;
 
    -----------------------
    --  Show_Calls_Test  --

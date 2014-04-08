@@ -25,7 +25,9 @@ package ESL.Job.List.Test is
    Package_Name : constant String := "ESL.Job.List.Test";
 
    type Instance is new Ahven.Framework.Test_Case with null record;
+   overriding
    procedure Initialize (T : in out Instance);
+   overriding
    procedure Set_Up (T : in out Instance);
 
 private

@@ -25,7 +25,9 @@ package ESL.Command.Test is
    Package_Name : constant String := "ESL.Command.Test";
 
    type Instance is new Ahven.Framework.Test_Case with null record;
+   overriding
    procedure Initialize (T : in out Instance);
+   overriding
    procedure Set_Up (T : in out Instance);
 
 private

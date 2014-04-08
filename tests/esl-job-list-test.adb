@@ -45,7 +45,47 @@ package body ESL.Job.List.Test is
    UUID    : constant ESL.UUID.Instance := ESL.UUID.Create
      (Item => "17186fe1-2177-4ab8-ac20-b0cbdfd45353");
 
+   procedure Early_Pop is
+      List    : ESL.Job.List.Instance;
+   begin
+      List.Pop (UUID => UUID, Job => Job);
+      raise Assertion_Error with "Expected exception in previous call.";
+   exception
+      when ESL.Job.List.Not_Done =>
+         null; --  We're good, this is supposed to happen.
+   end Early_Pop;
+
+   overriding
+   procedure Initialize (T : in out Instance) is
+   begin
+      Set_Name (T, Package_Name);
+
+      Ahven.Framework.Add_Test_Routine
+        (T, Early_Pop'Access, "Early_Pop");
+      Ahven.Framework.Add_Test_Routine
+        (T, Resubscribe_Test'Access, "Resubscribe_Test");
+      Ahven.Framework.Add_Test_Routine
+        (T, Timeout_Test_No_Reply'Access, "Timeout test (no reply)");
+--        Ahven.Framework.Add_Test_Routine
+--          (T, Timeout_Test_Reply'Access, "Timeout test (with timely reply)");
+   end Initialize;
+
+   procedure Resubscribe_Test is
+      List    : ESL.Job.List.Instance;
+   begin
+      List.Subscribe (UUID => UUID);
+      begin
+         List.Subscribe (UUID => UUID);
+         raise Assertion_Error with "Expected exception in previous call.";
+      exception
+         when Constraint_Error =>
+            null; --  We're good, this is supposed to happen.
+      end;
+   end Resubscribe_Test;
+
+   overriding
    procedure Set_Up (T : in out Instance) is
+      pragma Unreferenced (T);
    begin
       ESL.Trace.Unmute (Every);
 
@@ -61,29 +101,6 @@ package body ESL.Job.List.Test is
       end loop;
 
    end Set_Up;
-
-   procedure Early_Pop is
-      List    : ESL.Job.List.Instance;
-   begin
-      List.Pop (UUID => UUID, Job => Job);
-      raise Assertion_Error with "Expected exception in previous call.";
-   exception
-      when ESL.Job.List.Not_Done =>
-         null; --  We're good, this is supposed to happen.
-   end Early_Pop;
-
-   procedure Resubscribe_Test is
-      List    : ESL.Job.List.Instance;
-   begin
-      List.Subscribe (UUID => UUID);
-      begin
-         List.Subscribe (UUID => UUID);
-         raise Assertion_Error with "Expected exception in previous call.";
-      exception
-         when Constraint_Error =>
-            null; --  We're good, this is supposed to happen.
-      end;
-   end Resubscribe_Test;
 
    procedure Timeout_Test_No_Reply is
       List    : ESL.Job.List.Instance;
@@ -116,18 +133,4 @@ package body ESL.Job.List.Test is
 
       List.Wait_For (UUID => UUID, Job => Job, Timeout => 0.5);
    end Timeout_Test_Reply;
-
-   procedure Initialize (T : in out Instance) is
-   begin
-      Set_Name (T, Package_Name);
-
-      Ahven.Framework.Add_Test_Routine
-        (T, Early_Pop'Access, "Early_Pop");
-      Ahven.Framework.Add_Test_Routine
-        (T, Resubscribe_Test'Access, "Resubscribe_Test");
-      Ahven.Framework.Add_Test_Routine
-        (T, Timeout_Test_No_Reply'Access, "Timeout test (no reply)");
---        Ahven.Framework.Add_Test_Routine
---          (T, Timeout_Test_Reply'Access, "Timeout test (with timely reply)");
-   end Initialize;
 end ESL.Job.List.Test;
