@@ -16,8 +16,7 @@
 with "common";
 
 library project ESL_Build is
-   Source_Options := ("src", "external");
-   for Source_Dirs use Source_Options;
+   for Source_Dirs use ("src", "external");
 
    for Object_Dir   use "build";
    for Library_Dir  use "lib";

@@ -1,7 +1,4 @@
-project Common is
-   Source_Options := ("src/**", "examples/**", "external/");
-   for Source_Dirs use Source_Options;
-
+abstract project Common is
    for Exec_Dir use ".";
 
    for Object_Dir use "build";
@@ -9,6 +6,11 @@ project Common is
    package IDE is
       for Compiler_Command ("ada") use "gnatmake";
    end IDE;
+
+   package Builder is
+      for Default_Switches ("Ada")
+        use ("-m");
+   end Builder;
 
    package Compiler is
       for Default_Switches ("Ada")
@@ -25,4 +27,3 @@ project Common is
              "-O2");                        --  Optimise (level 2/3)
    end Compiler;
 end Common;
-
