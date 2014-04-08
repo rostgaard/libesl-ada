@@ -26,7 +26,7 @@ all: ${LIBNAME}
 esl: esl_build
 
 ${LIBNAME}_build: fix-whitespace
-	-gnatmake -p -P esl_build && touch esl
+	-$(GNATMAKE) -p -P esl_build && touch esl
 
 clean: tests_clean
 	gnatclean -P esl_build
@@ -58,8 +58,8 @@ downloads/ahven-2.3:
 external_libs/lib/ahven: downloads/ahven-2.3
 	PREFIX=$(PWD)/external_libs make -C downloads/ahven-2.3 install_lib
 
-tester: external_libs/lib/ahven
-	${GNATMAKE} -P test tester
+tester: fix-whitespace esl_build external_libs/lib/ahven
+	${GNATMAKE} -p -P test tester
 
 xml_tests: tester
 	@-mkdir ${AHVEN_XML_DIR}
@@ -90,6 +90,6 @@ examples:
 	${GNATMAKE} -P examples/examples.gpr
 
 fix-whitespace:
-	@find src tests -name '*.ad?' | xargs --no-run-if-empty egrep -l '	| $$' | grep -v '^b[~]' | xargs --no-run-if-empty perl -i -lpe 's|	|        |g; s| +$$||g'
+	@find . -name '*.ad?' | xargs --no-run-if-empty egrep -l '	| $$' | grep -v '^b[~]' | xargs --no-run-if-empty perl -i -lpe 's|	|        |g; s| +$$||g'
 
 .PHONY: debug tests esl-client-tasking-test examples tester
