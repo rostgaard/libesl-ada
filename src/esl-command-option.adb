@@ -17,6 +17,7 @@
 
 package body ESL.Command.Option is
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean is
    begin
       return Left.Key = Right.Key;

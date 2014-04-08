@@ -27,6 +27,7 @@ package ESL.UUID is
 
    function Serialize (UUID : in Instance) return String renames Image;
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean;
 
    function "<" (Left, Right : in Instance) return Boolean;

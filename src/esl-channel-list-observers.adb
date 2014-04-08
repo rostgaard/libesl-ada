@@ -21,6 +21,7 @@ with ESL.Packet_Keys;
 package body ESL.Channel.List.Observers is
    use ESL.Trace;
 
+   overriding
    procedure Notify (Observer : access State_Observer;
                      Packet   : in     ESL.Packet.Instance) is
       Context : constant String := Package_Name & "Nofity (State_Observer)";
@@ -37,6 +38,7 @@ package body ESL.Channel.List.Observers is
                        Context => Context);
    end Notify;
 
+   overriding
    procedure Notify (Observer : access Answer_Observer;
                      Packet   : in     ESL.Packet.Instance) is
       Context : constant String := Package_Name & "Nofity (Answer_Observer)";
@@ -47,6 +49,7 @@ package body ESL.Channel.List.Observers is
                        Context => Context);
    end Notify;
 
+   overriding
    procedure Notify (Observer : access Create_Observer;
                      Packet   : in     ESL.Packet.Instance) is
 

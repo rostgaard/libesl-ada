@@ -25,7 +25,7 @@ package ESL.Command.Call_Management_Strings is
    UUID_Park     : constant String := "uuid_park";
    UUID_Transfer : constant String := "uuid_transfer";
 
-   -- Miscellaneous command strings.
+   --  Miscellaneous command strings.
    List_Users    : constant String := "list_users";
    Flag_All      : constant String := "all";
 

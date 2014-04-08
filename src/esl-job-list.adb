@@ -36,6 +36,7 @@ package body ESL.Job.List is
       return List.Storage.Image;
    end Image;
 
+   overriding
    procedure Notify (Observer : access Job_Observer;
                      Packet   : in     ESL.Packet.Instance) is
    begin

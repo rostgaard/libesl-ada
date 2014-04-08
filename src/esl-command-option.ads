@@ -25,6 +25,7 @@ package ESL.Command.Option is
    function Serialize (Obj : in Instance)
                        return Serialized_Command;
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean;
 private
 

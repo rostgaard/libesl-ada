@@ -15,9 +15,8 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with ESL.Observer.Event_Observers;
-with ESL.Packet;
-with ESL.Client;
+with ESL.Observer.Event_Observers,
+     ESL.Packet;
 
 package ESL.Channel.List.Observers is
 

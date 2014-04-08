@@ -60,7 +60,9 @@ private
         Next : Observer_Access := null;
      end record;
 
+   overriding
    procedure Initialize (Observer : in out Observers);
 
+   overriding
    procedure Finalize (Observer : in out Observers);
 end ESL.Observer;

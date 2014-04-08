@@ -308,6 +308,7 @@ package body ESL.Client.Tasking is
    --  Finalize  --
    ----------------
 
+   overriding
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
@@ -342,6 +343,7 @@ package body ESL.Client.Tasking is
    --  Initialize  --
    ------------------
 
+   overriding
    procedure Initialize (Obj : in out Instance) is
    begin
       Create_Selector (Obj.Selector);

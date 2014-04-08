@@ -75,6 +75,7 @@ package body ESL.Client is
    --  Finalize  --
    ----------------
 
+   overriding
    procedure Finalize (Obj : in out Instance) is
       Context : constant String := Package_Name & ".Finalize";
    begin
@@ -110,6 +111,7 @@ package body ESL.Client is
    --  Initialize  --
    ------------------
 
+   overriding
    procedure Initialize (Obj : in out Instance) is
    begin
       GNAT.Sockets.Create_Selector (Obj.Selector);
@@ -181,8 +183,11 @@ package body ESL.Client is
    -------------------------
 
    procedure Signal_Disconnect (Obj : in Instance) is
+      pragma Unreferenced (Obj); --  Why don't we reference 'Obj' here?
       Context : constant String := Package_Name & ".Signal_Disconnect";
    begin
+      ESL.Trace.Fixme (Message => "Why don't we reference 'Obj' here?",
+                       Context => Context);
       ESL.Trace.Information (Message => "Signaled!",
                              Context => Context);
    end Signal_Disconnect;

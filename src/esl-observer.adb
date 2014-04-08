@@ -19,11 +19,13 @@ with ESL.Trace;
 
 package body ESL.Observer is
 
+   overriding
    procedure Finalize (Observer : in out Observers) is
    begin
       Unregister (Observer.Observing, Observer'Access);
    end Finalize;
 
+   overriding
    procedure Initialize (Observer : in out Observers) is
    begin
       Register (Observer.Observing, Observer'Access);

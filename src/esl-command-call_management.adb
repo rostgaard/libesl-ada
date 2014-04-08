@@ -84,6 +84,7 @@ package body ESL.Command.Call_Management is
    --  Serialize  --
    -----------------
 
+   overriding
    function Serialize (Obj : in Instance)
                        return Serialized_Command is
       use Command_Component_Storage;

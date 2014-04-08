@@ -223,9 +223,10 @@ package body ESL.Basic_Client is
       end case;
    exception
       when GNAT.Sockets.Socket_Error =>
-         null; -- Ignore errors at this point, as we do not reuse sockets nor
-               -- care about what happens to them af they are requested to
-               -- to be shut down.
+         null;
+         --  Ignore errors at this point, as we do not reuse sockets
+         --  nor care about what happens to them af they are requested
+         --  to to be shut down.
    end Disconnect;
 
    ----------------

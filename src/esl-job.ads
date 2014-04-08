@@ -26,6 +26,7 @@ package ESL.Job is
 
    type Actions is (Unknown, Discard, Keep, Aborted, Ready);
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean;
 
    function "<" (Left, Right : in Instance) return Boolean;

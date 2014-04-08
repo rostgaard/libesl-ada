@@ -15,16 +15,16 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Finalization;
-with Ada.Unchecked_Deallocation;
-with Ada.Streams.Stream_IO;
+with Ada.Finalization,
+     Ada.Streams.Stream_IO,
+     Ada.Unchecked_Deallocation;
 
-private with GNAT.Sockets;
+with ESL.Command,
+     ESL.Outbund_Event,
+     ESL.Send_Message;
 
-with ESL.Outbund_Event;
-with ESL.Send_Message;
-with ESL.Command;
-with ESL.Channel.List;
+private
+with GNAT.Sockets;
 
 package ESL.Client is
    use ESL;
@@ -111,6 +111,7 @@ package ESL.Client is
    function Stream (Obj : in Instance)
                     return Ada.Streams.Stream_IO.Stream_Access;
 
+   overriding
    function "=" (Left, Right : in Reference) return Boolean;
 
    procedure Signal_Disconnect (Obj : in Instance);

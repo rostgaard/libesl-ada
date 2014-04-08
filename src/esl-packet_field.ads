@@ -42,6 +42,7 @@ package ESL.Packet_Field is
 
    function Decoded_Value (Obj : in Instance) return String;
 
+   overriding
    function "=" (Left  : in Instance;
                  Right : in Instance) return Boolean;
 
