@@ -30,7 +30,6 @@ ${LIBNAME}_build: fix-whitespace
 
 clean: tests_clean
 	gnatclean -P esl_build
-	BUILDTYPE=Debug gnatclean -P esl_build
 
 distclean: clean
 	-rm -rf downloads
