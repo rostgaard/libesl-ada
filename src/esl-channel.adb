@@ -15,10 +15,9 @@
 --                                                                           --
 -------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded.Hash_Case_Insensitive;
-
-with ESL.Packet_Keys;
-with ESL.Trace;
+with ESL.Packet_Keys,
+     ESL.Trace,
+     ESL.Unbounded_Case_Insensitive_Hash;
 
 package body ESL.Channel is
 
@@ -74,7 +73,7 @@ package body ESL.Channel is
 
    function Hash (Item : in Channel_Key) return Hash_Type is
    begin
-      return Hash_Case_Insensitive (Item);
+      return Unbounded_Case_Insensitive_Hash (Item);
    end Hash;
 
    -------------

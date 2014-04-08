@@ -88,15 +88,18 @@ package body ESL.Command.Call_Management is
                        return Serialized_Command is
       use Command_Component_Storage;
       Buffer : Unbounded_String := Obj.Command & " ";
+      C      : Cursor := Obj.Command_Components.First;
    begin
       Append (Buffer, Obj.Options.Serialize);
 
-      for C in Obj.Command_Components.Iterate loop
+      while C /= No_Element loop
          Append (Buffer, Element (C));
 
          if C /= Obj.Command_Components.Last then
             Append (Buffer, " ");
          end if;
+
+         Next (C);
       end loop;
 
       case Obj.Show_As is

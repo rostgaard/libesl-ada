@@ -16,23 +16,22 @@
 -------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded.Equal_Case_Insensitive;
-with Ada.Strings.Unbounded.Less_Case_Insensitive;
+
+with ESL.Case_Insensitive_Equal,
+     ESL.Case_Insensitive_Less_Than;
 
 package body ESL.UUID is
 
    function "<" (Left, Right : in Instance) return Boolean is
    begin
-      return Ada.Strings.Unbounded.Less_Case_Insensitive
-        (Left  => Left.Value,
-         Right => Right.Value);
+      return Case_Insensitive_Less_Than (Left  => To_String (Left.Value),
+                                         Right => To_String (Right.Value));
    end "<";
 
    function "=" (Left, Right : in Instance) return Boolean is
    begin
-      return Ada.Strings.Unbounded.Equal_Case_Insensitive
-        (Left  => Left.Value,
-         Right => Right.Value);
+      return Case_Insensitive_Equal (Left  => To_String (Left.Value),
+                                     Right => To_String (Right.Value));
    end "=";
 
    --  TODO: complete.

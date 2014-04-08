@@ -74,10 +74,12 @@ package body ESL.Channel.List is
       function Image return String is
          use Channel_Storage;
          Buffer : Unbounded_String;
+         C      : Cursor := Storage.First;
       begin
-         for C in Storage.Iterate loop
+         while C /= No_Element loop
             Append (Buffer, Element (C).Image);
             Append (Buffer, ASCII.LF);
+            Next (C);
          end loop;
 
          return To_String (Buffer);
