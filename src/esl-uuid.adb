@@ -28,6 +28,7 @@ package body ESL.UUID is
                                          Right => To_String (Right.Value));
    end "<";
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean is
    begin
       return Case_Insensitive_Equal (Left  => To_String (Left.Value),

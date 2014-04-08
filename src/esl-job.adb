@@ -30,6 +30,7 @@ package body ESL.Job is
       end if;
    end "<";
 
+   overriding
    function "=" (Left, Right : Instance) return Boolean is
       use Ada.Calendar;
    begin

@@ -45,6 +45,7 @@ package ESL.Packet_Content_Type is
 
    function Image (Item : in Content_Types) return String;
 
+   overriding
    function "=" (Left  : in Composite;
                  Right : in Composite) return Boolean;
 

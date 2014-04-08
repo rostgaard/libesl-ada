@@ -29,6 +29,7 @@ package body ESL.Client is
    --  "="  --
    -----------
 
+   overriding
    function "=" (Left, Right : in Reference) return Boolean is
    begin
       return Left.Socket = Right.Socket;

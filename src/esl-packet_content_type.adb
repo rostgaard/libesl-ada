@@ -29,6 +29,7 @@ package body ESL.Packet_Content_Type is
    function Value (Item : in String) return Subtypes;
    --  Conversion wrappers.
 
+   overriding
    function "=" (Left  : in Composite;
                  Right : in Composite) return Boolean is
    begin

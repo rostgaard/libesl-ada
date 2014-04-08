@@ -22,6 +22,7 @@ package body ESL.Packet_Field is
    --  "="  --
    -----------
 
+   overriding
    function "=" (Left  : in Instance;
                  Right : in Instance) return Boolean is
    begin
