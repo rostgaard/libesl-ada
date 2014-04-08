@@ -17,6 +17,7 @@
 
 package body ESL.Channel_Variable is
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean is
    begin
       return

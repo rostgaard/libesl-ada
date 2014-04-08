@@ -58,7 +58,7 @@ package body ESL.Parsing_Utilities is
 
       return Buffer (Buffer'First .. Buffer'First + Offset - 1);
    exception
-      when ADA.IO_EXCEPTIONS.END_ERROR =>
+      when Ada.IO_Exceptions.End_Error =>
          raise Disconnected with "Current buffer: " &
            Buffer (Buffer'First .. Buffer'First + Offset - 1);
 
@@ -187,8 +187,6 @@ package body ESL.Parsing_Utilities is
                          return ESL.Packet.Instance is
 
       use ESL.Header_Field;
-
-      Context : constant String := "Read_Packet";
 
       function Receive (Count  : in Natural) return String;
 

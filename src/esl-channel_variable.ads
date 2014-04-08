@@ -23,6 +23,7 @@ package ESL.Channel_Variable is
 
    type Instance is tagged private;
 
+   overriding
    function "=" (Left, Right : in Instance) return Boolean;
 
    function Create (Name          : in String;

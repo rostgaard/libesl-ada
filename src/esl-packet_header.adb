@@ -137,7 +137,7 @@ package body ESL.Packet_Header is
       Buffer : Unbounded_String;
       C      : Cursor := Item.Fields.First;
    begin
-      while C/= No_Element loop
+      while C /= No_Element loop
          Append (Buffer, (Key (C)'Img));
          Append (Buffer, ": ");
          Append (Buffer, Element (C).Value);
